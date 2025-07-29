@@ -13,6 +13,20 @@ A Django application for logging daily activities.
 5. Responsive design using Bootstrap
 6. Tag management (create, read, delete tags)
 
+## User flow
+
+1. User registers an account.
+2. User logs in to the application.
+3. User can create a new journal entry by clicking "New Entry".
+4. User fills out the entry form with a title and content in the WYSIWYG editor.
+5. User can save the entry as public or private.
+6. User can view a list of their journal entries on the dashboard.
+7. User can filter entries by date range, tags, or public/private status.
+8. User can edit or delete existing entries.
+9. User can create and manage tags to categorize entries.
+10. User can view individual entries with their content rendered from JSON to HTML.
+11. User can log out of the application.
+
 ## Models
 
 `User`: Extends Django's built-in User model for authentication.
@@ -41,12 +55,27 @@ A Django application for logging daily activities.
 - Entry Detail: Displays a single journal entry with its content rendered from JSON to HTML.
 - Create/Edit Entry: Form for creating and editing a journal entry with WYSIWYG content.
 
+## Routes
+
+- `/auth/register/`: User registration view.
+- `/auth/login/`: User login view.
+- `/auth/logout/`: User logout view.
+- `/`: Home/Dashboard view showing all journal entries.
+- `/entry/new/`: Form for creating a new journal entry.
+- `/entry/<int:id>/`: View for a single journal entry.
+- `/entry/<int:id>/edit/`: Form for editing an existing journal entry.
+- `/tags/`: View for managing tags (creating, deleting).
+- `/tags/new/`: Form for creating a new tag.
+- `/tags/<int:id>/`: View for a specific tag.
+- `/tags/<int:id>/delete/`: Route for deleting a specific tag.
+
 ## Tech Stack
 
 Backend: Django (Python 3.11+)
 Frontend: Django templates with Bootstrap for styling
 Database: SQLite
 Editor: Editor.js for WYSIWYG editing capabilities
+Rendering: Content stored as JSON and rendered using the Editor.js Renderer library
 
 ## Installation
 
