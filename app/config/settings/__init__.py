@@ -5,8 +5,6 @@ environment = os.getenv('DJANGO_ENVIRONMENT', 'dev')
 
 if environment == 'production':
     from .production import *
-elif environment == 'dev':
-    from .dev import *
 else:
-    # Default to dev settings
+    # For 'dev' or any other environment, use dev settings.
     from .dev import *
