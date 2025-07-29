@@ -20,7 +20,7 @@ services:
       - .env
 
   db:
-    image: postgres:latest
+    image: postgres:16
     environment:
       POSTGRES_DB: daylog
       POSTGRES_USER: user
