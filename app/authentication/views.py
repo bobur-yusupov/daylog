@@ -14,7 +14,7 @@ class RegisterView(AnonymousRequiredMixin, CreateView):
     Handles both GET and POST requests for user registration.
     """
     form_class = CustomUserCreationForm
-    template_name = 'auth/register.html'
+    template_name = 'authentication/register.html'
     success_url = reverse_lazy('authentication:login')
     
     def form_valid(self, form) -> HttpResponse:
@@ -40,7 +40,7 @@ class LoginView(FormView, AnonymousRequiredMixin):
     Handles both GET and POST requests for user authentication.
     """
     form_class = CustomAuthenticationForm
-    template_name = 'auth/login.html'
+    template_name = 'authentication/login.html'
     success_url = '/'
 
     def form_valid(self, form) -> HttpResponse:
@@ -78,7 +78,7 @@ class LogoutView(LoginRequiredMixin, View):
     User logout view using View.
     Handles GET requests to show logout confirmation and POST requests to log out the user.
     """
-    template_name: str = 'auth/logout.html'
+    template_name: str = 'authentication/logout.html'
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         return render(request, self.template_name)
