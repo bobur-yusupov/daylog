@@ -25,29 +25,17 @@ if DEBUG:
     try:
         # Get the current container's IP
         hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-        INTERNAL_IPS += [ip[:-1] + "1" for ip in ips if "." in ip]
+        docker_gateway_ips = [ip[:-1] + "1" for ip in ips if "." in ip]
         
-        # Add common Docker network gateway IPs
-        INTERNAL_IPS += [
-            "172.17.0.1",    # Default Docker bridge
-            "172.18.0.1",    # Docker Compose networks
-            "172.19.0.1",
-            "172.20.0.1",
-            "172.21.0.1",
-            "172.22.0.1",
-            "172.23.0.1",
-            "172.24.0.1",
-            "10.0.2.2",      # VirtualBox
-            "192.168.1.1",   # Common home router
-            "192.168.0.1",   # Common home router
-        ]
+        for ip in docker_gateway_ips:
+            if ip not in INTERNAL_IPS:
+                INTERNAL_IPS.append(ip)
+
+        if "host.docker.internal" not in INTERNAL_IPS:
+            INTERNAL_IPS.append("host.docker.internal")
         
-        # Add host.docker.internal for Docker Desktop
-        INTERNAL_IPS.append("host.docker.internal")
-        
-    except Exception as e:
-        # Fallback if socket operations fail
-        INTERNAL_IPS += ["172.17.0.1", "10.0.2.2"]
+    except Exception:
+        pass
 
 # Debug toolbar configuration for Docker
 DEBUG_TOOLBAR_CONFIG = {
