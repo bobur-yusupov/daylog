@@ -1,9 +1,12 @@
-from .base import *
+from .base import *  # noqa: F403,F401
+import os
 
 DEBUG = False
 
 # Allow environment variable to specify multiple hosts
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else []
+ALLOWED_HOSTS = (
+    os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else []
+)
 
 DATABASES = {
     "default": {

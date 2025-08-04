@@ -14,9 +14,14 @@ urlpatterns = [
 ]
 
 # Debug toolbar URLs - check both settings.DEBUG and environment variable
-if settings.DEBUG or (hasattr(settings, 'DEBUG') and settings.DEBUG) or os.getenv("DEBUG") == "True":
+if (
+    settings.DEBUG
+    or (hasattr(settings, "DEBUG") and settings.DEBUG)
+    or os.getenv("DEBUG") == "True"
+):
     try:
         import debug_toolbar
+
         urlpatterns = [
             path("__debug__/", include(debug_toolbar.urls)),
         ] + urlpatterns
