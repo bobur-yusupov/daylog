@@ -44,4 +44,4 @@ jobs:
       - name: Run tests
         run: |
           cd app
-          python manage.py test --settings=config.settings.dev
+          python manage.py test --settings=config.settings.test
