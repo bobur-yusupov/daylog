@@ -1,12 +1,10 @@
 name: Code quality check and testing
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
+    types:
+      - opened
+      - synchronize
 
 jobs:
   lint:
@@ -34,8 +32,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Run tests
-        run: |
-          docker-compose run --rm app sh -c "
-          python manage.py test"
-          
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Run tests with Docker Compose
+        run: docker compose run --rm app sh -c "python manage.py test --settings=config.settings.test"
