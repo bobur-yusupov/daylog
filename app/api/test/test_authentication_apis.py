@@ -641,11 +641,11 @@ class AuthenticationSerializerTests(TestCase):
             "email",
             "first_name",
             "last_name",
-            "created_at",
-            "updated_at",
+            "date_joined",
+            "last_login",
         }
         self.assertEqual(set(serializer.data.keys()), expected_fields)
 
         # Check read-only fields in meta
-        expected_readonly = {"id", "created_at", "updated_at"}
+        expected_readonly = {"id", "date_joined", "last_login"}
         self.assertEqual(set(serializer.Meta.read_only_fields), expected_readonly)
