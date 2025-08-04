@@ -37,4 +37,4 @@ jobs:
         uses: docker/setup-buildx-action@v2
       
       - name: Run tests with Docker Compose
-        run: docker compose run --rm app sh -c "python manage.py test --settings=config.settings.test"
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm app sh -c "python manage.py test --settings=config.settings.test"
