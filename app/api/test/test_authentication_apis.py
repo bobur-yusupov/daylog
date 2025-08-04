@@ -555,7 +555,7 @@ class AuthenticationSerializerTests(TestCase):
         """
         Test UserRegistrationSerializer with valid data.
         """
-        from api.serializers import UserRegistrationSerializer
+        from api.serializers.authentication_serializers import UserRegistrationSerializer
         
         data: Dict[str, Any] = {
             'username': 'newuser',
@@ -578,7 +578,7 @@ class AuthenticationSerializerTests(TestCase):
         """
         Test UserRegistrationSerializer with password mismatch.
         """
-        from api.serializers import UserRegistrationSerializer
+        from api.serializers.authentication_serializers import UserRegistrationSerializer
         
         data: Dict[str, Any] = {
             'username': 'newuser',
@@ -595,7 +595,7 @@ class AuthenticationSerializerTests(TestCase):
         """
         Test UserLoginSerializer with valid data.
         """
-        from api.serializers import UserLoginSerializer
+        from api.serializers.authentication_serializers import UserLoginSerializer
         
         data: Dict[str, Any] = {
             'username': 'testuser',
@@ -611,7 +611,7 @@ class AuthenticationSerializerTests(TestCase):
         """
         Test UserLoginSerializer with missing fields.
         """
-        from api.serializers import UserLoginSerializer
+        from api.serializers.authentication_serializers import UserLoginSerializer
         
         data: Dict[str, Any] = {
             'username': '',  # Missing
@@ -627,7 +627,7 @@ class AuthenticationSerializerTests(TestCase):
         """
         Test UserSerializer has correct read-only fields.
         """
-        from api.serializers import UserSerializer
+        from api.serializers.authentication_serializers import UserSerializer
         
         serializer = UserSerializer(instance=self.user)
         

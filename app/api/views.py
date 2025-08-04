@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
-from .serializers import UserRegistrationSerializer, UserLoginSerializer
+from api.serializers.authentication_serializers import UserRegistrationSerializer, UserLoginSerializer
 
 User = get_user_model()
 
