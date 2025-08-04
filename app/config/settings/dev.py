@@ -1,16 +1,17 @@
-from .base import *
+from .base import *  # noqa: F403,F401
 import socket
+import os
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["*"]  # Allow all hosts in development
 
-INSTALLED_APPS += [
+INSTALLED_APPS += [  # noqa: F405
     "drf_spectacular",
     "debug_toolbar",
 ]
 
-MIDDLEWARE += [
+MIDDLEWARE += [  # noqa: F405
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -26,39 +27,39 @@ if DEBUG:
         # Get the current container's IP
         hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
         docker_gateway_ips = [ip[:-1] + "1" for ip in ips if "." in ip]
-        
+
         for ip in docker_gateway_ips:
             if ip not in INTERNAL_IPS:
                 INTERNAL_IPS.append(ip)
 
         if "host.docker.internal" not in INTERNAL_IPS:
             INTERNAL_IPS.append("host.docker.internal")
-        
+
     except Exception:
         pass
 
 # Debug toolbar configuration for Docker
 DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
-    'SHOW_COLLAPSED': False,
+    "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG,
+    "SHOW_COLLAPSED": False,
 }
 
 # Show all SQL queries in debug mode
 if DEBUG:
     DEBUG_TOOLBAR_PANELS = [
-        'debug_toolbar.panels.versions.VersionsPanel',
-        'debug_toolbar.panels.timer.TimerPanel',
-        'debug_toolbar.panels.settings.SettingsPanel',
-        'debug_toolbar.panels.headers.HeadersPanel',
-        'debug_toolbar.panels.request.RequestPanel',
-        'debug_toolbar.panels.sql.SQLPanel',
-        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-        'debug_toolbar.panels.templates.TemplatesPanel',
-        'debug_toolbar.panels.cache.CachePanel',
-        'debug_toolbar.panels.signals.SignalsPanel',
-        'debug_toolbar.panels.logging.LoggingPanel',
-        'debug_toolbar.panels.redirects.RedirectsPanel',
-        'debug_toolbar.panels.profiling.ProfilingPanel',
+        "debug_toolbar.panels.versions.VersionsPanel",
+        "debug_toolbar.panels.timer.TimerPanel",
+        "debug_toolbar.panels.settings.SettingsPanel",
+        "debug_toolbar.panels.headers.HeadersPanel",
+        "debug_toolbar.panels.request.RequestPanel",
+        "debug_toolbar.panels.sql.SQLPanel",
+        "debug_toolbar.panels.staticfiles.StaticFilesPanel",
+        "debug_toolbar.panels.templates.TemplatesPanel",
+        "debug_toolbar.panels.cache.CachePanel",
+        "debug_toolbar.panels.signals.SignalsPanel",
+        "debug_toolbar.panels.logging.LoggingPanel",
+        "debug_toolbar.panels.redirects.RedirectsPanel",
+        "debug_toolbar.panels.profiling.ProfilingPanel",
     ]
 
 REST_FRAMEWORK = {
