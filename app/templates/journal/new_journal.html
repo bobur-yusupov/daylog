@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  Create a New Journal Entry
+{% endblock %}
+
+{% block content %}
+  <h1>Create a New Journal Entry</h1>
+  
+  <form method="post" id="journal-form">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" class="form-control" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="content">Content:</label>
+      <div id="editorjs"></div>
+      <input type="hidden" id="content" name="content">
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Save Entry</button>
+    <button type="button" id="debug-btn" class="btn btn-info">Debug JSON</button>
+    <a href="#" class="btn btn-secondary">Cancel</a>
+  </form>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.8.0/dist/bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.3.0/dist/bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.5.0/dist/bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/table.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/link@2.5.0/dist/bundle.js"></script>
+  
+  <script>
+    // Wait for all scripts to load before initializing EditorJS
+    window.addEventListener('load', function() {
+        const editor = new EditorJS({
+            holder: 'editorjs',
+            placeholder: 'Write your journal entry here...',
+            tools: {
+                header: {
+                    class: Header,
+                    inlineToolbar: true,
+                    config: {
+                        placeholder: 'Enter a header',
+                        levels: [2, 3, 4],
+                        defaultLevel: 2
+                    },
+                },
+                list: {
+                    class: List,
+                    inlineToolbar: true,
+                    config: {
+                        defaultStyle: 'unordered',
+                    },
+                },
+                checklist: { 
+                    class: Checklist 
+                },
+                delimiter: Delimiter,
+                quote: { 
+                    class: Quote, 
+                    inlineToolbar: true 
+                },
+                table: { 
+                    class: Table, 
+                    inlineToolbar: true 
+                },
+                linkTool: { 
+                    class: LinkTool 
+                }
+            },
+            onReady: () => {
+                console.log('Editor.js is ready to work!');
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('journal-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                const outputData = await editor.save();
+                document.getElementById('content').value = JSON.stringify(outputData);
+                this.submit();
+            } catch (error) {
+                console.error('Saving failed: ', error);
+                alert('Failed to save journal entry. Please try again.');
+            }
+        });
+
+        // Debug button to see JSON structure
+        document.getElementById('debug-btn').addEventListener('click', async function() {
+            try {
+                const outputData = await editor.save();
+                console.log('EditorJS JSON structure:', outputData);
+                console.log('JSON string:', JSON.stringify(outputData, null, 2));
+                alert('JSON structure logged to console. Check browser DevTools > Console tab.');
+            } catch (error) {
+                console.error('Failed to get editor data:', error);
+                alert('Failed to get editor data. Check console for details.');
+            }
+        });
+    });
+  </script>
+{% endblock %}
