@@ -89,10 +89,9 @@ class JournalEntryAdmin(admin.ModelAdmin):
     def content_preview(self, obj):
         """Display a preview of the content"""
         if obj.content:
-            # If content is JSON (EditorJS format), try to extract text
-            import json
+            # Content is already a dict (JSONField), no need to parse
             try:
-                content_data = json.loads(obj.content)
+                content_data = obj.content
                 if isinstance(content_data, dict) and 'blocks' in content_data:
                     text_blocks = []
                     for block in content_data['blocks']:
@@ -103,7 +102,7 @@ class JournalEntryAdmin(admin.ModelAdmin):
                     preview_text = ' '.join(text_blocks)
                 else:
                     preview_text = str(obj.content)
-            except (json.JSONDecodeError, KeyError):
+            except (KeyError, TypeError):
                 preview_text = str(obj.content)
             
             # Limit preview to 200 characters
@@ -122,9 +121,9 @@ class JournalEntryAdmin(admin.ModelAdmin):
     def word_count(self, obj):
         """Calculate and display word count"""
         if obj.content:
-            import json
             try:
-                content_data = json.loads(obj.content)
+                # Content is already a dict (JSONField), no need to parse
+                content_data = obj.content
                 if isinstance(content_data, dict) and 'blocks' in content_data:
                     word_count = 0
                     for block in content_data['blocks']:
@@ -134,7 +133,7 @@ class JournalEntryAdmin(admin.ModelAdmin):
                     return f"{word_count} words"
                 else:
                     return f"{len(str(obj.content).split())} words"
-            except (json.JSONDecodeError, KeyError):
+            except (KeyError, TypeError):
                 return f"{len(str(obj.content).split())} words"
         return "0 words"
     word_count.short_description = "Word Count"

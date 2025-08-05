@@ -1,30 +1,297 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}
-  Create a New Journal Entry
+{% block title %}Create New Entry - Daylog{% endblock %}
+
+{% block extra_css %}
+<style>
+    #editorjs {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        min-height: 300px;
+        padding: 1rem;
+        background-color: #fff;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    #editorjs:focus-within {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .tag-input-container {
+        position: relative;
+    }
+    
+    .tag-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-top: none;
+        border-radius: 0 0 0.375rem 0.375rem;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .tag-suggestion {
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .tag-suggestion:hover,
+    .tag-suggestion.active {
+        background-color: #f8f9fa;
+    }
+    
+    .tag-suggestion:last-child {
+        border-bottom: none;
+    }
+    
+    .selected-tags {
+        margin-top: 0.5rem;
+    }
+    
+    .tag-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem 0.25rem 0.25rem 0;
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+    }
+    
+    .tag-remove {
+        margin-left: 0.5rem;
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 0;
+        font-size: 1rem;
+        line-height: 1;
+    }
+    
+    .tag-remove:hover {
+        color: #dc3545;
+    }
+    
+    .saving-indicator {
+        display: none;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-  <h1>Create a New Journal Entry</h1>
-  
-  <form method="post" id="journal-form">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="title">Title:</label>
-      <input type="text" id="title" name="title" class="form-control" required>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-plus-circle-fill text-primary me-3" style="font-size: 2rem;"></i>
+                <div>
+                    <h1 class="mb-1">Create New Journal Entry</h1>
+                    <p class="text-muted mb-0">Share your thoughts and experiences</p>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="form-group">
-      <label for="content">Content:</label>
-      <div id="editorjs"></div>
-      <input type="hidden" id="content" name="content">
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form method="post" id="journal-form">
+                {% csrf_token %}
+                
+                <!-- Entry Details Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-info-circle me-2"></i>Entry Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-section">
+                            <label for="title" class="form-label">
+                                <i class="bi bi-type me-1"></i>Title <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   id="title" 
+                                   name="title" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Enter a compelling title for your entry..."
+                                   required
+                                   maxlength="255">
+                            <div class="form-text">
+                                <span id="title-counter">0</span>/255 characters
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <label for="content" class="form-label">
+                                <i class="bi bi-journal-text me-1"></i>Content <span class="text-danger">*</span>
+                            </label>
+                            <div id="editorjs" class="form-control" style="height: auto; padding: 0;"></div>
+                            <input type="hidden" id="content" name="content">
+                            <div class="form-text mt-2">
+                                Use the rich text editor above to format your entry. You can add headers, lists, quotes, and more.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-gear me-2"></i>Entry Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-section">
+                            <label for="tag-input" class="form-label">
+                                <i class="bi bi-tags me-1"></i>Tags
+                            </label>
+                            <div class="tag-input-container">
+                                <input type="text" 
+                                       id="tag-input" 
+                                       class="form-control" 
+                                       placeholder="Type to add tags..."
+                                       autocomplete="off">
+                                <div class="tag-suggestions" id="tag-suggestions"></div>
+                            </div>
+                            <div class="selected-tags" id="selected-tags"></div>
+                            <div class="form-text">
+                                Press Enter or comma to add tags. Tags help organize your entries.
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       id="is_public" 
+                                       name="is_public">
+                                <label class="form-check-label" for="is_public">
+                                    <i class="bi bi-globe me-1"></i>Make this entry public
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Public entries can be viewed by other users. Private entries are only visible to you.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" id="save-btn">
+                                    <i class="bi bi-save me-1"></i>Save Entry
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="preview-btn">
+                                    <i class="bi bi-eye me-1"></i>Preview
+                                </button>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-info btn-sm" id="debug-btn">
+                                    <i class="bi bi-bug me-1"></i>Debug
+                                </button>
+                                <a href="{% url 'journal:dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Saving Indicator -->
+                        <div class="saving-indicator mt-3" id="saving-indicator">
+                            <div class="d-flex align-items-center text-primary">
+                                <div class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Saving...</span>
+                                </div>
+                                <span>Saving your entry...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>Writing Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Use descriptive titles to make entries easy to find later</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Add relevant tags to categorize your thoughts</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Use headers and lists to structure longer entries</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Consider making inspiring entries public to share with others</small>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <small>Regular journaling helps track your personal growth</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if available_tags %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-tags me-2"></i>Your Recent Tags
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for tag in available_tags|slice:":10" %}
+                            <button type="button" 
+                                    class="badge bg-light text-dark border text-decoration-none quick-tag-btn"
+                                    data-tag="{{ tag.name }}">
+                                {{ tag.name }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                    <div class="form-text mt-2">
+                        Click tags to quickly add them to your entry
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    
-    <button type="submit" class="btn btn-primary">Save Entry</button>
-    <button type="button" id="debug-btn" class="btn btn-info">Debug JSON</button>
-    <a href="#" class="btn btn-secondary">Cancel</a>
-  </form>
+</div>
   
   <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
@@ -36,11 +303,25 @@
   <script src="https://cdn.jsdelivr.net/npm/@editorjs/link@2.5.0/dist/bundle.js"></script>
   
   <script>
-    // Wait for all scripts to load before initializing EditorJS
+    // Global variables
+    let editor;
+    let selectedTags = new Set();
+    let availableTags = [];
+    let currentSuggestionIndex = -1;
+
+    // Initialize everything when the page loads
     window.addEventListener('load', function() {
-        const editor = new EditorJS({
+        initializeEditor();
+        initializeTagSystem();
+        initializeFormValidation();
+        initializeEventListeners();
+        loadAvailableTags();
+    });
+
+    function initializeEditor() {
+        editor = new EditorJS({
             holder: 'editorjs',
-            placeholder: 'Write your journal entry here...',
+            placeholder: 'Start writing your journal entry here... Use "/" to see formatting options.',
             tools: {
                 header: {
                     class: Header,
@@ -59,52 +340,456 @@
                     },
                 },
                 checklist: { 
-                    class: Checklist 
+                    class: Checklist,
+                    inlineToolbar: true
                 },
                 delimiter: Delimiter,
                 quote: { 
                     class: Quote, 
-                    inlineToolbar: true 
+                    inlineToolbar: true,
+                    config: {
+                        quotePlaceholder: 'Enter a quote',
+                        captionPlaceholder: 'Quote\'s author',
+                    }
                 },
                 table: { 
                     class: Table, 
-                    inlineToolbar: true 
+                    inlineToolbar: true,
+                    config: {
+                        rows: 2,
+                        cols: 3,
+                    }
                 },
                 linkTool: { 
-                    class: LinkTool 
+                    class: LinkTool,
+                    config: {
+                        endpoint: '/api/fetchUrl',
+                    }
                 }
             },
             onReady: () => {
                 console.log('Editor.js is ready to work!');
+                // Focus the editor on load
+                setTimeout(() => {
+                    const editorContainer = document.querySelector('#editorjs');
+                    if (editorContainer) {
+                        editorContainer.click();
+                    }
+                }, 100);
+            },
+            onChange: () => {
+                // Auto-save draft functionality could be added here
+                console.log('Content changed');
             }
         });
+    }
 
-        // Handle form submission
-        document.getElementById('journal-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+    function initializeTagSystem() {
+        const tagInput = document.getElementById('tag-input');
+        const tagSuggestions = document.getElementById('tag-suggestions');
+
+        tagInput.addEventListener('input', handleTagInput);
+        tagInput.addEventListener('keydown', handleTagKeydown);
+        tagInput.addEventListener('blur', hideSuggestions);
+
+        // Handle quick tag buttons
+        document.querySelectorAll('.quick-tag-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tagName = this.dataset.tag;
+                addTag(tagName);
+                this.style.display = 'none'; // Hide the button once used
+            });
+        });
+    }
+
+    function initializeFormValidation() {
+        const titleInput = document.getElementById('title');
+        const titleCounter = document.getElementById('title-counter');
+
+        titleInput.addEventListener('input', function() {
+            const length = this.value.length;
+            titleCounter.textContent = length;
             
-            try {
-                const outputData = await editor.save();
-                document.getElementById('content').value = JSON.stringify(outputData);
-                this.submit();
-            } catch (error) {
-                console.error('Saving failed: ', error);
-                alert('Failed to save journal entry. Please try again.');
+            if (length > 255) {
+                titleCounter.classList.add('text-danger');
+                this.classList.add('is-invalid');
+            } else {
+                titleCounter.classList.remove('text-danger');
+                this.classList.remove('is-invalid');
             }
         });
+    }
 
-        // Debug button to see JSON structure
-        document.getElementById('debug-btn').addEventListener('click', async function() {
-            try {
-                const outputData = await editor.save();
-                console.log('EditorJS JSON structure:', outputData);
-                console.log('JSON string:', JSON.stringify(outputData, null, 2));
-                alert('JSON structure logged to console. Check browser DevTools > Console tab.');
-            } catch (error) {
-                console.error('Failed to get editor data:', error);
-                alert('Failed to get editor data. Check console for details.');
+    function initializeEventListeners() {
+        // Form submission
+        document.getElementById('journal-form').addEventListener('submit', handleFormSubmit);
+        
+        // Debug button
+        document.getElementById('debug-btn').addEventListener('click', handleDebug);
+        
+        // Preview button
+        document.getElementById('preview-btn').addEventListener('click', handlePreview);
+    }
+
+    async function loadAvailableTags() {
+        try {
+            const response = await fetch('{% url "journal:tag_autocomplete" %}');
+            if (response.ok) {
+                const data = await response.json();
+                availableTags = data.tags || [];
+            }
+        } catch (error) {
+            console.error('Failed to load available tags:', error);
+        }
+    }
+
+    function handleTagInput(e) {
+        const query = e.target.value.trim();
+        
+        if (query.length === 0) {
+            hideSuggestions();
+            return;
+        }
+
+        // Handle comma or enter to add tag
+        if (query.endsWith(',') || query.endsWith('\n')) {
+            const tagName = query.slice(0, -1).trim();
+            if (tagName) {
+                addTag(tagName);
+                e.target.value = '';
+            }
+            hideSuggestions();
+            return;
+        }
+
+        showTagSuggestions(query);
+    }
+
+    function handleTagKeydown(e) {
+        const suggestions = document.querySelectorAll('.tag-suggestion');
+        
+        switch(e.key) {
+            case 'Enter':
+                e.preventDefault();
+                if (currentSuggestionIndex >= 0 && suggestions[currentSuggestionIndex]) {
+                    const tagName = suggestions[currentSuggestionIndex].textContent;
+                    addTag(tagName);
+                    e.target.value = '';
+                    hideSuggestions();
+                } else {
+                    const tagName = e.target.value.trim();
+                    if (tagName) {
+                        addTag(tagName);
+                        e.target.value = '';
+                        hideSuggestions();
+                    }
+                }
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestions.length - 1);
+                updateSuggestionSelection();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+                updateSuggestionSelection();
+                break;
+            case 'Escape':
+                hideSuggestions();
+                break;
+            case ',':
+                e.preventDefault();
+                const tagName = e.target.value.trim();
+                if (tagName) {
+                    addTag(tagName);
+                    e.target.value = '';
+                }
+                hideSuggestions();
+                break;
+        }
+    }
+
+    function showTagSuggestions(query) {
+        const suggestions = availableTags
+            .filter(tag => tag.toLowerCase().includes(query.toLowerCase()) && !selectedTags.has(tag))
+            .slice(0, 5);
+
+        const container = document.getElementById('tag-suggestions');
+        
+        if (suggestions.length === 0) {
+            hideSuggestions();
+            return;
+        }
+
+        container.innerHTML = suggestions.map(tag => 
+            `<div class="tag-suggestion" data-tag="${tag}">${tag}</div>`
+        ).join('');
+
+        container.style.display = 'block';
+        currentSuggestionIndex = -1;
+
+        // Add click handlers
+        container.querySelectorAll('.tag-suggestion').forEach((item, index) => {
+            item.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent input blur
+                addTag(this.dataset.tag);
+                document.getElementById('tag-input').value = '';
+                hideSuggestions();
+            });
+        });
+    }
+
+    function updateSuggestionSelection() {
+        const suggestions = document.querySelectorAll('.tag-suggestion');
+        suggestions.forEach((item, index) => {
+            item.classList.toggle('active', index === currentSuggestionIndex);
+        });
+    }
+
+    function hideSuggestions() {
+        setTimeout(() => {
+            document.getElementById('tag-suggestions').style.display = 'none';
+            currentSuggestionIndex = -1;
+        }, 100);
+    }
+
+    function addTag(tagName) {
+        tagName = tagName.trim();
+        if (!tagName || selectedTags.has(tagName)) {
+            return;
+        }
+
+        selectedTags.add(tagName);
+        renderSelectedTags();
+        
+        // Hide the quick tag button if it exists
+        document.querySelectorAll('.quick-tag-btn').forEach(btn => {
+            if (btn.dataset.tag === tagName) {
+                btn.style.display = 'none';
             }
         });
+    }
+
+    function removeTag(tagName) {
+        selectedTags.delete(tagName);
+        renderSelectedTags();
+        
+        // Show the quick tag button again if it exists
+        document.querySelectorAll('.quick-tag-btn').forEach(btn => {
+            if (btn.dataset.tag === tagName) {
+                btn.style.display = 'inline-block';
+            }
+        });
+    }
+
+    function renderSelectedTags() {
+        const container = document.getElementById('selected-tags');
+        
+        if (selectedTags.size === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = Array.from(selectedTags).map(tag => `
+            <span class="tag-badge">
+                <i class="bi bi-tag-fill me-1"></i>${tag}
+                <button type="button" class="tag-remove" onclick="removeTag('${tag}')" title="Remove tag">
+                    <i class="bi bi-x"></i>
+                </button>
+            </span>
+        `).join('');
+    }
+
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        const saveBtn = document.getElementById('save-btn');
+        const savingIndicator = document.getElementById('saving-indicator');
+        const form = e.target;
+        
+        try {
+            // Validate form
+            const title = document.getElementById('title').value.trim();
+            if (!title) {
+                alert('Please enter a title for your journal entry.');
+                document.getElementById('title').focus();
+                return;
+            }
+
+            // Get editor content
+            const outputData = await editor.save();
+            
+            // Check if content is empty
+            if (!outputData.blocks || outputData.blocks.length === 0) {
+                alert('Please write some content for your journal entry.');
+                return;
+            }
+
+            // Show saving state
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+            savingIndicator.style.display = 'block';
+
+            // Set content
+            document.getElementById('content').value = JSON.stringify(outputData);
+            
+            // Add tags as form data
+            const existingTagInputs = form.querySelectorAll('input[name="tags"]');
+            existingTagInputs.forEach(input => input.remove());
+            
+            selectedTags.forEach(tag => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'tags';
+                input.value = tag;
+                form.appendChild(input);
+            });
+
+            // Submit form
+            form.submit();
+            
+        } catch (error) {
+            console.error('Saving failed:', error);
+            alert('Failed to save journal entry. Please check your content and try again.');
+            
+            // Reset button state
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-save me-1"></i>Save Entry';
+            savingIndicator.style.display = 'none';
+        }
+    }
+
+    async function handleDebug() {
+        try {
+            const outputData = await editor.save();
+            console.log('EditorJS JSON structure:', outputData);
+            console.log('JSON string:', JSON.stringify(outputData, null, 2));
+            console.log('Selected tags:', Array.from(selectedTags));
+            
+            const debugInfo = {
+                content: outputData,
+                tags: Array.from(selectedTags),
+                title: document.getElementById('title').value,
+                isPublic: document.getElementById('is_public').checked
+            };
+            
+            // Create a modal or alert with debug info
+            const debugText = JSON.stringify(debugInfo, null, 2);
+            const popup = window.open('', '_blank', 'width=600,height=400');
+            popup.document.write(`
+                <html>
+                    <head><title>Debug Information</title></head>
+                    <body>
+                        <h3>Debug Information</h3>
+                        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow: auto;">${debugText}</pre>
+                        <button onclick="window.close()">Close</button>
+                    </body>
+                </html>
+            `);
+        } catch (error) {
+            console.error('Failed to get debug data:', error);
+            alert('Failed to get debug data. Check console for details.');
+        }
+    }
+
+    async function handlePreview() {
+        try {
+            const outputData = await editor.save();
+            
+            // Create a simple preview modal
+            const previewContent = outputData.blocks.map(block => {
+                switch(block.type) {
+                    case 'paragraph':
+                        return `<p>${block.data.text || ''}</p>`;
+                    case 'header':
+                        const level = block.data.level || 2;
+                        return `<h${level}>${block.data.text || ''}</h${level}>`;
+                    case 'list':
+                        const listItems = (block.data.items || []).map(item => `<li>${item}</li>`).join('');
+                        const listType = block.data.style === 'ordered' ? 'ol' : 'ul';
+                        return `<${listType}>${listItems}</${listType}>`;
+                    case 'quote':
+                        return `<blockquote class="blockquote"><p>${block.data.text || ''}</p><footer class="blockquote-footer">${block.data.caption || ''}</footer></blockquote>`;
+                    case 'delimiter':
+                        return '<hr>';
+                    default:
+                        return `<div class="alert alert-info">Unsupported content type: ${block.type}</div>`;
+                }
+            }).join('');
+
+            const popup = window.open('', '_blank', 'width=800,height=600');
+            popup.document.write(`
+                <html>
+                    <head>
+                        <title>Preview: ${document.getElementById('title').value || 'Untitled'}</title>
+                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    </head>
+                    <body class="container mt-4">
+                        <h1>${document.getElementById('title').value || 'Untitled'}</h1>
+                        <hr>
+                        ${previewContent}
+                        <hr>
+                        <div class="mt-4">
+                            <strong>Tags:</strong> ${Array.from(selectedTags).map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('')}
+                        </div>
+                        <div class="mt-2">
+                            <button class="btn btn-secondary" onclick="window.close()">Close Preview</button>
+                        </div>
+                    </body>
+                </html>
+            `);
+        } catch (error) {
+            console.error('Preview failed:', error);
+            alert('Failed to generate preview. Please check your content.');
+        }
+    }
+
+    // Auto-save functionality (optional)
+    let autoSaveTimeout;
+    function scheduleAutoSave() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(async () => {
+            try {
+                const outputData = await editor.save();
+                const formData = {
+                    title: document.getElementById('title').value,
+                    content: JSON.stringify(outputData),
+                    tags: Array.from(selectedTags),
+                    isPublic: document.getElementById('is_public').checked
+                };
+                
+                // Save to localStorage as draft
+                localStorage.setItem('journal_draft', JSON.stringify(formData));
+                console.log('Draft saved to localStorage');
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+            }
+        }, 5000); // Save every 5 seconds
+    }
+
+    // Load draft on page load
+    window.addEventListener('load', function() {
+        try {
+            const draft = localStorage.getItem('journal_draft');
+            if (draft && confirm('Would you like to restore your previous draft?')) {
+                const data = JSON.parse(draft);
+                
+                document.getElementById('title').value = data.title || '';
+                document.getElementById('is_public').checked = data.isPublic || false;
+                
+                if (data.tags) {
+                    data.tags.forEach(tag => addTag(tag));
+                }
+                
+                if (data.content) {
+                    // This would require reinitializing the editor with the content
+                    console.log('Draft content available:', data.content);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load draft:', error);
+        }
     });
   </script>
 {% endblock %}

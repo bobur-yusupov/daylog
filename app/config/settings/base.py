@@ -96,6 +96,63 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# drf-spectacular settings
+SPECTACULAR_SETTINGS = {
+    "TITLE": "DayLog API",
+    "DESCRIPTION": "A comprehensive journaling application with EditorJS support for rich text editing, tag management, and personal entry organization.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "CONTACT": {
+        "name": "DayLog Support",
+        "email": "support@daylog.app",
+    },
+    "LICENSE": {
+        "name": "MIT License",
+    },
+    "EXTERNAL_DOCS": {
+        "description": "Find more info here",
+        "url": "https://github.com/bobur-yusupov/daylog",
+    },
+    # API path prefixes to include in documentation
+    "SCHEMA_PATH_PREFIX": "/api/",
+    "SCHEMA_PATH_PREFIX_TRIM": True,
+    # Authentication settings
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SORT_OPERATIONS": False,
+    # Tag groupings
+    "TAGS": [
+        {"name": "Authentication", "description": "User authentication endpoints"},
+        {"name": "Journal Entries", "description": "CRUD operations for journal entries with EditorJS support"},
+        {"name": "Tags", "description": "Tag management for organizing journal entries"},
+    ],
+    # Custom schema processors
+    "PREPROCESSING_HOOKS": [],
+    "POSTPROCESSING_HOOKS": [],
+    # UI settings
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": False,
+        "filter": True,
+        "tryItOutEnabled": True,
+        "supportedSubmitMethods": ["get", "post", "put", "delete", "patch"],
+    },
+    "REDOC_UI_SETTINGS": {
+        "hideDownloadButton": False,
+        "hideHostname": False,
+        "hideLoading": False,
+        "hideSchemaPattern": True,
+        "hideSecuritySection": False,
+        "noAutoAuth": False,
+        "pathInMiddlePanel": True,
+        "requiredPropsFirst": True,
+        "scrollYOffset": 0,
+        "sortPropsAlphabetically": True,
+        "suppressWarnings": True,
+    },
 }
 
 # Auth settings
