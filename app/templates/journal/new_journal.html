@@ -5,18 +5,160 @@
 
 {% block extra_css %}
 <style>
+    /* Clean, minimal editor styling */
     #editorjs {
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-        min-height: 300px;
-        padding: 1rem;
-        background-color: #fff;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        border: none !important;
+        min-height: 60vh;
+        padding: 0 !important;
+        background: transparent;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 3rem !important;
     }
     
+    /* Ensure EditorJS content aligns with other inputs */
+    .codex-editor__redactor {
+        padding: 0 !important;
+        padding-bottom: 200px !important;
+        min-height: 600px !important;
+    }
+    
+    /* Align editor blocks with other form elements */
+    .ce-block__content {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Style the paragraph blocks to match input styling */
+    .ce-paragraph {
+        font-size: 1.1rem !important;
+        line-height: 1.7 !important;
+        margin: 0.5rem 0 !important;
+        padding: 0 !important;
+        color: #333 !important;
+    }
+    
+    /* Ensure editor toolbar is positioned correctly */
+    .ce-toolbar {
+        margin-left: 0 !important;
+        left: 0 !important;
+    }
+    
+    /* Fix the plus button positioning */
+    .ce-toolbar__plus {
+        left: 0 !important;
+        margin-left: 0 !important;
+    }
+    
+    /* Ensure toolbar content is aligned */
+    .ce-toolbar__content {
+        margin-left: 0 !important;
+    }
+    
+    /* Fix block toolbar positioning */
+    .ce-block .ce-toolbar {
+        margin-left: -30px !important;
+    }
+    
+    /* Remove any default margins/padding from editor */
+    .codex-editor {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Style headers to match the overall design */
+    .ce-header {
+        margin: 1rem 0 !important;
+        font-weight: 600;
+    }
+    
+    /* List styling */
+    .cdx-list {
+        margin: 0.5rem 0 !important;
+    }
+    
+    /* Quote styling */
+    .cdx-quote {
+        margin: 1rem 0 !important;
+        padding-left: 1rem;
+        border-left: 3px solid #ddd;
+        font-style: italic;
+    }
+    
+    /* Ensure editor placeholder matches other inputs */
+    .codex-editor__redactor[data-placeholder]:empty::before {
+        color: #6c757d !important;
+        font-style: normal !important;
+    }
+    
+    /* Hide any unwanted editor margins */
+    .ce-block:first-child {
+        margin-top: 0 !important;
+    }
+    
+    .ce-block {
+        margin: 0.25rem 0 !important;
+        position: relative !important;
+    }
+    
+    /* Ensure the entire block container is properly positioned */
+    .ce-block__content,
+    .ce-paragraph[contentEditable=true][data-placeholder] {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        position: relative !important;
+    }
+    
+    /* Fix the toolbar positioning relative to blocks */
+    .ce-toolbar--opened {
+        margin-left: -30px !important;
+    }
+    
+    /* Hide editor border and focus styles */
     #editorjs:focus-within {
-        border-color: #86b7fe;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* Ensure EditorJS toolbars are visible */
+    .codex-editor__redactor {
+        padding-bottom: 150px !important;
+    }
+    
+    .ce-toolbar,
+    .ce-inline-toolbar,
+    .ce-conversion-toolbar,
+    .ce-settings {
+        z-index: 1050 !important;
+    }
+    
+    .ce-popover,
+    .ce-toolbar__content {
+        z-index: 1060 !important;
+    }
+    
+    /* Title input styling */
+    #title {
+        outline: none;
+        resize: none;
+        background: transparent;
+    }
+    
+    #title:focus {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    /* Tag input styling */
+    #tag-input {
+        outline: none;
+        background: transparent;
+    }
+    
+    #tag-input:focus {
+        box-shadow: none !important;
+        border-bottom-color: #0d6efd !important;
     }
     
     .tag-input-container {
@@ -36,6 +178,7 @@
         overflow-y: auto;
         z-index: 1000;
         display: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     }
     
     .tag-suggestion {
@@ -53,335 +196,269 @@
         border-bottom: none;
     }
     
+    /* Selected tags styling */
     .selected-tags {
-        margin-top: 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
     
     .tag-badge {
         display: inline-flex;
         align-items: center;
         padding: 0.25rem 0.5rem;
-        margin: 0.25rem 0.25rem 0.25rem 0;
-        background-color: #e9ecef;
-        border: 1px solid #ced4da;
-        border-radius: 0.375rem;
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border-radius: 1rem;
         font-size: 0.875rem;
+        border: 1px solid #bbdefb;
     }
     
     .tag-remove {
-        margin-left: 0.5rem;
         background: none;
         border: none;
-        color: #6c757d;
+        color: #1976d2;
+        margin-left: 0.25rem;
         cursor: pointer;
         padding: 0;
-        font-size: 1rem;
-        line-height: 1;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
     }
     
     .tag-remove:hover {
-        color: #dc3545;
+        background-color: rgba(25, 118, 210, 0.1);
     }
     
-    .saving-indicator {
-        display: none;
+    /* Fixed bottom bar */
+    .fixed-bottom {
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.95) !important;
     }
     
-    .form-section {
-        margin-bottom: 2rem;
+    /* Add padding to body to account for fixed bottom */
+    body {
+        padding-bottom: 120px !important;
     }
     
-    .form-section:last-child {
-        margin-bottom: 0;
+    /* EditorJS custom styling for minimal look */
+    .ce-block__content {
+        max-width: none !important;
+        margin: 0 !important;
+    }
+    
+    .ce-paragraph {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin: 1rem 0;
+    }
+    
+    .ce-header {
+        margin: 2rem 0 1rem;
+    }
+    
+    /* Ensure editor has enough space */
+    #editorjs {
+        margin-bottom: 3rem !important;
+    }
+    
+    /* Add more space in the editor container */
+    .codex-editor__redactor {
+        padding-bottom: 200px !important;
+        min-height: 600px !important;
+    }
+    
+    /* Hide unnecessary margins in empty state */
+    .codex-editor--empty .ce-block:first-child {
+        margin-top: 0;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex align-items-center mb-4">
-                <i class="bi bi-plus-circle-fill text-primary me-3" style="font-size: 2rem;"></i>
-                <div>
-                    <h1 class="mb-1">Create New Journal Entry</h1>
-                    <p class="text-muted mb-0">Share your thoughts and experiences</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <form method="post" id="journal-form">
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-8 col-lg-10">
+            <form method="post" id="journal-form" class="py-4">
                 {% csrf_token %}
                 
-                <!-- Entry Details Card -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="bi bi-info-circle me-2"></i>Entry Details
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-section">
-                            <label for="title" class="form-label">
-                                <i class="bi bi-type me-1"></i>Title <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" 
-                                   id="title" 
-                                   name="title" 
-                                   class="form-control form-control-lg" 
-                                   placeholder="Enter a compelling title for your entry..."
-                                   required
-                                   maxlength="255">
-                            <div class="form-text">
-                                <span id="title-counter">0</span>/255 characters
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <label for="content" class="form-label">
-                                <i class="bi bi-journal-text me-1"></i>Content <span class="text-danger">*</span>
-                            </label>
-                            <div id="editorjs" class="form-control" style="height: auto; padding: 0;"></div>
-                            <input type="hidden" id="content" name="content">
-                            <div class="form-text mt-2">
-                                Use the rich text editor above to format your entry. You can add headers, lists, quotes, and more.
-                            </div>
-                        </div>
-                    </div>
+                <!-- Title - Takes 90% width -->
+                <div class="mb-4">
+                    <input type="text" 
+                           id="title" 
+                           name="title" 
+                           class="form-control border-0 fs-1 fw-light" 
+                           placeholder="What's on your mind today?"
+                           required
+                           maxlength="255"
+                           style="font-size: 3rem !important; background: transparent; box-shadow: none;">
                 </div>
 
-                <!-- Settings Card -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="bi bi-gear me-2"></i>Entry Settings
-                        </h5>
+                <!-- Tags - Simple and clean -->
+                <div class="mb-1">
+                    <div class="tag-input-container">
+                        <input type="text" 
+                               id="tag-input" 
+                               class="form-control border-0 text-muted" 
+                               placeholder="Add tags... (press Enter to add)"
+                               autocomplete="off"
+                               style="background: transparent; border-bottom: 1px solid #e0e0e0 !important; box-shadow: none;">
+                        <div class="tag-suggestions" id="tag-suggestions"></div>
                     </div>
-                    <div class="card-body">
-                        <div class="form-section">
-                            <label for="tag-input" class="form-label">
-                                <i class="bi bi-tags me-1"></i>Tags
-                            </label>
-                            <div class="tag-input-container">
-                                <input type="text" 
-                                       id="tag-input" 
-                                       class="form-control" 
-                                       placeholder="Type to add tags..."
-                                       autocomplete="off">
-                                <div class="tag-suggestions" id="tag-suggestions"></div>
-                            </div>
-                            <div class="selected-tags" id="selected-tags"></div>
-                            <div class="form-text">
-                                Press Enter or comma to add tags. Tags help organize your entries.
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" 
-                                       type="checkbox" 
-                                       id="is_public" 
-                                       name="is_public">
-                                <label class="form-check-label" for="is_public">
-                                    <i class="bi bi-globe me-1"></i>Make this entry public
-                                </label>
-                            </div>
-                            <div class="form-text">
-                                Public entries can be viewed by other users. Private entries are only visible to you.
-                            </div>
-                        </div>
-                    </div>
+                    
+                    <!-- Selected Tags -->
+                    <div class="selected-tags mt-3" id="selected-tags"></div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary" id="save-btn">
-                                    <i class="bi bi-save me-1"></i>Save Entry
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" id="preview-btn">
-                                    <i class="bi bi-eye me-1"></i>Preview
-                                </button>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-info btn-sm" id="debug-btn">
-                                    <i class="bi bi-bug me-1"></i>Debug
-                                </button>
-                                <a href="{% url 'journal:dashboard' %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left me-1"></i>Cancel
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Saving Indicator -->
-                        <div class="saving-indicator mt-3" id="saving-indicator">
-                            <div class="d-flex align-items-center text-primary">
-                                <div class="spinner-border spinner-border-sm me-2" role="status">
-                                    <span class="visually-hidden">Saving...</span>
+                <div class="mb-1">
+                    <div id="editorjs"></div>
+                    <input type="hidden" id="content" name="content">
+                </div>
+
+                <!-- Simple bottom controls -->
+                <div class="fixed-bottom bg-white border-top p-3">
+                    <div class="container-fluid">
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-xl-10">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{% url 'journal:dashboard' %}" class="btn btn-link text-muted">
+                                        <i class="bi bi-arrow-left me-1"></i>Back
+                                    </a>
+                                    
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="is_public" name="is_public">
+                                            <label class="form-check-label text-muted" for="is_public">
+                                                <i class="bi bi-globe me-1"></i>Public
+                                            </label>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4" id="save-btn">
+                                            <i class="bi bi-check-lg me-1"></i>Save
+                                        </button>
+                                    </div>
                                 </div>
-                                <span>Saving your entry...</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="bi bi-lightbulb me-2"></i>Writing Tips
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="bi bi-check-circle text-success me-2"></i>
-                            <small>Use descriptive titles to make entries easy to find later</small>
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-check-circle text-success me-2"></i>
-                            <small>Add relevant tags to categorize your thoughts</small>
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-check-circle text-success me-2"></i>
-                            <small>Use headers and lists to structure longer entries</small>
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-check-circle text-success me-2"></i>
-                            <small>Consider making inspiring entries public to share with others</small>
-                        </li>
-                        <li>
-                            <i class="bi bi-check-circle text-success me-2"></i>
-                            <small>Regular journaling helps track your personal growth</small>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            {% if available_tags %}
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="bi bi-tags me-2"></i>Your Recent Tags
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex flex-wrap gap-1">
-                        {% for tag in available_tags|slice:":10" %}
-                            <button type="button" 
-                                    class="badge bg-light text-dark border text-decoration-none quick-tag-btn"
-                                    data-tag="{{ tag.name }}">
-                                {{ tag.name }}
-                            </button>
-                        {% endfor %}
-                    </div>
-                    <div class="form-text mt-2">
-                        Click tags to quickly add them to your entry
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
     </div>
 </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.8.0/dist/bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.3.0/dist/bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.5.0/dist/bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/table.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@editorjs/link@2.5.0/dist/bundle.js"></script>
-  
-  <script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.8.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/table.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/link@2.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/raw@2.4.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2.8.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@1.1.0/dist/bundle.js"></script>
+
+<script>
     // Global variables
     let editor;
     let selectedTags = new Set();
     let availableTags = [];
     let currentSuggestionIndex = -1;
 
-    // Initialize everything when the page loads
-    window.addEventListener('load', function() {
+    // Simple, reliable initialization
+    function initializeEverything() {
+        console.log('Starting initialization...');
+        
+        // Wait for all scripts to load
+        if (typeof EditorJS === 'undefined') {
+            console.log('EditorJS not ready, retrying...');
+            setTimeout(initializeEverything, 100);
+            return;
+        }
+        
         initializeEditor();
         initializeTagSystem();
         initializeFormValidation();
         initializeEventListeners();
         loadAvailableTags();
-    });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeEverything);
+    } else {
+        initializeEverything();
+    }
 
     function initializeEditor() {
-        editor = new EditorJS({
-            holder: 'editorjs',
-            placeholder: 'Start writing your journal entry here... Use "/" to see formatting options.',
-            tools: {
-                header: {
-                    class: Header,
-                    inlineToolbar: true,
-                    config: {
-                        placeholder: 'Enter a header',
-                        levels: [2, 3, 4],
-                        defaultLevel: 2
-                    },
+        console.log('Initializing EditorJS...');
+        
+        // Check if holder element exists
+        const holder = document.getElementById('editorjs');
+        if (!holder) {
+            console.error('EditorJS holder element not found');
+            return;
+        }
+
+        // Basic tools that should always work
+        const tools = {
+            header: Header,
+            list: List,
+            checklist: Checklist,
+            quote: Quote,
+            delimiter: Delimiter,
+            marker: Marker
+        };
+
+        try {
+            editor = new EditorJS({
+                holder: 'editorjs',
+                placeholder: 'Start writing your journal entry here... Use "/" to see formatting options.',
+                tools: tools,
+                minHeight: 200,
+                data: {
+                    blocks: []
                 },
-                list: {
-                    class: List,
-                    inlineToolbar: true,
-                    config: {
-                        defaultStyle: 'unordered',
-                    },
-                },
-                checklist: { 
-                    class: Checklist,
-                    inlineToolbar: true
-                },
-                delimiter: Delimiter,
-                quote: { 
-                    class: Quote, 
-                    inlineToolbar: true,
-                    config: {
-                        quotePlaceholder: 'Enter a quote',
-                        captionPlaceholder: 'Quote\'s author',
+                onReady: () => {
+                    console.log('Editor.js is ready to work!');
+                    // Remove any default styling that might cause alignment issues
+                    const editorElement = document.querySelector('#editorjs .codex-editor__redactor');
+                    if (editorElement) {
+                        editorElement.style.paddingLeft = '0';
+                        editorElement.style.paddingRight = '0';
                     }
+                    
+                    // Fix toolbar positioning
+                    setTimeout(() => {
+                        const toolbar = document.querySelector('#editorjs .ce-toolbar');
+                        if (toolbar) {
+                            toolbar.style.marginLeft = '-30px';
+                            toolbar.style.left = '0';
+                        }
+                        
+                        const plusButton = document.querySelector('#editorjs .ce-toolbar__plus');
+                        if (plusButton) {
+                            plusButton.style.left = '0';
+                            plusButton.style.marginLeft = '0';
+                        }
+                    }, 100);
                 },
-                table: { 
-                    class: Table, 
-                    inlineToolbar: true,
-                    config: {
-                        rows: 2,
-                        cols: 3,
-                    }
-                },
-                linkTool: { 
-                    class: LinkTool,
-                    config: {
-                        endpoint: '/api/fetchUrl',
-                    }
+                onChange: () => {
+                    console.log('Content changed');
                 }
-            },
-            onReady: () => {
-                console.log('Editor.js is ready to work!');
-                // Focus the editor on load
-                setTimeout(() => {
-                    const editorContainer = document.querySelector('#editorjs');
-                    if (editorContainer) {
-                        editorContainer.click();
-                    }
-                }, 100);
-            },
-            onChange: () => {
-                // Auto-save draft functionality could be added here
-                console.log('Content changed');
-            }
-        });
+            });
+            console.log('EditorJS initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize EditorJS:', error);
+        }
     }
 
     function initializeTagSystem() {
@@ -422,13 +499,25 @@
 
     function initializeEventListeners() {
         // Form submission
-        document.getElementById('journal-form').addEventListener('submit', handleFormSubmit);
+        const form = document.getElementById('journal-form');
+        if (form) {
+            form.addEventListener('submit', handleFormSubmit);
+            console.log('Form submit listener attached');
+        } else {
+            console.error('Form not found');
+        }
         
-        // Debug button
-        document.getElementById('debug-btn').addEventListener('click', handleDebug);
+        // Debug button if it exists
+        const debugBtn = document.getElementById('debug-btn');
+        if (debugBtn) {
+            debugBtn.addEventListener('click', handleDebug);
+        }
         
-        // Preview button
-        document.getElementById('preview-btn').addEventListener('click', handlePreview);
+        // Preview button if it exists
+        const previewBtn = document.getElementById('preview-btn');
+        if (previewBtn) {
+            previewBtn.addEventListener('click', handlePreview);
+        }
     }
 
     async function loadAvailableTags() {
@@ -605,7 +694,6 @@
         e.preventDefault();
         
         const saveBtn = document.getElementById('save-btn');
-        const savingIndicator = document.getElementById('saving-indicator');
         const form = e.target;
         
         try {
@@ -617,24 +705,40 @@
                 return;
             }
 
-            // Get editor content
-            const outputData = await editor.save();
-            
-            // Check if content is empty
-            if (!outputData.blocks || outputData.blocks.length === 0) {
-                alert('Please write some content for your journal entry.');
+            // Check if editor exists and get content
+            if (!editor) {
+                alert('Editor is not initialized. Please refresh the page and try again.');
                 return;
             }
 
-            // Show saving state
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
-            savingIndicator.style.display = 'block';
-
-            // Set content
-            document.getElementById('content').value = JSON.stringify(outputData);
+            // Get editor content
+            const outputData = await editor.save();
+            console.log('Editor content:', outputData);
             
-            // Add tags as form data
+            // Check if content is empty (allow single empty paragraph)
+            if (!outputData.blocks || outputData.blocks.length === 0) {
+                // Create a default paragraph block if empty
+                outputData.blocks = [{
+                    type: 'paragraph',
+                    data: {
+                        text: ''
+                    }
+                }];
+            }
+
+            // Show saving state
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+            }
+
+            // Set content in hidden field
+            const contentField = document.getElementById('content');
+            if (contentField) {
+                contentField.value = JSON.stringify(outputData);
+            }
+            
+            // Handle tags - create multiple hidden inputs for tags (Django expects getlist)
             const existingTagInputs = form.querySelectorAll('input[name="tags"]');
             existingTagInputs.forEach(input => input.remove());
             
@@ -646,17 +750,23 @@
                 form.appendChild(input);
             });
 
-            // Submit form
+            console.log('Form data ready, submitting...');
+            console.log('Title:', title);
+            console.log('Content:', JSON.stringify(outputData));
+            console.log('Tags:', Array.from(selectedTags));
+            
+            // Submit form directly
             form.submit();
             
         } catch (error) {
             console.error('Saving failed:', error);
-            alert('Failed to save journal entry. Please check your content and try again.');
+            alert('Failed to save journal entry. Error: ' + error.message);
             
             // Reset button state
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="bi bi-save me-1"></i>Save Entry';
-            savingIndicator.style.display = 'none';
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save';
+            }
         }
     }
 
@@ -706,13 +816,68 @@
                         const level = block.data.level || 2;
                         return `<h${level}>${block.data.text || ''}</h${level}>`;
                     case 'list':
-                        const listItems = (block.data.items || []).map(item => `<li>${item}</li>`).join('');
+                        const listItems = (block.data.items || []).map(item => {
+                            if (typeof item === 'string') {
+                                return `<li>${item}</li>`;
+                            } else if (item.content) {
+                                return `<li>${item.content}</li>`;
+                            }
+                            return '<li></li>';
+                        }).join('');
                         const listType = block.data.style === 'ordered' ? 'ol' : 'ul';
                         return `<${listType}>${listItems}</${listType}>`;
+                    case 'nestedlist':
+                        const nestedItems = (block.data.items || []).map(item => {
+                            if (typeof item === 'string') {
+                                return `<li>${item}</li>`;
+                            } else if (item.content) {
+                                return `<li>${item.content}</li>`;
+                            }
+                            return '<li></li>';
+                        }).join('');
+                        const nestedListType = block.data.style === 'ordered' ? 'ol' : 'ul';
+                        return `<${nestedListType}>${nestedItems}</${nestedListType}>`;
+                    case 'checklist':
+                        const checkItems = (block.data.items || []).map(item => {
+                            const checked = item.checked ? 'checked' : '';
+                            return `<div class="form-check">
+                                <input class="form-check-input" type="checkbox" ${checked} disabled>
+                                <label class="form-check-label">${item.text}</label>
+                            </div>`;
+                        }).join('');
+                        return `<div class="checklist mb-3">${checkItems}</div>`;
                     case 'quote':
                         return `<blockquote class="blockquote"><p>${block.data.text || ''}</p><footer class="blockquote-footer">${block.data.caption || ''}</footer></blockquote>`;
+                    case 'warning':
+                        return `<div class="alert alert-warning" role="alert">
+                            ${block.data.title ? `<h6 class="alert-heading">${block.data.title}</h6>` : ''}
+                            <p class="mb-0">${block.data.message || ''}</p>
+                        </div>`;
+                    case 'code':
+                        return `<pre><code>${block.data.code || ''}</code></pre>`;
+                    case 'raw':
+                        return block.data.html || '';
                     case 'delimiter':
                         return '<hr>';
+                    case 'table':
+                        if (!block.data.content || !Array.isArray(block.data.content)) return '';
+                        const tableRows = block.data.content.map((row, index) => {
+                            const cellTag = index === 0 && block.data.withHeadings ? 'th' : 'td';
+                            const cells = row.map(cell => `<${cellTag}>${cell}</${cellTag}>`).join('');
+                            return `<tr>${cells}</tr>`;
+                        }).join('');
+                        return `<table class="table table-bordered">${tableRows}</table>`;
+                    case 'linkTool':
+                        return `<div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <a href="${block.data.link}" target="_blank" rel="noopener">
+                                        ${block.data.meta?.title || block.data.link}
+                                    </a>
+                                </h6>
+                                ${block.data.meta?.description ? `<p class="card-text">${block.data.meta.description}</p>` : ''}
+                            </div>
+                        </div>`;
                     default:
                         return `<div class="alert alert-info">Unsupported content type: ${block.type}</div>`;
                 }

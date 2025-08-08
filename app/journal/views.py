@@ -193,6 +193,72 @@ class JournalDetailView(LoginRequiredMixin, View):
         return render(request, "journal/entry_detail.html", context)
 
 
+class EditJournalView(LoginRequiredMixin, View):
+    """
+    View for editing an existing journal entry with EditorJS support.
+    """
+    def get(self, request, entry_id):
+        entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
+        tags = Tag.objects.filter(user=request.user).order_by('name')
+        
+        context = {
+            'entry': entry,
+            'available_tags': tags,
+        }
+        return render(request, "journal/edit_journal.html", context)
+
+    def post(self, request, entry_id):
+        """Handle journal entry update"""
+        entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
+        
+        try:
+            title = request.POST.get('title', '').strip()
+            content = request.POST.get('content', '')
+            is_public = request.POST.get('is_public') == 'on'
+            tag_names = request.POST.getlist('tags')
+
+            # Validation
+            if not title:
+                messages.error(request, "Title is required.")
+                return redirect('journal:edit_entry', entry_id=entry_id)
+
+            if not content:
+                messages.error(request, "Content is required.")
+                return redirect('journal:edit_entry', entry_id=entry_id)
+
+            # Validate JSON content
+            try:
+                json.loads(content)
+            except json.JSONDecodeError:
+                messages.error(request, "Invalid content format.")
+                return redirect('journal:edit_entry', entry_id=entry_id)
+
+            # Update entry
+            entry.title = title
+            entry.content = content
+            entry.is_public = is_public
+            entry.save()
+
+            # Handle tags
+            entry.tags.clear()  # Remove existing tags
+            
+            for tag_name in tag_names:
+                tag_name = tag_name.strip()
+                if tag_name:
+                    tag, created = Tag.objects.get_or_create(
+                        user=request.user,
+                        name=tag_name
+                    )
+                    entry.tags.add(tag)
+
+            messages.success(request, f"'{title}' has been updated successfully!")
+            return redirect('journal:entry_detail', entry_id=entry_id)
+
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect('journal:edit_entry', entry_id=entry_id)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class TagAutocompleteView(LoginRequiredMixin, View):
     """

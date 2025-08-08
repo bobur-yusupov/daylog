@@ -1,0 +1,709 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ entry.title }} - Daylog{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Clean, minimal styling */
+    body {
+        padding-bottom: 120px !important;
+    }
+    
+    /* Title styling */
+    .entry-title {
+        font-size: 3rem !important;
+        font-weight: 300;
+        border: none;
+        background: transparent;
+        width: 100%;
+    }
+    
+    .entry-title:focus {
+        outline: none;
+        box-shadow: none;
+    }
+    
+    /* Tag styling */
+    .tag-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        border: 1px solid #bbdefb;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .tag-badge:hover {
+        background-color: #bbdefb;
+        color: #0d47a1;
+    }
+    
+    /* EditorJS minimal styling */
+    #editorjs {
+        border: none !important;
+        min-height: 60vh;
+        padding: 0 !important;
+        background: transparent;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 3rem !important;
+    }
+    
+    .codex-editor__redactor {
+        padding: 0 !important;
+        padding-bottom: 200px !important;
+        min-height: 600px !important;
+    }
+    
+    .ce-block__content {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .ce-paragraph {
+        font-size: 1.1rem !important;
+        line-height: 1.7 !important;
+        margin: 0.5rem 0 !important;
+        padding: 0 !important;
+        color: #333 !important;
+    }
+    
+    .ce-toolbar,
+    .ce-inline-toolbar,
+    .ce-conversion-toolbar,
+    .ce-settings {
+        z-index: 1050 !important;
+    }
+    
+    .ce-popover,
+    .ce-toolbar__content {
+        z-index: 1060 !important;
+    }
+    
+    .ce-toolbar {
+        margin-left: -30px !important;
+        left: 0 !important;
+    }
+    
+    .ce-toolbar__plus {
+        left: 0 !important;
+        margin-left: 0 !important;
+    }
+    
+    .ce-block {
+        margin: 0.25rem 0 !important;
+        position: relative !important;
+    }
+    
+    /* Content rendering styles */
+    .entry-content {
+        line-height: 1.7;
+        font-size: 1.1rem;
+    }
+    
+    .entry-content h1, .entry-content h2, .entry-content h3, 
+    .entry-content h4, .entry-content h5, .entry-content h6 {
+        margin: 2rem 0 1rem;
+        font-weight: 600;
+    }
+    
+    .entry-content p {
+        margin: 0.5rem 0;
+    }
+    
+    .entry-content ul, .entry-content ol {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    .entry-content blockquote {
+        border-left: 3px solid #ddd;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+    }
+    
+    .entry-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+    }
+    
+    .entry-content table th,
+    .entry-content table td {
+        border: 1px solid #dee2e6;
+        padding: 0.5rem;
+        text-align: left;
+    }
+    
+    .entry-content table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+    
+    .entry-content hr {
+        margin: 2rem 0;
+        border: none;
+        border-top: 2px solid #dee2e6;
+    }
+    
+    .entry-content pre {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        overflow-x: auto;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.875rem;
+    }
+    
+    .entry-content pre code {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+    }
+    
+    .entry-content .checklist {
+        margin-bottom: 1rem;
+    }
+    
+    .entry-content .checklist .form-check {
+        margin-bottom: 0.5rem;
+    }
+    
+    .entry-content .alert {
+        margin-bottom: 1rem;
+    }
+    
+    .entry-content mark {
+        background-color: #fff3cd;
+        padding: 0.1em 0.2em;
+    }
+    
+    /* Fixed bottom bar */
+    .fixed-bottom {
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    /* Hide elements when in different modes */
+    .view-mode {
+        display: block;
+    }
+    
+    .edit-mode {
+        display: none;
+    }
+    
+    .editing .view-mode {
+        display: none;
+    }
+    
+    .editing .edit-mode {
+        display: block;
+    }
+    
+    /* Save indicator */
+    .save-indicator {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 9999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            
+            <!-- Entry Title - View Mode -->
+            <div class="view-mode mb-4">
+                <h1 class="entry-title mb-0" id="entry-title">{{ entry.title }}</h1>
+            </div>
+            
+            <!-- Entry Title - Edit Mode -->
+            <div class="edit-mode mb-4">
+                <input type="text" 
+                       id="title-edit" 
+                       name="title" 
+                       class="entry-title mb-0" 
+                       value="{{ entry.title }}"
+                       placeholder="Enter your title..."
+                       form="edit-form"
+                       required>
+            </div>
+
+            <!-- Tags Section -->
+            {% if entry.tags.exists %}
+            <div class="mb-4">
+                {% for tag in entry.tags.all %}
+                    <a href="{% url 'journal:entry_list' %}?tag={{ tag.name|urlencode }}" class="tag-badge">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Edit Form (hidden) -->
+            <form id="edit-form" method="post" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" id="content" name="content">
+                <input type="hidden" id="is_public" name="is_public" value="{% if entry.is_public %}true{% else %}false{% endif %}">
+            </form>
+
+            <!-- Entry Content - View Mode -->
+            <div class="view-mode mb-5">
+                <div class="entry-content" id="rendered-content">
+                    <!-- Content will be rendered here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Entry Content - Edit Mode -->
+            <div class="edit-mode mb-5">
+                <div id="editorjs"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Fixed Bottom Controls -->
+<div class="fixed-bottom">
+    <div class="container-fluid py-3">
+        <div class="row">
+            <div class="col-xl-8 col-lg-10 mx-auto">
+                <div class="d-flex justify-content-between align-items-center">
+                    
+                    <!-- Left side - Back button -->
+                    <a href="{% url 'journal:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                    
+                    <!-- Right side - Actions -->
+                    <div class="d-flex gap-2 align-items-center">
+                        <!-- Privacy indicator -->
+                        <small class="text-muted">
+                            <i class="bi {% if entry.is_public %}bi-globe{% else %}bi-lock{% endif %}"></i>
+                            {% if entry.is_public %}Public{% else %}Private{% endif %}
+                        </small>
+                        
+                        <!-- View Mode Actions -->
+                        <div class="view-mode">
+                            <button type="button" class="btn btn-primary" id="edit-btn">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                        </div>
+                        
+                        <!-- Edit Mode Actions -->
+                        <div class="edit-mode">
+                            <button type="button" class="btn btn-outline-secondary me-2" id="cancel-edit-btn">
+                                Cancel
+                            </button>
+                            <button type="submit" form="edit-form" class="btn btn-success" id="save-btn">
+                                <i class="bi bi-check-lg"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Indicator -->
+<div class="save-indicator" id="save-indicator">
+    <div class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm me-2" role="status">
+            <span class="visually-hidden">Saving...</span>
+        </div>
+        <span>Saving changes...</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- EditorJS Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.8.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/table.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/link@2.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/raw@2.4.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2.8.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@1.1.0/dist/bundle.js"></script>
+
+<script>
+    // Global variables
+    let editor;
+    let originalContent;
+    let isEditMode = false;
+
+    // Entry content from Django template
+    const entryContent = {{ entry.content|safe }};
+
+    // Initialize everything when the page loads
+    window.addEventListener('load', function() {
+        renderContent();
+        initializeEventListeners();
+    });
+
+    function renderContent() {
+        const container = document.getElementById('rendered-content');
+        
+        if (!entryContent || !entryContent.blocks) {
+            container.innerHTML = '<p class="text-muted">No content available.</p>';
+            return;
+        }
+
+        const renderedHtml = entryContent.blocks.map(block => {
+            switch(block.type) {
+                case 'paragraph':
+                    return `<p>${block.data.text || ''}</p>`;
+                case 'header':
+                    const level = block.data.level || 2;
+                    return `<h${level}>${block.data.text || ''}</h${level}>`;
+                case 'list':
+                    const listItems = (block.data.items || []).map(item => {
+                        if (typeof item === 'string') {
+                            return `<li>${item}</li>`;
+                        } else if (item.content) {
+                            return `<li>${item.content}</li>`;
+                        }
+                        return '<li></li>';
+                    }).join('');
+                    const listType = block.data.style === 'ordered' ? 'ol' : 'ul';
+                    return `<${listType}>${listItems}</${listType}>`;
+                case 'checklist':
+                    const checkItems = (block.data.items || []).map(item => {
+                        const checked = item.checked ? 'checked' : '';
+                        return `<div class="form-check">
+                            <input class="form-check-input" type="checkbox" ${checked} disabled>
+                            <label class="form-check-label">${item.text}</label>
+                        </div>`;
+                    }).join('');
+                    return `<div class="checklist mb-3">${checkItems}</div>`;
+                case 'quote':
+                    return `<blockquote class="blockquote">
+                        <p>${block.data.text || ''}</p>
+                        ${block.data.caption ? `<footer class="blockquote-footer">${block.data.caption}</footer>` : ''}
+                    </blockquote>`;
+                case 'warning':
+                    return `<div class="alert alert-warning" role="alert">
+                        ${block.data.title ? `<h6 class="alert-heading">${block.data.title}</h6>` : ''}
+                        <p class="mb-0">${block.data.message || ''}</p>
+                    </div>`;
+                case 'delimiter':
+                    return '<hr>';
+                case 'code':
+                    return `<pre><code>${block.data.code || ''}</code></pre>`;
+                case 'raw':
+                    return block.data.html || '';
+                case 'table':
+                    if (!block.data.content || !Array.isArray(block.data.content)) return '';
+                    const tableRows = block.data.content.map((row, index) => {
+                        const cellTag = index === 0 && block.data.withHeadings ? 'th' : 'td';
+                        const cells = row.map(cell => `<${cellTag}>${cell}</${cellTag}>`).join('');
+                        return `<tr>${cells}</tr>`;
+                    }).join('');
+                    return `<table class="table table-bordered">${tableRows}</table>`;
+                case 'linkTool':
+                    return `<div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <a href="${block.data.link}" target="_blank" rel="noopener">
+                                    ${block.data.meta?.title || block.data.link}
+                                </a>
+                            </h6>
+                            ${block.data.meta?.description ? `<p class="card-text">${block.data.meta.description}</p>` : ''}
+                        </div>
+                    </div>`;
+                default:
+                    console.warn('Unsupported block type:', block.type);
+                    return `<div class="alert alert-warning">Unsupported content type: ${block.type}</div>`;
+            }
+        }).join('');
+
+        container.innerHTML = renderedHtml;
+    }
+
+    function initializeEventListeners() {
+        // Edit button
+        const editBtn = document.getElementById('edit-btn');
+        if (editBtn) {
+            editBtn.addEventListener('click', enterEditMode);
+        }
+        
+        // Cancel edit button
+        const cancelBtn = document.getElementById('cancel-edit-btn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', exitEditMode);
+        }
+        
+        // Form submission
+        const editForm = document.getElementById('edit-form');
+        if (editForm) {
+            editForm.addEventListener('submit', handleFormSubmit);
+        }
+        
+        // Escape key to exit edit mode
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isEditMode) {
+                exitEditMode();
+            }
+        });
+    }
+
+    function enterEditMode() {
+        isEditMode = true;
+        document.body.classList.add('editing');
+        
+        // Store original content
+        originalContent = JSON.stringify(entryContent);
+        
+        // Initialize EditorJS
+        initializeEditor();
+    }
+
+    function exitEditMode() {
+        isEditMode = false;
+        document.body.classList.remove('editing');
+        
+        // Destroy editor
+        if (editor) {
+            editor.destroy();
+            editor = null;
+        }
+        
+        // Reset title field
+        const titleField = document.getElementById('title-edit');
+        if (titleField) {
+            titleField.value = "{{ entry.title }}";
+        }
+    }
+
+    function initializeEditor() {
+        // Check if all required classes are available
+        if (typeof EditorJS === 'undefined') {
+            console.error('EditorJS is not loaded');
+            return;
+        }
+
+        const tools = {};
+
+        // Only add tools if their classes are available
+        if (typeof Header !== 'undefined') {
+            tools.header = {
+                class: Header,
+                inlineToolbar: ['link'],
+                config: {
+                    placeholder: 'Enter a header',
+                    levels: [1, 2, 3, 4, 5, 6],
+                    defaultLevel: 2
+                },
+                shortcut: 'CMD+SHIFT+H',
+            };
+        }
+
+        if (typeof List !== 'undefined') {
+            tools.list = {
+                class: List,
+                inlineToolbar: ['link'],
+                config: {
+                    defaultStyle: 'unordered',
+                },
+                shortcut: 'CMD+SHIFT+L',
+            };
+        }
+
+        if (typeof Checklist !== 'undefined') {
+            tools.checklist = {
+                class: Checklist,
+                inlineToolbar: ['link'],
+                shortcut: 'CMD+SHIFT+C',
+            };
+        }
+
+        if (typeof Quote !== 'undefined') {
+            tools.quote = {
+                class: Quote,
+                inlineToolbar: ['link'],
+                config: {
+                    quotePlaceholder: 'Enter a quote',
+                    captionPlaceholder: 'Quote\'s author',
+                },
+                shortcut: 'CMD+SHIFT+O',
+            };
+        }
+
+        if (typeof Warning !== 'undefined') {
+            tools.warning = {
+                class: Warning,
+                inlineToolbar: ['link'],
+                config: {
+                    titlePlaceholder: 'Important Note',
+                    messagePlaceholder: 'Add your important message here...',
+                },
+                shortcut: 'CMD+SHIFT+W',
+            };
+        }
+
+        if (typeof Delimiter !== 'undefined') {
+            tools.delimiter = {
+                class: Delimiter,
+                shortcut: 'CMD+SHIFT+D',
+            };
+        }
+
+        if (typeof Table !== 'undefined') {
+            tools.table = {
+                class: Table,
+                inlineToolbar: true,
+                config: {
+                    rows: 2,
+                    cols: 3,
+                }
+            };
+        }
+
+        if (typeof CodeTool !== 'undefined') {
+            tools.code = {
+                class: CodeTool,
+                config: {
+                    placeholder: 'Enter code here...'
+                },
+                shortcut: 'CMD+SHIFT+K',
+            };
+        }
+
+        if (typeof RawTool !== 'undefined') {
+            tools.raw = {
+                class: RawTool,
+                config: {
+                    placeholder: 'Enter raw HTML here...'
+                }
+            };
+        }
+
+        if (typeof LinkTool !== 'undefined') {
+            tools.linkTool = {
+                class: LinkTool,
+                config: {
+                    endpoint: '/api/fetchUrl',
+                }
+            };
+        }
+
+        if (typeof Marker !== 'undefined') {
+            tools.marker = {
+                class: Marker,
+                shortcut: 'CMD+SHIFT+M',
+            };
+        }
+
+        if (typeof Underline !== 'undefined') {
+            tools.underline = {
+                class: Underline,
+                shortcut: 'CMD+U',
+            };
+        }
+
+        editor = new EditorJS({
+            holder: 'editorjs',
+            data: entryContent,
+            placeholder: 'Start editing your journal entry...',
+            tools: tools,
+            inlineToolbar: ['link', 'marker', 'bold', 'italic', 'underline'],
+            tunes: ['textVariant'],
+            onReady: () => {
+                console.log('Editor.js is ready for editing!');
+                // Focus the editor
+                setTimeout(() => {
+                    const editorContainer = document.querySelector('#editorjs [contenteditable="true"]');
+                    if (editorContainer) {
+                        editorContainer.focus();
+                    }
+                }, 100);
+            },
+            onChange: () => {
+                // Content changed - could add autosave here
+            },
+            logLevel: 'VERBOSE'
+        });
+    }
+
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        if (!editor) {
+            console.error('Editor not initialized');
+            return;
+        }
+
+        const saveBtn = document.getElementById('save-btn');
+        const saveIndicator = document.getElementById('save-indicator');
+        
+        try {
+            // Show saving state
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+            }
+            
+            if (saveIndicator) {
+                saveIndicator.style.display = 'block';
+            }
+
+            // Get editor content
+            const outputData = await editor.save();
+            
+            // Validate content
+            if (!outputData.blocks || outputData.blocks.length === 0) {
+                alert('Please add some content to your entry.');
+                return;
+            }
+
+            // Set content in hidden field
+            const contentField = document.getElementById('content');
+            if (contentField) {
+                contentField.value = JSON.stringify(outputData);
+            }
+            
+            // Submit form
+            e.target.submit();
+            
+        } catch (error) {
+            console.error('Save failed:', error);
+            alert('Failed to save changes. Please try again.');
+            
+            // Reset button state
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="bi bi-check-lg"></i> Save';
+            }
+            
+            if (saveIndicator) {
+                saveIndicator.style.display = 'none';
+            }
+        }
+    }
+</script>
+{% endblock %}
