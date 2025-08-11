@@ -6,10 +6,10 @@ from .edit_views import EditJournalView
 from .tag_views import TagAutocompleteView
 
 __all__ = [
-    'DashboardView',
-    'JournalListView',
-    'JournalDetailView', 
-    'NewJournalView',
-    'EditJournalView',
-    'TagAutocompleteView',
+    "DashboardView",
+    "JournalListView",
+    "JournalDetailView",
+    "NewJournalView",
+    "EditJournalView",
+    "TagAutocompleteView",
 ]

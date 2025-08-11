@@ -27,7 +27,7 @@ User = get_user_model()
                 "password1": "securepassword123",
                 "password2": "securepassword123",
                 "first_name": "John",
-                "last_name": "Doe"
+                "last_name": "Doe",
             },
             request_only=True,
         )

@@ -126,8 +126,14 @@ SPECTACULAR_SETTINGS = {
     # Tag groupings
     "TAGS": [
         {"name": "Authentication", "description": "User authentication endpoints"},
-        {"name": "Journal Entries", "description": "CRUD operations for journal entries with EditorJS support"},
-        {"name": "Tags", "description": "Tag management for organizing journal entries"},
+        {
+            "name": "Journal Entries",
+            "description": "CRUD operations for journal entries with EditorJS support",
+        },
+        {
+            "name": "Tags",
+            "description": "Tag management for organizing journal entries",
+        },
     ],
     # Custom schema processors
     "PREPROCESSING_HOOKS": [],

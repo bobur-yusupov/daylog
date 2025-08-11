@@ -5,9 +5,9 @@ from .authentication_views import RegisterAPIView, LoginAPIView, LogoutAPIView
 from .journal_views import TagViewSet, JournalEntryViewSet
 
 __all__ = [
-    'RegisterAPIView', 
-    'LoginAPIView', 
-    'LogoutAPIView',
-    'TagViewSet', 
-    'JournalEntryViewSet'
+    "RegisterAPIView",
+    "LoginAPIView",
+    "LogoutAPIView",
+    "TagViewSet",
+    "JournalEntryViewSet",
 ]

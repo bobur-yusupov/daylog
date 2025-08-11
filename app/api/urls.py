@@ -7,8 +7,8 @@ app_name = "api"
 
 # Create router for ViewSets
 router = DefaultRouter()
-router.register(r'tags', TagViewSet, basename='tag')
-router.register(r'entries', JournalEntryViewSet, basename='journalentry')
+router.register(r"tags", TagViewSet, basename="tag")
+router.register(r"entries", JournalEntryViewSet, basename="journalentry")
 
 # Authentication API endpoints using class-based views
 auth_patterns = [
