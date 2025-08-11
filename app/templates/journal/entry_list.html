@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Entries - Daylog{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Your Entries</h2>
+        <a href="{% url 'journal:new_entry' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> New Entry
+        </a>
+    </div>
+
+    <form method="get" class="row g-2 align-items-end mb-3">
+        <div class="col-md-6">
+            <label for="search" class="form-label small text-muted">Search</label>
+            <input type="text" id="search" name="search" value="{{ search_query|default:'' }}" class="form-control" placeholder="Search by title...">
+        </div>
+        <div class="col-md-4">
+            <label for="tag" class="form-label small text-muted">Filter by tag</label>
+            <select id="tag" name="tag" class="form-select">
+                <option value="">All tags</option>
+                {% for tag in tags %}
+                    <option value="{{ tag.name }}" {% if current_tag == tag.name %}selected{% endif %}>{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary w-100">Apply</button>
+            {% if current_tag or search_query %}
+                <a href="{% url 'journal:entry_list' %}" class="btn btn-outline-secondary" title="Clear filters">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if current_tag or search_query %}
+        <div class="mb-3">
+            <span class="badge bg-light text-dark border me-2">Tag: {{ current_tag|default:'Any' }}</span>
+            {% if search_query %}<span class="badge bg-light text-dark border">Search: {{ search_query }}</span>{% endif %}
+        </div>
+    {% endif %}
+
+    {% if entries %}
+        <div class="list-group">
+            {% for entry in entries %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="me-3">
+                            <h5 class="mb-1">
+                                <a href="{% url 'journal:entry_detail' entry.id %}" class="text-decoration-none">{{ entry.title }}</a>
+                            </h5>
+                            <div class="mb-2">
+                                {% for tag in entry.tags.all %}
+                                    <a class="badge bg-light text-dark border text-decoration-none me-1" href="{% url 'journal:entry_list' %}?tag={{ tag.name|urlencode }}">{{ tag.name }}</a>
+                                {% empty %}
+                                    <span class="text-muted small">No tags</span>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i>
+                                {{ entry.created_at|date:"M d, Y \\a\\t H:i" }}
+                                •
+                                <i class="bi {% if entry.is_public %}bi-globe{% else %}bi-lock{% endif %}"></i>
+                                {% if entry.is_public %}Public{% else %}Private{% endif %}
+                            </small>
+                        </div>
+                        <div class="text-nowrap">
+                            <a href="{% url 'journal:entry_detail' entry.id %}" class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="{% url 'journal:edit_entry' entry.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted mb-3">No entries found.</p>
+            <a href="{% url 'journal:new_entry' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Create your first entry
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

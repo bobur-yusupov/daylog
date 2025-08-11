@@ -13,3 +13,346 @@ main.container {
 footer {
   flex-shrink: 0;
 }
+
+/* Journal Pages Styling */
+.journal-page {
+    padding-bottom: 120px !important;
+}
+
+/* Clean, minimal editor styling */
+#editorjs {
+    border: none !important;
+    min-height: 60vh;
+    padding: 0 !important;
+    background: transparent;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 3rem !important;
+}
+
+/* Ensure EditorJS content aligns with other inputs */
+.codex-editor__redactor {
+    padding: 0 !important;
+    padding-bottom: 200px !important;
+    min-height: 600px !important;
+}
+
+/* Align editor blocks with other form elements */
+.ce-block__content {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Style the paragraph blocks to match input styling */
+.ce-paragraph {
+    font-size: 1.1rem !important;
+    line-height: 1.7 !important;
+    margin: 0.5rem 0 !important;
+    padding: 0 !important;
+    color: #333 !important;
+}
+
+/* Ensure editor toolbar is positioned correctly */
+.ce-toolbar {
+    margin-left: 0 !important;
+    left: 0 !important;
+}
+
+/* Fix the plus button positioning */
+.ce-toolbar__plus {
+    left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Ensure toolbar content is aligned */
+.ce-toolbar__content {
+    margin-left: 0 !important;
+}
+
+/* Fix block toolbar positioning */
+.ce-block .ce-toolbar {
+    margin-left: -30px !important;
+}
+
+/* Remove any default margins/padding from editor */
+.codex-editor {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Style headers to match the overall design */
+.ce-header {
+    margin: 1rem 0 !important;
+    font-weight: 600;
+}
+
+/* List styling */
+.cdx-list {
+    margin: 0.5rem 0 !important;
+}
+
+/* Quote styling */
+.cdx-quote {
+    margin: 1rem 0 !important;
+    padding-left: 1rem;
+    border-left: 3px solid #ddd;
+    font-style: italic;
+}
+
+/* Ensure editor placeholder matches other inputs */
+.codex-editor__redactor[data-placeholder]:empty::before {
+    color: #6c757d !important;
+    font-style: normal !important;
+}
+
+/* Hide any unwanted editor margins */
+.ce-block:first-child {
+    margin-top: 0 !important;
+}
+
+.ce-block {
+    margin: 0.25rem 0 !important;
+    position: relative !important;
+}
+
+/* Ensure the entire block container is properly positioned */
+.ce-block__content,
+.ce-paragraph[contentEditable=true][data-placeholder] {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    position: relative !important;
+}
+
+/* Fix the toolbar positioning relative to blocks */
+.ce-toolbar--opened {
+    margin-left: -30px !important;
+}
+
+/* Hide editor border and focus styles */
+#editorjs:focus-within {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Ensure EditorJS toolbars are visible */
+.ce-toolbar,
+.ce-inline-toolbar,
+.ce-conversion-toolbar,
+.ce-settings {
+    z-index: 1050 !important;
+}
+
+.ce-popover,
+.ce-toolbar__content {
+    z-index: 1060 !important;
+}
+
+/* Entry title styling */
+.entry-title {
+    font-size: 3rem !important;
+    font-weight: 300;
+    border: none;
+    background: transparent;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.entry-title:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Tag styling */
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    border: 1px solid #bbdefb;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+}
+
+.tag-badge:hover {
+    text-decoration: none;
+    background-color: #bbdefb;
+}
+
+.tag-remove {
+    background: none;
+    border: none;
+    color: #1976d2;
+    margin-left: 0.25rem;
+    cursor: pointer;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.tag-remove:hover {
+    background-color: rgba(25, 118, 210, 0.1);
+}
+
+/* Tag input styling */
+.tag-input-container {
+    position: relative;
+}
+
+.tag-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.tag-suggestion {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.tag-suggestion:hover,
+.tag-suggestion.active {
+    background-color: #f8f9fa;
+}
+
+.tag-suggestion:last-child {
+    border-bottom: none;
+}
+
+/* Selected tags styling */
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Fixed bottom bar */
+.journal-fixed-bottom {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* View/Edit mode visibility */
+.view-mode { 
+    display: block; 
+}
+.edit-mode { 
+    display: none; 
+}
+body.editing .view-mode { 
+    display: none !important; 
+}
+body.editing .edit-mode { 
+    display: block !important; 
+}
+
+/* Entry content styling for detail view */
+.entry-content {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #333;
+}
+
+.entry-content h1,
+.entry-content h2,
+.entry-content h3,
+.entry-content h4,
+.entry-content h5,
+.entry-content h6 {
+    margin: 2rem 0 1rem;
+    font-weight: 600;
+}
+
+.entry-content p {
+    margin: 0.5rem 0;
+}
+
+.entry-content ul,
+.entry-content ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.entry-content blockquote {
+    border-left: 3px solid #ddd;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+}
+
+.entry-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.entry-content table th,
+.entry-content table td {
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.entry-content table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.entry-content hr {
+    margin: 2rem 0;
+    border: none;
+    border-top: 2px solid #dee2e6;
+}
+
+.entry-content pre {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+}
+
+.entry-content pre code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+}
+
+.entry-content .checklist {
+    margin-bottom: 1rem;
+}
+
+.entry-content .checklist .form-check {
+    margin-bottom: 0.5rem;
+}
+
+.entry-content .alert {
+    margin-bottom: 1rem;
+}
+
+.entry-content mark {
+    background-color: #fff3cd;
+    padding: 0.1em 0.2em;
+}
