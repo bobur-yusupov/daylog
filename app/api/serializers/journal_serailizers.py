@@ -128,6 +128,44 @@ class JournalEntrySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Invalid JSON content")
         except Exception as e:
             raise serializers.ValidationError(f"Content validation error: {str(e)}")
+    
+    def create(self, validated_data):
+        """Handle journal entry creation with tags"""
+        tag_names = validated_data.pop('tag_names', [])
+        entry = JournalEntry.objects.create(**validated_data)
+        
+        # Handle tags
+        for tag_name in tag_names:
+            if tag_name.strip():
+                tag, created = Tag.objects.get_or_create(
+                    user=entry.user,
+                    name=tag_name.strip()
+                )
+                entry.tags.add(tag)
+        
+        return entry
+    
+    def update(self, instance, validated_data):
+        """Handle journal entry updates with tags"""
+        tag_names = validated_data.pop('tag_names', None)
+        
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Handle tags if provided
+        if tag_names is not None:
+            instance.tags.clear()
+            for tag_name in tag_names:
+                if tag_name.strip():
+                    tag, created = Tag.objects.get_or_create(
+                        user=instance.user,
+                        name=tag_name.strip()
+                    )
+                    instance.tags.add(tag)
+        
+        return instance
 
 
 class JournalEntryCreateSerializer(JournalEntrySerializer):

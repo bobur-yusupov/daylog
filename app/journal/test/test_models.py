@@ -58,12 +58,18 @@ class TagModelUnitTests(TestCase):
             tag.full_clean()
     
     def test_tag_name_uniqueness(self):
-        """Test that tag names must be unique"""
+        """Test that tag names must be unique per user"""
         Tag.objects.create(user=self.user1, name='Unique')
         
+        # Same user cannot create duplicate tag
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
-                Tag.objects.create(user=self.user2, name='Unique')
+                Tag.objects.create(user=self.user1, name='Unique')
+        
+        # But different users can create tags with the same name
+        tag2 = Tag.objects.create(user=self.user2, name='Unique')
+        self.assertEqual(tag2.name, 'Unique')
+        self.assertEqual(tag2.user, self.user2)
     
     def test_tag_user_required(self):
         """Test that user field is required"""

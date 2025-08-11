@@ -16,9 +16,6 @@ class EditJournalView(LoginRequiredMixin, View):
     def get(self, request, entry_id):
         entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
         tags = Tag.objects.filter(user=request.user).order_by('name')
-        
-        # Debug log for entry content
-        print(f"DEBUG: Retrieved content for entry {entry_id}: {entry.content}")
 
         # Ensure content is valid JSON for EditorJS
         try:

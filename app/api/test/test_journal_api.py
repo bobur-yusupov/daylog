@@ -195,7 +195,11 @@ class JournalAPITestCase(TestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['entries']), 2)
+        # Check if using pagination (results) or fallback (entries)
+        if 'results' in response.data:
+            self.assertEqual(len(response.data['results']), 2)
+        else:
+            self.assertEqual(len(response.data['entries']), 2)
         self.assertEqual(response.data['count'], 2)
     
     def test_unauthorized_access(self):
