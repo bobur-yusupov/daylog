@@ -29,7 +29,7 @@ Test Coverage Areas:
 
 MODELS:
 ✓ Tag model creation, validation, constraints
-✓ JournalEntry model creation, validation, constraints
+✓ JournalEntry model creation, validation, constraints  
 ✓ Many-to-many relationships between entries and tags
 ✓ Cascade deletion behavior
 ✓ Unicode and special character handling
@@ -112,56 +112,55 @@ from django.conf import settings
 
 class JournalTestRunner(DiscoverRunner):
     """Custom test runner for Journal app with enhanced reporting"""
-
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+    
     def run_tests(self, test_labels, extra_tests=None, **kwargs):
         """Run tests with enhanced reporting"""
-        print("=" * 80)
+        print("="*80)
         print("JOURNAL APP COMPREHENSIVE TEST SUITE")
-        print("=" * 80)
+        print("="*80)
         print("\nTest Categories:")
         print("• Model Tests - Core model functionality and validation")
         print("• View Tests - All view endpoints and user interactions")
-        print("• API Tests - AJAX endpoints and JSON responses")
+        print("• API Tests - AJAX endpoints and JSON responses")  
         print("• Integration Tests - Cross-component functionality")
         print("• Edge Case Tests - Boundary conditions and edge cases")
         print("• Validation Tests - Data validation and business logic")
-        print("\n" + "=" * 80)
-
+        print("\n" + "="*80)
+        
         result = super().run_tests(test_labels, extra_tests, **kwargs)
-
-        print("\n" + "=" * 80)
+        
+        print("\n" + "="*80)
         print("TEST SUITE COMPLETED")
         if result == 0:
             print("✅ ALL TESTS PASSED!")
         else:
             print(f"❌ {result} TEST(S) FAILED")
-        print("=" * 80)
-
+        print("="*80)
+        
         return result
 
 
 def run_journal_tests():
     """Helper function to run all journal tests"""
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.development")
-
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+    
     import django
-
     django.setup()
-
+    
     from django.test.utils import get_runner
-
+    
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-
+    
     # Run all journal tests
     failures = test_runner.run_tests(["journal"])
-
+    
     if failures:
         sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run_journal_tests()

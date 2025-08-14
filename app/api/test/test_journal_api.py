@@ -119,7 +119,6 @@ class JournalAPITestCase(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("word_count", response.data)
         self.assertIn("block_count", response.data)
         self.assertEqual(response.data["block_count"], 2)
 

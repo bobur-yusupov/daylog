@@ -1,14 +1,10 @@
 from django.urls import path
 from .views import (
-    DashboardView,
-    NewJournalView,
-    EditJournalView,
-    JournalListView,
-    JournalDetailView,
-    TagAutocompleteView,
+    DashboardView, NewJournalView, EditJournalView, JournalListView, 
+    JournalDetailView, TagAutocompleteView
 )
 
-app_name = "journal"
+app_name = 'journal'
 
 urlpatterns = [
     path("", DashboardView.as_view(), name="dashboard"),
