@@ -426,8 +426,7 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
         date_from = request.query_params.get("date_from")
         date_to = request.query_params.get("date_to")
         has_tags = request.query_params.get("has_tags")  # 'true' or 'false'
-        min_words = request.query_params.get("min_words")
-        max_words = request.query_params.get("max_words")
+        # Note: min_words and max_words filtering would require more complex implementation
 
         # Date range filtering
         if date_from:
