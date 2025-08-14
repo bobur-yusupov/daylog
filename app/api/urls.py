@@ -1,7 +1,14 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
+from .views.journal_views import TagViewSet, JournalEntryViewSet
 
 app_name = "api"
+
+# Create router for ViewSets
+router = DefaultRouter()
+router.register(r"tags", TagViewSet, basename="tag")
+router.register(r"entries", JournalEntryViewSet, basename="journalentry")
 
 # Authentication API endpoints using class-based views
 auth_patterns = [
@@ -12,7 +19,5 @@ auth_patterns = [
 
 urlpatterns = [
     path("auth/", include(auth_patterns)),
-    # Future API endpoints will be added here
-    # path('entries/', include('api.entries_urls')),
-    # path('tags/', include('api.tags_urls')),
+    path("", include(router.urls)),
 ]
