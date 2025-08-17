@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Tag - Daylog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow border-danger">
+            <div class="card-body text-center">
+                <h2 class="text-danger mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Tag
+                </h2>
+                <p class="lead">Are you sure you want to delete the tag:</p>
+                <h4 class="mb-4">“{{ object.name }}”</h4>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i> Yes, Delete
+                        </button>
+                        <a href="{% url 'journal:tag_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

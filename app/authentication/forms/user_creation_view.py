@@ -1,8 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model, password_validation
 from django.utils.translation import gettext_lazy as _
-from .mixins import BootstrapFormMixin
+from authentication.mixins import BootstrapFormMixin
 
 User = get_user_model()
 
@@ -102,18 +102,3 @@ class CustomUserCreationForm(BootstrapFormMixin, UserCreationForm):
         if commit:
             user.save()
         return user
-
-
-class CustomAuthenticationForm(BootstrapFormMixin, AuthenticationForm):
-    """
-    Custom login form with Bootstrap styling.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Apply Bootstrap styling to all fields
-        self.apply_bootstrap_styling()
-
-        # Set placeholders for fields
-        self.fields["username"].widget.attrs.update({"placeholder": _("Username")})
-        self.fields["password"].widget.attrs.update({"placeholder": _("Password")})

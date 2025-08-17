@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}{% if object %}Edit Tag{% else %}Create Tag{% endif %} - Daylog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="mb-4 text-center">
+                    <i class="bi bi-tag-fill text-primary me-2"></i>
+                    {% if object %}Edit Tag{% else %}Create Tag{% endif %}
+                </h2>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                            <i class="bi bi-type me-1"></i>Tag Name
+                        </label>
+                        {{ form.name|add_class:"form-control" }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-1"></i>Save
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'journal:tag_list' %}" class="text-decoration-none">
+                        <i class="bi bi-arrow-left"></i> Back to Tags
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
