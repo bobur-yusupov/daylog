@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 from django.views import View
+from django.views.generic import ListView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.urls import reverse_lazy
 
 from ..models import Tag
 
@@ -24,3 +26,43 @@ class TagAutocompleteView(LoginRequiredMixin, View):
         )[:10]
 
         return JsonResponse({"tags": list(tags)})
+
+
+class TagListView(LoginRequiredMixin, ListView):
+    """
+    View for displaying a list of tags.
+    """
+
+    model = Tag
+    template_name = "journal/tag_list.html"
+    context_object_name = "tags"
+
+    def get_queryset(self):
+        return Tag.objects.filter(user=self.request.user)
+
+
+class TagUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    View for updating a tag.
+    """
+
+    model = Tag
+    template_name = "journal/tag_form.html"
+    fields = ["name"]
+    success_url = reverse_lazy("journal:tag_list")
+
+    def get_queryset(self):
+        return Tag.objects.filter(user=self.request.user)
+
+
+class TagDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    View for deleting a tag.
+    """
+
+    model = Tag
+    template_name = "journal/tag_confirm_delete.html"
+    success_url = reverse_lazy("journal:tag_list")
+
+    def get_queryset(self):
+        return Tag.objects.filter(user=self.request.user)

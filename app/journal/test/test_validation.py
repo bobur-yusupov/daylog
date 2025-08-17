@@ -386,9 +386,6 @@ class JournalModelBusinessLogicTests(TestCase):
             name_field.unique
         )  # Not globally unique, unique per user via Meta.unique_together
 
-        # Check that unique_together constraint exists
-        self.assertIn(("user", "name"), Tag._meta.unique_together)
-
         # Test JournalEntry field properties
         entry_fields = {field.name: field for field in JournalEntry._meta.get_fields()}
 

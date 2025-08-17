@@ -3,7 +3,7 @@ from .dashboard_views import DashboardView
 from .entry_views import JournalListView, JournalDetailView
 from .create_views import NewJournalView
 from .edit_views import EditJournalView
-from .tag_views import TagAutocompleteView
+from .tag_views import TagAutocompleteView, TagListView, TagUpdateView, TagDeleteView
 
 __all__ = [
     "DashboardView",
@@ -12,4 +12,7 @@ __all__ = [
     "NewJournalView",
     "EditJournalView",
     "TagAutocompleteView",
+    "TagListView",
+    "TagUpdateView",
+    "TagDeleteView"
 ]

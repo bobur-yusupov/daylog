@@ -12,6 +12,7 @@ A Django application for logging daily activities.
 4. View entries with filter/search by date, tags, and public/private status
 5. Responsive design using Bootstrap
 6. Tag management (create, read, delete tags)
+7. User Profile (view and edit profile information)
 
 ## User flow
 
@@ -54,20 +55,22 @@ A Django application for logging daily activities.
 - Home/Dashboard: Displays a list of journal entries with options to filter by date, tags, and public/private status. (paginated)
 - Entry Detail: Displays a single journal entry with its content rendered from JSON to HTML.
 - Create/Edit Entry: Form for creating and editing a journal entry with WYSIWYG content.
+- User Profile: View and edit user profile information.
 
 ## Routes
 
 - `/auth/register/`: User registration view.
 - `/auth/login/`: User login view.
 - `/auth/logout/`: User logout view.
+- `/auth/profile/`: User profile view and edit.
 - `/`: Home/Dashboard view showing all journal entries.
 - `/entry/new/`: Form for creating a new journal entry.
-- `/entry/<int:id>/`: View for a single journal entry.
-- `/entry/<int:id>/edit/`: Form for editing an existing journal entry.
-- `/tags/`: View for managing tags (creating, deleting).
+- `/entry/<uuid:id>/`: View for a single journal entry.
+- `/entry/<uuid:id>/edit/`: Form for editing an existing journal entry.
+- `/tags/list/`: View for managing tags (creating, deleting).
 - `/tags/new/`: Form for creating a new tag.
-- `/tags/<int:id>/`: View for a specific tag.
-- `/tags/<int:id>/delete/`: Route for deleting a specific tag.
+- `/tags/tag/<uuid:id>/`: View for a specific tag.
+- `/tags/tag/<uuid:id>/delete/`: Route for deleting a specific tag.
 
 ## Tech Stack
 
@@ -137,6 +140,7 @@ Rendering: Content stored as JSON and rendered using the Editor.js Renderer libr
 - `POST /api/auth/register/` - User registration
 - `POST /api/auth/login/` - User login
 - `POST /api/auth/logout/` - User logout
+- `GET /api/auth/profile/` - Get user profile information
 
 ### Journal Entries
 

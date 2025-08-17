@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "authentication",
     "api",
     "journal",
+    "widget_tweaks"
 ]
 
 MIDDLEWARE = [
