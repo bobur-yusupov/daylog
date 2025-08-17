@@ -1,5 +1,4 @@
 from django.views.generic import FormView
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -28,4 +27,3 @@ class ProfileView(LoginRequiredMixin, FormView):
         form.save()
         messages.success(self.request, "Profile updated successfully.")
         return super().form_valid(form)
-    
