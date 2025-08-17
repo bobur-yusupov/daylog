@@ -4,9 +4,15 @@ import os
 DEBUG = False
 
 # Allow environment variable to specify multiple hosts
-ALLOWED_HOSTS = (
-    os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else []
-)
+ALLOWED_HOSTS = [
+    "*",
+]
+
+MIDDLEWARE += [  # noqa: F405
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DATABASES = {
     "default": {
