@@ -8,7 +8,7 @@ from .views import (
     TagAutocompleteView,
     TagListView,
     TagUpdateView,
-    TagDeleteView
+    TagDeleteView,
 )
 
 app_name = "journal"

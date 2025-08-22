@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     "authentication",
     "api",
     "journal",
-    "widget_tweaks"
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
@@ -168,3 +168,10 @@ AUTH_USER_MODEL = "authentication.User"
 LOGIN_URL = "/auth/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/auth/login/"
+
+TAILWIND_APP_NAME = 'theme'
+TAILWIND_CLI = {
+    "input": BASE_DIR / "static" / "src" / "input.css",
+    "output": BASE_DIR / "static" / "css" / "output.css",
+    "watch": True,
+}
