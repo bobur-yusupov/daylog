@@ -9,8 +9,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
         postgresql-client \
-        libpq-dev && \
-    apt-get clean && \
+        libpq-dev \
+        git \
+    && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements.txt .

@@ -14,5 +14,6 @@ __all__ = [
     "TagAutocompleteView",
     "TagListView",
     "TagUpdateView",
-    "TagDeleteView"
+    "TagDeleteView",
+    "main_view"
 ]
