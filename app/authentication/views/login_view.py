@@ -7,7 +7,7 @@ from authentication.forms import CustomAuthenticationForm
 from authentication.mixins import AnonymousRequiredMixin
 
 
-class LoginView(FormView, AnonymousRequiredMixin):
+class LoginView(AnonymousRequiredMixin, FormView):
     """
     User login view using FormView.
     Handles both GET and POST requests for user authentication.

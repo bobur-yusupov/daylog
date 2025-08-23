@@ -8,7 +8,7 @@
         <div class="card shadow">
             <div class="card-body">
                 <div class="text-center mb-4">
-                    <i class="bi bi-journal-text display-4 text-primary"></i>
+                    <i class="bi bi-journal-text bi-primary display-4"></i>
                     <h2 class="mt-2">Welcome Back</h2>
                     <p class="text-muted">Sign in to your account</p>
                 </div>
@@ -51,25 +51,27 @@
                             {% endfor %}
                         </div>
                     {% endif %}
-                    <p class="text-muted">
-                        Forgot your password? 
-                        <a class="text-decoration-none">
-                            Reset it here
+                    <div class="d-grid mb-3">
+                        <a class="text-decoration-none text-primary">
+                            Forgot your password? 
                         </a>
-                    </p>
+                    </div>
 
-                    <div class="d-grid">
+                    <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
-                            <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign In
+                            Sign In
                             <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
 
-                <div class="text-center mt-4">
+                <div class="text-center">
                     <p class="text-muted">
                         No account?
-                        <a href="{% url 'authentication:register' %}" class="text-decoration-none">
+                        <a 
+                        href="{% url 'authentication:register' %}" 
+                        class="text-decoration-none text-primary"
+                        >
                             Create here!
                         </a>
                     </p>
@@ -80,9 +82,14 @@
 </div>
 
 <script>
-    document.querySelector('#submit-btn').addEventListener('click', function() {
-        this.querySelector('.spinner-border').classList.remove('d-none');
-        this.disabled = true;
+    const form = document.querySelector("form");
+    const submitBtn = document.querySelector("#submit-btn");
+    const spinner = submitBtn.querySelector(".spinner-border");
+
+    form.addEventListener("submit", function () {
+        spinner.classList.remove("d-none");
+        submitBtn.disabled = true;
     });
 </script>
+
 {% endblock %}

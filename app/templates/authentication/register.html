@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Register - Daylog{% endblock %}
+{% block title %}Register{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
+    <div class="col-md-6 col-lg-4">
         <div class="card shadow">
             <div class="card-body">
                 <div class="text-center mb-4">
@@ -15,42 +15,44 @@
 
                 <form method="post">
                     {% csrf_token %}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+
+                    <div class="mb-3">
+                        <div class="form-floating">
+                            {{ form.first_name }}
+                            <label for="{{ form.first_name.id_for_label }}">
                                 <i class="bi bi-person me-1"></i>First Name
                             </label>
-                            {{ form.first_name }}
-                            {% if form.first_name.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.first_name.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
-                                <i class="bi bi-person me-1"></i>Last Name
-                            </label>
-                            {{ form.last_name }}
-                            {% if form.last_name.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.last_name.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
+                        {% if form.first_name.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">
-                            <i class="bi bi-at me-1"></i>Username <span class="text-danger">*</span>
-                        </label>
+                        <div class="form-floating">
+                            {{ form.last_name }}
+                            <label for="{{ form.last_name.id_for_label }}">
+                                <i class="bi bi-person me-1"></i>Last Name
+                            </label>
+                        </div>
+                        {% if form.last_name.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-3">
                         {{ form.username }}
+                        <label for="{{ form.username.id_for_label }}">
+                            <i class="bi bi-at me-1"></i>Username
+                        </label>
                         {% if form.username.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.username.errors %}
@@ -60,11 +62,11 @@
                         {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.email.id_for_label }}" class="form-label">
-                            <i class="bi bi-envelope me-1"></i>Email <span class="text-danger">*</span>
-                        </label>
+                    <div class="form-floating mb-3">
                         {{ form.email }}
+                        <label for="{{ form.email.id_for_label }}">
+                            <i class="bi bi-envelope me-1"></i>Email
+                        </label>
                         {% if form.email.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.email.errors %}
@@ -74,11 +76,11 @@
                         {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.password1.id_for_label }}" class="form-label">
-                            <i class="bi bi-lock me-1"></i>Password <span class="text-danger">*</span>
-                        </label>
+                    <div class="form-floating mb-3">
                         {{ form.password1 }}
+                        <label for="{{ form.password1.id_for_label }}">
+                            <i class="bi bi-lock me-1"></i>Password
+                        </label>
                         {% if form.password1.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.password1.errors %}
@@ -88,11 +90,11 @@
                         {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.password2.id_for_label }}" class="form-label">
-                            <i class="bi bi-lock-fill me-1"></i>Confirm Password <span class="text-danger">*</span>
-                        </label>
+                    <div class="form-floating mb-3">
                         {{ form.password2 }}
+                        <label for="{{ form.password2.id_for_label }}">
+                            <i class="bi bi-lock-fill me-1"></i>Confirm Password
+                        </label>
                         {% if form.password2.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.password2.errors %}
@@ -110,17 +112,18 @@
                         </div>
                     {% endif %}
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-person-plus me-1"></i>Create Account
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg" id="register-btn">
+                            Sign up
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
 
-                <div class="text-center mt-4">
+                <div class="text-center">
                     <p class="text-muted">
-                        Already have an account? 
-                        <a href="{% url 'authentication:login' %}" class="text-decoration-none">
+                        Already have an account?
+                        <a href="{% url 'authentication:login' %}" class="text-decoration-none text-primary">
                             Sign in here
                         </a>
                     </p>
@@ -129,4 +132,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    const form = document.querySelector("form");
+    const registerBtn = document.querySelector("#register-btn");
+    const spinner = registerBtn.querySelector(".spinner-border");
+
+    form.addEventListener("submit", function () {
+        spinner.classList.remove("d-none");
+        registerBtn.disabled = true;
+    });
+</script>
 {% endblock %}
