@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Login - Daylog{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -16,31 +16,31 @@
                 <form method="post">
                     {% csrf_token %}
                     
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">
-                            <i class="bi bi-person me-1"></i>Username
-                        </label>
+                    <div class="form-floating mb-3">
                         {{ form.username }}
+                        <label for="{{ form.username.id_for_label }}" class="form-label">
+                            <i class="bi bi-person me-1" aria-hidden="true"></i>Username
+                        </label>
                         {% if form.username.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.username.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
+                        <div class="text-danger small mt-1" role="alert">
+                            {% for error in form.username.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
                         {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.password.id_for_label }}" class="form-label">
-                            <i class="bi bi-lock me-1"></i>Password
-                        </label>
+                    <div class="form-floating mb-3">
                         {{ form.password }}
+                        <label for="{{ form.password.id_for_label }}" class="form-label">
+                            <i class="bi bi-lock me-1" aria-hidden="true"></i>Password
+                        </label>
                         {% if form.password.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.password.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
+                        <div class="text-danger small mt-1" role="alert">
+                            {% for error in form.password.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
                         {% endif %}
                     </div>
 
@@ -51,19 +51,26 @@
                             {% endfor %}
                         </div>
                     {% endif %}
+                    <p class="text-muted">
+                        Forgot your password? 
+                        <a class="text-decoration-none">
+                            Reset it here
+                        </a>
+                    </p>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                            <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign In
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
 
                 <div class="text-center mt-4">
                     <p class="text-muted">
-                        Don't have an account? 
+                        No account?
                         <a href="{% url 'authentication:register' %}" class="text-decoration-none">
-                            Create one here
+                            Create here!
                         </a>
                     </p>
                 </div>
@@ -71,4 +78,11 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.querySelector('#submit-btn').addEventListener('click', function() {
+        this.querySelector('.spinner-border').classList.remove('d-none');
+        this.disabled = true;
+    });
+</script>
 {% endblock %}
