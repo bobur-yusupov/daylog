@@ -1,0 +1,101 @@
+/* Root variables (light theme defaults) */
+:root {
+	/* Colors */
+	--color-bg: #f1f1f1;
+	--color-surface: #f8f9fb;
+	--color-border: #e6e9ef;
+	--color-primary: #58A5A4;
+	--color-primary-focus: #4a9996;
+    --color-secondary: #75B6DC;
+	--color-muted: #6b7280;
+	--color-accent: #2563eb;
+	--color-success: #16a34a;
+	--color-danger: #dc2626;
+	--color-warning: #f59e0b;
+	--color-text: #333333;
+
+	--spacing-1: 4px;
+	--spacing-2: 8px;
+	--spacing-3: 12px;
+	--spacing-4: 16px;
+	--spacing-5: 24px;
+	--container-width: 1100px;
+
+	/* Typography */
+	--font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+	--base-font-size: 16px;
+	--heading-weight: 600;
+}
+
+/* [data-theme="dark"] {
+	--color-bg: #0b1220;
+	--color-surface: #0f1724;
+	--color-border: #1f2937;
+	--color-text-primary: #e6eef8;
+	--color-text-muted: #9aa6b2;
+	--color-accent: #3b82f6;
+	--color-success: #22c55e;
+	--color-danger: #f87171;
+	--color-warning: #fbbf24;
+} */
+
+body {
+    background-color: var(--color-bg);
+    font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: var(--color-text)!important;
+}
+
+.bi-primary {
+	color: var(--color-primary)!important;
+}
+
+.bi-white {
+	color: #fff!important;
+}
+
+.btn {
+	background-color: var(--color-primary);
+	color: #fff;
+	border: 1px solid var(--color-primary);
+	border-radius: 0.375rem;
+	text-decoration: none;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background-color: darken(var(--color-primary), 5%);
+		color: var(--color-primary);
+		border: 1px solid var(--color-primary);
+	}
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(88, 165, 164, 0.5)!important;
+		background-color: var(--color-primary-focus)!important;
+		border: 1px solid var(--color-primary-focus)!important;
+	}
+	&:disabled {
+		background-color: var(--color-muted);
+		border: 1px solid var(--color-muted);
+		cursor: not-allowed;
+		color: #fff;
+		background-color: var(--color-primary-focus)!important;
+	}
+}
+
+.text-primary {
+	color: var(--color-primary)!important;
+}
+
+.text-default {
+	color: var(--color-text)!important;
+}
+
+input {
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(88, 165, 164, 0.5)!important;
+	}
+}
