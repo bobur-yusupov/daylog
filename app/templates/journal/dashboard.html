@@ -1,129 +1,54 @@
-{% extends "base.html" %}
+{% extends "base_authenticated.html" %}
+
+{% block title %}Dashboard - Daylog{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1>Welcome to your dashboard, {{ user.username }}!</h1>
-            <p class="text-muted">Manage your journal entries and track your writing progress.</p>
+<div class="d-flex vh-100">
+    <!-- Sidebar -->
+    <nav class="bg-light sidebar" style="width: 250px; min-width: 250px;">
+        <div class="sidebar-header">
+            <h5 class="mb-0">Menu</h5>
+            <button id="closeSidebar" class="btn btn-sm btn-outline-secondary" type="button">
+                <i class="bi bi-chevron-left"></i>
+            </button>
         </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Journal Entries</h5>
-                    <a href="{% url 'journal:new_entry' %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus"></i> New Entry
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if recent_entries %}
-                        <div class="list-group list-group-flush">
-                            {% for entry in recent_entries %}
-                                <div class="list-group-item px-0 py-3 border-0 border-bottom">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">
-                                                <a href="{% url 'journal:entry_detail' entry.id %}" 
-                                                   class="text-decoration-none text-dark">
-                                                    {{ entry.title }}
-                                                </a>
-                                            </h6>
-                                            <div class="mb-2">
-                                                {% if entry.tags.exists %}
-                                                    {% for tag in entry.tags.all %}
-                                                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
-                                                    {% endfor %}
-                                                {% else %}
-                                                    <span class="text-muted small">No tags</span>
-                                                {% endif %}
-                                            </div>
-                                            <small class="text-muted">
-                                                <i class="bi bi-calendar"></i> 
-                                                Created {{ entry.created_at|date:"M d, Y \a\t H:i" }}
-                                            </small>
-                                        </div>
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                                                    type="button" data-bs-toggle="dropdown">
-                                                Actions
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="{% url 'journal:entry_detail' entry.id %}">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a></li>
-                                                <li><a class="dropdown-item" href="{% url 'journal:edit_entry' entry.id %}">
-                                                    <i class="bi bi-pencil"></i> Edit
-                                                </a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <div class="text-center mt-3">
-                            <a href="{% url 'journal:entry_list' %}" class="btn btn-outline-primary">
-                                View All Entries
-                            </a>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-book-open fa-3x text-muted mb-3"></i>
-                            <h6 class="text-muted">No journal entries yet</h6>
-                            <p class="text-muted">Start writing your first journal entry!</p>
-                            <a href="{% url 'journal:new_entry' %}" class="btn btn-primary">
-                                <i class="bi bi-plus"></i> Create Your First Entry
-                            </a>
-                        </div>
-                    {% endif %}
+        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
+            <div class="offcanvas-header d-md-none">
+                <h5 class="offcanvas-title" id="sidebarLabel">Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <div class="p-3">
+                    <h5 class="mb-3">Recent Entries</h5>
+                    <ul class="nav flex-column">
+                        {% for entry in recent_entries %}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">{{ entry.title }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
+    </nav>
 
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">Statistics</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="border-end">
-                                <h4 class="text-primary mb-0">{{ total_entries }}</h4>
-                                <small class="text-muted">Total Entries</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <h4 class="text-success mb-0">{{ total_tags }}</h4>
-                            <small class="text-muted">Total Tags</small>
-                        </div>
-                    </div>
-                </div>
+    <!-- Main Content -->
+    <main class="flex-grow-1 d-flex flex-column main-normal">
+        <div class="dashboard-header d-flex justify-content-between align-items-center p-3 border-bottom">
+            <div class="d-flex align-items-center">
+                <button id="openSidebar" class="btn btn-sm open-sidebar-btn me-3" type="button">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h4 class="mb-0">Dashboard</h4>
             </div>
-
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Recent Tags</h6>
-                    <small class="text-muted">Last 10</small>
-                </div>
-                <div class="card-body">
-                    {% if recent_tags %}
-                        <div class="d-flex flex-wrap gap-1">
-                            {% for tag in recent_tags %}
-                                <a href="{% url 'journal:entry_list' %}?tag={{ tag.name }}" 
-                                   class="badge bg-light text-dark text-decoration-none border">
-                                    {{ tag.name }}
-                                </a>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-muted mb-0 small">No tags created yet</p>
-                    {% endif %}
-                </div>
+            <div class="header-actions">
+                <!-- Future header actions will go here -->
             </div>
         </div>
-    </div>
+        <div class="flex-grow-1 p-3 overflow-auto">
+            <!-- Main content goes here -->
+            <p>Welcome to your dashboard!</p>
+        </div>
+    </main>
 </div>
 {% endblock %}
