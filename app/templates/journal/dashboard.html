@@ -9,12 +9,10 @@
 <link rel="stylesheet" href="{% static 'css/editorjs-blocks.css' %}">
 
 <!-- CodeMirror CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<!-- CodeMirror Core -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<!-- CodeMirror Language Modes -->
+<!-- CodeMirror Core & Modes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/xml/xml.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -27,11 +25,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/markdown/markdown.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/yaml/yaml.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<!-- CodeMirror Additional Modes -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/mode/simple.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<!-- CodeMirror Addons -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/selection/active-line.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -54,14 +48,25 @@
             </div>
             <div class="offcanvas-body p-0">
                 <div class="p-3">
-                    <h5 class="mb-3">Recent Entries</h5>
+                    <h6 class="mb-3">Recent Entries</h6>
                     <ul class="nav flex-column" id="recentEntries">
                         {% for entry in recent_entries %}
-                        <li class="nav-item">
+                        <li class="nav-item journal-nav-item">
                             <a class="nav-link journal-link {% if entry.id == last_modified_entry.id %}active{% endif %}"
-                               href="#" data-id="{{ entry.id }}">
-                                {{ entry.title }}
+                               href="#" data-id="{{ entry.id }}" title="{{ entry.title }}">
+                                <div class="journal-link-content">
+                                    <i class="bi bi-journal-text journal-icon"></i>
+                                    <span class="journal-title">{{ entry.title|truncatechars:20 }}</span>
+                                </div>
                             </a>
+                        </li>
+                        {% empty %}
+                        <li class="nav-item">
+                            <div class="empty-state">
+                                <i class="bi bi-journal-plus text-muted"></i>
+                                <p class="text-muted mb-0">No entries yet</p>
+                                <small class="text-muted">Create your first entry!</small>
+                            </div>
                         </li>
                         {% endfor %}
                     </ul>
@@ -79,8 +84,27 @@
                 </button>
                 <h1 class="mb-0" id="currentEntryTitle" contenteditable="true">{% if last_modified_entry %}{{ last_modified_entry.title }}{% else %}Dashboard{% endif %}</h1>
             </div>
-            <div class="header-actions">
-                <!-- Future header actions will go here -->
+            <div class="header-actions d-flex align-items-center gap-2">
+                {% if last_modified_entry %}
+                    <small class="text-muted" id="lastUpdated">Last updated: {{ last_modified_entry.updated_at|date:"M d, Y H:i" }}</small>
+                {% else %}
+                    <small class="text-muted" id="lastUpdated">No entries yet.</small>
+                {% endif %}
+                <div id="saveStatus" class="text-muted small d-none">
+                    <i class="bi bi-check-circle text-success"></i>
+                    <span>Saved</span>
+                </div>
+                <div id="savingStatus" class="text-muted small d-none">
+                    <div class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></div>
+                    <span>Saving...</span>
+                </div>
+                <button id="saveButton" class="btn btn-primary btn-sm" type="button">
+                    <i class="bi bi-floppy"></i>
+                    Save
+                </button>
+                <button id="autoSaveToggle" class="btn btn-outline-secondary btn-sm" type="button" title="Toggle Auto-save">
+                    <i class="bi bi-arrow-repeat"></i>
+                </button>
             </div>
         </div>
 
@@ -89,7 +113,7 @@
             {% for entry in recent_entries %}
             <div id="journal-{{ entry.id }}" class="journal-entry {% if entry.id != last_modified_entry.id %}d-none{% endif %}">
                 <div id="editorjs-{{ entry.id }}" class="dashboard-editor-container"></div>
-                <small class="text-muted">Last updated: {{ entry.updated_at|date:"M d, Y H:i" }}</small>
+                <small class="d-none entry-updated">{{ entry.updated_at|date:"M d, Y H:i" }}</small>
             </div>
             {% endfor %}
         </div>
@@ -98,13 +122,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Highlight.js for syntax highlighting -->
-
-
-<!-- EditorJS Core -->
+<!-- EditorJS Core & Plugins -->
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
-
-<!-- EditorJS Plugins -->
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.8.0/dist/bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
@@ -117,10 +136,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1.3.0/dist/bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@1.1.0/dist/bundle.js"></script>
 
-<!-- Custom CodeBlock with syntax highlighting -->
+<!-- Custom CodeBlock -->
 <script src="{% static 'js/codeblock.js' %}"></script>
-
-<!-- Dashboard Editor Module -->
 <script src="{% static 'js/dashboard-editor.js' %}"></script>
 
 <script>
@@ -131,11 +148,44 @@ document.addEventListener('DOMContentLoaded', function() {
         "{{ entry.id }}": {{ entry.content_json|safe }}{% if not forloop.last %},{% endif %}
         {% endfor %}
     };
-    
-    const activeEntryId = "{{ last_modified_entry.id|default:'' }}";
-    
-    // Initialize the dashboard editor system
-    window.DashboardEditor.initialize(entryData, activeEntryId);
+
+    const entryMetadata = {
+        {% for entry in entries_data %}
+        "{{ entry.id }}": {
+            title: "{{ entry.title|escapejs }}",
+            updated_at: "{{ entry.updated_at|date:'M d, Y H:i' }}",
+            updated_at_iso: "{{ entry.updated_at|date:'c' }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    let activeEntryId = "{{ last_modified_entry.id|default:'' }}";
+
+    window.DashboardEditor.initialize(entryData, activeEntryId, entryMetadata);
+
+    // Optional: Switch entry dynamically
+    const journalLinks = document.querySelectorAll('.journal-link');
+    journalLinks.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const newId = link.dataset.id;
+            if (newId === activeEntryId) return;
+
+            // Update sidebar active class
+            document.querySelector('.journal-link.active')?.classList.remove('active');
+            link.classList.add('active');
+
+            // Show new journal content, hide old
+            document.getElementById(`journal-${activeEntryId}`)?.classList.add('d-none');
+            document.getElementById(`journal-${newId}`)?.classList.remove('d-none');
+
+            // Update header title and last updated
+            document.getElementById('currentEntryTitle').textContent = entryMetadata[newId].title;
+            document.getElementById('lastUpdated').textContent = `Last updated: ${entryMetadata[newId].updated_at}`;
+
+            activeEntryId = newId;
+        });
+    });
 });
 </script>
 {% endblock %}
