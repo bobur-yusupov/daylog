@@ -1,13 +1,18 @@
 {% extends "base_authenticated.html" %}
+{% load static %}
 
 {% block title %}Dashboard - Daylog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/editorjs.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="d-flex vh-100">
     <!-- Sidebar -->
-    <nav class="bg-light sidebar" style="width: 250px; min-width: 250px;">
+    <nav class="bg-light sidebar">
         <div class="sidebar-header">
-            <h5 class="mb-0">Menu</h5>
+            <h5 class="mb-0 logo">Daylog</h5>
             <button id="closeSidebar" class="btn btn-sm btn-outline-secondary" type="button">
                 <i class="bi bi-chevron-left"></i>
             </button>
@@ -20,10 +25,13 @@
             <div class="offcanvas-body p-0">
                 <div class="p-3">
                     <h5 class="mb-3">Recent Entries</h5>
-                    <ul class="nav flex-column">
+                    <ul class="nav flex-column" id="recentEntries">
                         {% for entry in recent_entries %}
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">{{ entry.title }}</a>
+                            <a class="nav-link journal-link {% if entry.id == last_modified_entry.id %}active{% endif %}"
+                               href="#" data-id="{{ entry.id }}">
+                                {{ entry.title }}
+                            </a>
                         </li>
                         {% endfor %}
                     </ul>
@@ -39,16 +47,225 @@
                 <button id="openSidebar" class="btn btn-sm open-sidebar-btn me-3" type="button">
                     <i class="bi bi-list"></i>
                 </button>
-                <h4 class="mb-0">Dashboard</h4>
+                <h1 class="mb-0" id="currentEntryTitle" contenteditable="true">{% if last_modified_entry %}{{ last_modified_entry.title }}{% else %}Dashboard{% endif %}</h1>
             </div>
             <div class="header-actions">
                 <!-- Future header actions will go here -->
             </div>
         </div>
-        <div class="flex-grow-1 p-3 overflow-auto">
-            <!-- Main content goes here -->
-            <p>Welcome to your dashboard!</p>
+
+        <!-- Journal Content -->
+        <div class="flex-grow-1 p-3 overflow-auto" id="journalContent">
+            {% for entry in recent_entries %}
+            <div id="journal-{{ entry.id }}" class="journal-entry {% if entry.id != last_modified_entry.id %}d-none{% endif %}">
+                <div id="editorjs-{{ entry.id }}" class="editor-container"></div>
+                <small class="text-muted">Last updated: {{ entry.updated_at|date:"M d, Y H:i" }}</small>
+            </div>
+            {% endfor %}
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- EditorJS Core -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
+
+<!-- EditorJS Plugins -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.8.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/table.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/link@2.5.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/raw@2.4.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2.8.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1.3.0/dist/bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@1.1.0/dist/bundle.js"></script>
+
+<script>
+// Store entry data and editor instances
+window.entryData = {
+    {% for entry in entries_data %}
+    "{{ entry.id }}": {{ entry.content_json|safe }}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+let editorInstances = {};
+let currentActiveEntry = "{{ last_modified_entry.id|default:'' }}";
+
+// Initialize EditorJS for a specific entry
+async function initializeEditor(entryId) {
+    const editorElement = document.getElementById(`editorjs-${entryId}`);
+    if (!editorElement || editorInstances[entryId]) {
+        return;
+    }
+
+    try {
+        // Wait for EditorJS to be available
+        await waitForEditorJS();
+
+        const editor = new EditorJS({
+            holder: `editorjs-${entryId}`,
+            data: window.entryData[entryId] || {},
+            tools: {
+                header: {
+                    class: Header,
+                    config: {
+                        placeholder: 'Enter a header',
+                        levels: [1, 2, 3, 4, 5, 6],
+                        defaultLevel: 3
+                    }
+                },
+                list: {
+                    class: List,
+                    inlineToolbar: true,
+                    config: {
+                        defaultStyle: 'unordered'
+                    }
+                },
+                checklist: {
+                    class: Checklist,
+                    inlineToolbar: true
+                },
+                quote: {
+                    class: Quote,
+                    inlineToolbar: true,
+                    shortcut: 'CMD+SHIFT+O',
+                    config: {
+                        quotePlaceholder: 'Enter a quote',
+                        captionPlaceholder: 'Quote author'
+                    }
+                },
+                delimiter: Delimiter,
+                table: {
+                    class: Table,
+                    inlineToolbar: true,
+                    config: {
+                        rows: 2,
+                        cols: 3
+                    }
+                },
+                linkTool: {
+                    class: LinkTool,
+                    config: {
+                        endpoint: '/api/fetch-url'
+                    }
+                },
+                raw: {
+                    class: RawTool,
+                    config: {
+                        placeholder: 'Enter raw HTML'
+                    }
+                },
+                code: {
+                    class: CodeTool,
+                    config: {
+                        placeholder: 'Enter code'
+                    }
+                },
+                warning: {
+                    class: Warning,
+                    inlineToolbar: true,
+                    shortcut: 'CMD+SHIFT+W',
+                    config: {
+                        titlePlaceholder: 'Title',
+                        messagePlaceholder: 'Message'
+                    }
+                },
+                marker: {
+                    class: Marker,
+                    shortcut: 'CMD+SHIFT+M'
+                },
+                underline: Underline
+            },
+            placeholder: 'Start writing your journal entry...',
+            minHeight: 300,
+            onChange: (api, event) => {
+                // Auto-save functionality can be added here
+                console.log('Content changed for entry', entryId);
+            },
+            onReady: () => {
+                console.log(`Editor ready for entry ${entryId}`);
+            }
+        });
+
+        editorInstances[entryId] = editor;
+    } catch (error) {
+        console.error(`Failed to initialize editor for entry ${entryId}:`, error);
+    }
+}
+
+// Wait for EditorJS and plugins to load
+async function waitForEditorJS() {
+    const maxAttempts = 50;
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+        if (typeof EditorJS !== 'undefined' && 
+            typeof Header !== 'undefined' && 
+            typeof List !== 'undefined') {
+            return;
+        }
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    throw new Error('EditorJS failed to load');
+}
+
+// Switch between entries
+function switchToEntry(entryId) {
+    // Ensure entryId is a string
+    entryId = String(entryId);
+    
+    // Hide all entries
+    document.querySelectorAll('.journal-entry').forEach(entry => {
+        entry.classList.add('d-none');
+    });
+
+    // Show selected entry
+    const entryElement = document.getElementById(`journal-${entryId}`);
+    if (entryElement) {
+        entryElement.classList.remove('d-none');
+        
+        // Update title in header
+        const titleElement = document.getElementById('currentEntryTitle');
+        const entryLink = document.querySelector(`[data-id="${entryId}"]`);
+        if (titleElement && entryLink) {
+            titleElement.textContent = entryLink.textContent;
+        }
+
+        // Initialize editor if not already done
+        if (!editorInstances[entryId]) {
+            initializeEditor(entryId);
+        }
+
+        currentActiveEntry = entryId;
+    }
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize editor for the currently active entry
+    if (currentActiveEntry) {
+        initializeEditor(currentActiveEntry);
+    }
+
+    // Add click handlers for journal links
+    document.querySelectorAll('.journal-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const entryId = this.getAttribute('data-id'); // Keep as string for UUID
+            
+            // Update active state
+            document.querySelectorAll('.journal-link').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            
+            switchToEntry(entryId);
+        });
+    });
+});
+</script>
 {% endblock %}
