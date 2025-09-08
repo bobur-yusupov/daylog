@@ -1,0 +1,423 @@
+/**
+ * EditorJS Code Block Styles with CodeMirror Integration
+ */
+
+/* CodeMirror Code Block Container */
+.codx-code-block {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1em 0;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Code Block Header */
+.codx-code-header {
+    background: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 40px;
+}
+
+.codx-header-left {
+    display: flex;
+    align-items: center;
+}
+
+.codx-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Language Selector */
+.codx-language-select {
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #495057;
+    outline: none;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.codx-language-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.codx-language-select:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Copy Button */
+.codx-copy-button {
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #495057;
+    min-width: 32px;
+    height: 28px;
+}
+
+.codx-copy-button:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.codx-copy-button:active {
+    background: #e9ecef;
+    transform: translateY(1px);
+}
+
+.codx-copy-button.copied {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.codx-copy-button.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.codx-copy-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* CodeMirror Editor Container */
+.codx-code-editor {
+    background: #fff;
+}
+
+/* CodeMirror Editor Styles */
+.codx-code-block .CodeMirror {
+    height: auto;
+    min-height: 100px;
+    border: none;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.codx-code-block .CodeMirror-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.codx-code-block .CodeMirror-lines {
+    padding: 12px 0;
+}
+
+.codx-code-block .CodeMirror-line {
+    padding: 0 12px;
+}
+
+/* Line Numbers */
+.codx-code-block .CodeMirror-linenumber {
+    color: #999;
+    padding: 0 8px 0 0;
+    min-width: 30px;
+    text-align: right;
+    font-size: 12px;
+}
+
+.codx-code-block .CodeMirror-gutters {
+    border-right: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+/* Cursor */
+.codx-code-block .CodeMirror-cursor {
+    border-left: 2px solid #495057;
+}
+
+/* Selection */
+.codx-code-block .CodeMirror-selected {
+    background: #b3d4fc;
+}
+
+.codx-code-block .CodeMirror-focused .CodeMirror-selected {
+    background: #d9edff;
+}
+
+/* Syntax Highlighting - Default Colors */
+.codx-code-block .cm-keyword {
+    color: #d73a49;
+    font-weight: bold;
+}
+
+.codx-code-block .cm-atom {
+    color: #005cc5;
+}
+
+.codx-code-block .cm-number {
+    color: #005cc5;
+}
+
+.codx-code-block .cm-def {
+    color: #6f42c1;
+}
+
+.codx-code-block .cm-variable {
+    color: #24292e;
+}
+
+.codx-code-block .cm-variable-2 {
+    color: #005cc5;
+}
+
+.codx-code-block .cm-variable-3 {
+    color: #6f42c1;
+}
+
+.codx-code-block .cm-property {
+    color: #005cc5;
+}
+
+.codx-code-block .cm-operator {
+    color: #d73a49;
+}
+
+.codx-code-block .cm-comment {
+    color: #6a737d;
+    font-style: italic;
+}
+
+.codx-code-block .cm-string {
+    color: #032f62;
+}
+
+.codx-code-block .cm-string-2 {
+    color: #032f62;
+}
+
+.codx-code-block .cm-meta {
+    color: #005cc5;
+}
+
+.codx-code-block .cm-qualifier {
+    color: #6f42c1;
+}
+
+.codx-code-block .cm-builtin {
+    color: #d73a49;
+}
+
+.codx-code-block .cm-bracket {
+    color: #24292e;
+}
+
+.codx-code-block .cm-tag {
+    color: #22863a;
+}
+
+.codx-code-block .cm-attribute {
+    color: #6f42c1;
+}
+
+.codx-code-block .cm-hr {
+    color: #999;
+}
+
+.codx-code-block .cm-link {
+    color: #032f62;
+    text-decoration: underline;
+}
+
+.codx-code-block .cm-error {
+    color: #cb2431;
+    background-color: #ffeef0;
+}
+
+/* Matching Brackets */
+.codx-code-block .CodeMirror-matchingbracket {
+    color: #24292e;
+    background-color: rgba(0, 184, 0, 0.3);
+}
+
+.codx-code-block .CodeMirror-nonmatchingbracket {
+    color: #cb2431;
+    background-color: #ffeef0;
+}
+
+/* Active Line */
+.codx-code-block .CodeMirror-activeline-background {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+/* Search Highlighting */
+.codx-code-block .cm-searching {
+    background-color: #ffa;
+    background-color: rgba(255, 255, 0, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .codx-code-block .CodeMirror {
+        font-size: 12px;
+    }
+    
+    .codx-language-select {
+        font-size: 11px;
+        min-width: 100px;
+    }
+    
+    .codx-code-header {
+        padding: 6px 8px;
+    }
+    
+    .codx-code-block .CodeMirror-line {
+        padding: 0 8px;
+    }
+}
+
+/* Read-only mode styling */
+.codx-code-block.readonly {
+    background: #f5f5f5;
+}
+
+.codx-code-block.readonly .codx-code-header {
+    background: #e0e0e0;
+}
+
+.codx-code-block.readonly .CodeMirror {
+    background: #f5f5f5;
+}
+
+.codx-code-block.readonly .CodeMirror-cursor {
+    display: none;
+}
+
+/* Focus styles */
+.codx-code-block .CodeMirror-focused {
+    outline: none;
+    box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.codx-code-block.codx-focused {
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: rgba(0, 123, 255, 0.5);
+}
+
+/* Improve editor interaction */
+.codx-code-editor {
+    position: relative;
+    cursor: text;
+    isolation: isolate;
+}
+
+.codx-code-block .CodeMirror {
+    cursor: text;
+    position: relative;
+    z-index: 1;
+}
+
+.codx-code-block .CodeMirror-lines {
+    cursor: text;
+    padding: 12px 0;
+}
+
+.codx-code-block .CodeMirror-line {
+    cursor: text;
+    padding: 0 12px;
+}
+
+/* Prevent text selection on header elements */
+.codx-code-header {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Ensure editor maintains focus during editing */
+.codx-code-block .CodeMirror-scroll {
+    outline: none;
+    position: relative;
+}
+
+.codx-code-block .CodeMirror-scrollbar-filler {
+    background: transparent;
+}
+
+/* Improve event handling */
+.codx-code-block {
+    position: relative;
+    z-index: 1;
+}
+
+.codx-code-block * {
+    pointer-events: auto;
+}
+
+/* Override any EditorJS styles that might interfere */
+.codx-code-block .CodeMirror-lines,
+.codx-code-block .CodeMirror-line,
+.codx-code-block .CodeMirror-scroll {
+    pointer-events: auto !important;
+}
+
+.codx-code-block .CodeMirror textarea {
+    pointer-events: auto !important;
+    position: absolute !important;
+}
+
+/* Empty state */
+.codx-code-block .CodeMirror-empty.CodeMirror-focused .CodeMirror-line {
+    color: #999;
+}
+
+.codx-code-block .CodeMirror-empty.CodeMirror-focused .CodeMirror-line::before {
+    content: attr(data-placeholder);
+    color: #999;
+    font-style: italic;
+}
+
+/* Scrollbar Styling */
+.codx-code-block .CodeMirror-scrollbar-filler,
+.codx-code-block .CodeMirror-gutter-filler {
+    background-color: #f8f9fa;
+}
+
+.codx-code-block .CodeMirror-vscrollbar,
+.codx-code-block .CodeMirror-hscrollbar {
+    background: #f8f9fa;
+}
+
+.codx-code-block .CodeMirror-vscrollbar::-webkit-scrollbar,
+.codx-code-block .CodeMirror-hscrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.codx-code-block .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.codx-code-block .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.codx-code-block .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.codx-code-block .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.codx-code-block .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.codx-code-block .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

@@ -4,11 +4,41 @@
 {% block title %}Dashboard - Daylog{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/editorjs.css' %}">
+<!-- Highlight.js CSS Theme -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<link rel="stylesheet" href="{% static 'css/editorjs-blocks.css' %}">
+
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- CodeMirror Core -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- CodeMirror Language Modes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/xml/xml.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/css/css.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/sql/sql.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/shell/shell.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/php/php.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/clike/clike.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/ruby/ruby.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/markdown/markdown.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/yaml/yaml.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- CodeMirror Additional Modes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/mode/simple.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- CodeMirror Addons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/selection/active-line.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex vh-100">
+<div class="d-flex vh-100 dashboard">
     <!-- Sidebar -->
     <nav class="bg-light sidebar">
         <div class="sidebar-header">
@@ -55,10 +85,10 @@
         </div>
 
         <!-- Journal Content -->
-        <div class="flex-grow-1 p-3 overflow-auto" id="journalContent">
+        <div class="flex-grow-1 p-3 overflow-auto journal-content" id="journalContent">
             {% for entry in recent_entries %}
             <div id="journal-{{ entry.id }}" class="journal-entry {% if entry.id != last_modified_entry.id %}d-none{% endif %}">
-                <div id="editorjs-{{ entry.id }}" class="editor-container"></div>
+                <div id="editorjs-{{ entry.id }}" class="dashboard-editor-container"></div>
                 <small class="text-muted">Last updated: {{ entry.updated_at|date:"M d, Y H:i" }}</small>
             </div>
             {% endfor %}
@@ -68,6 +98,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Highlight.js for syntax highlighting -->
+
+
 <!-- EditorJS Core -->
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
 
@@ -80,192 +113,29 @@
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.2.2/dist/table.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/link@2.5.0/dist/bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/raw@2.4.0/dist/bundle.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2.8.0/dist/bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@1.3.0/dist/bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1.3.0/dist/bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@1.1.0/dist/bundle.js"></script>
 
+<!-- Custom CodeBlock with syntax highlighting -->
+<script src="{% static 'js/codeblock.js' %}"></script>
+
+<!-- Dashboard Editor Module -->
+<script src="{% static 'js/dashboard-editor.js' %}"></script>
+
 <script>
-// Store entry data and editor instances
-window.entryData = {
-    {% for entry in entries_data %}
-    "{{ entry.id }}": {{ entry.content_json|safe }}{% if not forloop.last %},{% endif %}
-    {% endfor %}
-};
-
-let editorInstances = {};
-let currentActiveEntry = "{{ last_modified_entry.id|default:'' }}";
-
-// Initialize EditorJS for a specific entry
-async function initializeEditor(entryId) {
-    const editorElement = document.getElementById(`editorjs-${entryId}`);
-    if (!editorElement || editorInstances[entryId]) {
-        return;
-    }
-
-    try {
-        // Wait for EditorJS to be available
-        await waitForEditorJS();
-
-        const editor = new EditorJS({
-            holder: `editorjs-${entryId}`,
-            data: window.entryData[entryId] || {},
-            tools: {
-                header: {
-                    class: Header,
-                    config: {
-                        placeholder: 'Enter a header',
-                        levels: [1, 2, 3, 4, 5, 6],
-                        defaultLevel: 3
-                    }
-                },
-                list: {
-                    class: List,
-                    inlineToolbar: true,
-                    config: {
-                        defaultStyle: 'unordered'
-                    }
-                },
-                checklist: {
-                    class: Checklist,
-                    inlineToolbar: true
-                },
-                quote: {
-                    class: Quote,
-                    inlineToolbar: true,
-                    shortcut: 'CMD+SHIFT+O',
-                    config: {
-                        quotePlaceholder: 'Enter a quote',
-                        captionPlaceholder: 'Quote author'
-                    }
-                },
-                delimiter: Delimiter,
-                table: {
-                    class: Table,
-                    inlineToolbar: true,
-                    config: {
-                        rows: 2,
-                        cols: 3
-                    }
-                },
-                linkTool: {
-                    class: LinkTool,
-                    config: {
-                        endpoint: '/api/fetch-url'
-                    }
-                },
-                raw: {
-                    class: RawTool,
-                    config: {
-                        placeholder: 'Enter raw HTML'
-                    }
-                },
-                code: {
-                    class: CodeTool,
-                    config: {
-                        placeholder: 'Enter code'
-                    }
-                },
-                warning: {
-                    class: Warning,
-                    inlineToolbar: true,
-                    shortcut: 'CMD+SHIFT+W',
-                    config: {
-                        titlePlaceholder: 'Title',
-                        messagePlaceholder: 'Message'
-                    }
-                },
-                marker: {
-                    class: Marker,
-                    shortcut: 'CMD+SHIFT+M'
-                },
-                underline: Underline
-            },
-            placeholder: 'Start writing your journal entry...',
-            minHeight: 300,
-            onChange: (api, event) => {
-                // Auto-save functionality can be added here
-                console.log('Content changed for entry', entryId);
-            },
-            onReady: () => {
-                console.log(`Editor ready for entry ${entryId}`);
-            }
-        });
-
-        editorInstances[entryId] = editor;
-    } catch (error) {
-        console.error(`Failed to initialize editor for entry ${entryId}:`, error);
-    }
-}
-
-// Wait for EditorJS and plugins to load
-async function waitForEditorJS() {
-    const maxAttempts = 50;
-    let attempts = 0;
-
-    while (attempts < maxAttempts) {
-        if (typeof EditorJS !== 'undefined' && 
-            typeof Header !== 'undefined' && 
-            typeof List !== 'undefined') {
-            return;
-        }
-        attempts++;
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    throw new Error('EditorJS failed to load');
-}
-
-// Switch between entries
-function switchToEntry(entryId) {
-    // Ensure entryId is a string
-    entryId = String(entryId);
-    
-    // Hide all entries
-    document.querySelectorAll('.journal-entry').forEach(entry => {
-        entry.classList.add('d-none');
-    });
-
-    // Show selected entry
-    const entryElement = document.getElementById(`journal-${entryId}`);
-    if (entryElement) {
-        entryElement.classList.remove('d-none');
-        
-        // Update title in header
-        const titleElement = document.getElementById('currentEntryTitle');
-        const entryLink = document.querySelector(`[data-id="${entryId}"]`);
-        if (titleElement && entryLink) {
-            titleElement.textContent = entryLink.textContent;
-        }
-
-        // Initialize editor if not already done
-        if (!editorInstances[entryId]) {
-            initializeEditor(entryId);
-        }
-
-        currentActiveEntry = entryId;
-    }
-}
-
-// Initialize dashboard
+// Initialize the dashboard editor with entry data
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize editor for the currently active entry
-    if (currentActiveEntry) {
-        initializeEditor(currentActiveEntry);
-    }
-
-    // Add click handlers for journal links
-    document.querySelectorAll('.journal-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const entryId = this.getAttribute('data-id'); // Keep as string for UUID
-            
-            // Update active state
-            document.querySelectorAll('.journal-link').forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-            
-            switchToEntry(entryId);
-        });
-    });
+    const entryData = {
+        {% for entry in entries_data %}
+        "{{ entry.id }}": {{ entry.content_json|safe }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+    
+    const activeEntryId = "{{ last_modified_entry.id|default:'' }}";
+    
+    // Initialize the dashboard editor system
+    window.DashboardEditor.initialize(entryData, activeEntryId);
 });
 </script>
 {% endblock %}

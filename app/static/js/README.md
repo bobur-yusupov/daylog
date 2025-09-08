@@ -8,12 +8,49 @@ The `EditorJSService` is a centralized, reusable service for managing EditorJS i
 
 - **Centralized Management**: Single service handles all EditorJS instances
 - **Reusable Configuration**: Consistent editor setup across all pages
-- **Codeblock Support**: Added codeblock tool for code formatting
+- **Custom CodeBlock Tool**: Enhanced code blocks with syntax highlighting using highlight.js
+- **Language Support**: 20+ programming languages with syntax highlighting
 - **Tab Key Trigger**: Press Tab instead of "/" to open formatting menu
 - **Dynamic Toolbar Positioning**: Toolbar appears on right at line start, left at line end
 - **Clean Styling**: Dedicated CSS file for maintainable styles
 - **Error Handling**: Robust error handling and user feedback
 - **Bootstrap Integration**: Seamless integration with Bootstrap components
+
+## Custom CodeBlock Tool
+
+### Features
+- **Syntax Highlighting**: Powered by highlight.js with support for 20+ languages
+- **Language Selection**: Dropdown to select programming language
+- **Edit/Preview Toggle**: Switch between editing and preview modes
+- **Tab Support**: Proper tab key handling in code editor
+- **Dark Theme Support**: Automatic dark theme adaptation
+- **Settings Panel**: Quick language switching from the EditorJS settings panel
+
+### Supported Languages
+- JavaScript, TypeScript, Python, Java, C++, C, C#
+- PHP, Ruby, Go, Rust, Swift, Kotlin
+- HTML, CSS, SCSS, JSON, XML, YAML, Markdown
+- SQL, Bash, Shell, PowerShell
+- Dockerfile, Nginx, Apache
+
+### Usage
+1. Add a CodeBlock from the EditorJS toolbar or use `Cmd+Shift+C`
+2. Select your programming language from the dropdown
+3. Type or paste your code in the textarea
+4. Click "Preview" to see syntax-highlighted code
+5. Use the settings panel (gear icon) for quick language switching
+
+## File Structure
+
+```
+static/js/
+├── dashboard-editor.js      # Main dashboard editor integration
+├── codeblock.js            # Custom CodeBlock tool with syntax highlighting
+└── README.md              # This documentation
+
+static/css/
+└── editorjs-blocks.css     # Styles for EditorJS blocks including CodeBlock
+```
 
 ## Usage
 
@@ -43,18 +80,23 @@ await window.editorJSService.initialize('editorjs', {
 ### Available Methods
 
 #### `initialize(holderId, options)`
+
 Initializes a new EditorJS instance.
 
 #### `getContent()`
+
 Returns the current editor content as a promise.
 
 #### `setContent(data)`
+
 Sets the editor content from the provided data.
 
 #### `isReady()`
+
 Returns true if the editor is initialized and ready.
 
 #### `destroy()`
+
 Destroys the current editor instance.
 
 ## Available Tools
