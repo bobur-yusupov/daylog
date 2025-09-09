@@ -15,5 +15,5 @@ __all__ = [
     "TagListView",
     "TagUpdateView",
     "TagDeleteView",
-    "main_view"
+    "main_view",
 ]

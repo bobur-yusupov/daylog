@@ -169,7 +169,7 @@ LOGIN_URL = "/auth/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/auth/login/"
 
-TAILWIND_APP_NAME = 'theme'
+TAILWIND_APP_NAME = "theme"
 TAILWIND_CLI = {
     "input": BASE_DIR / "static" / "src" / "input.css",
     "output": BASE_DIR / "static" / "css" / "output.css",

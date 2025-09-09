@@ -17,10 +17,7 @@ class Tag(AbstractBaseModel):
         verbose_name_plural = _("Tags")
         ordering = ["-created_at"]
         constraints = [
-            models.UniqueConstraint(
-                fields=["user", "name"],
-                name="unique_user_tag"
-            )
+            models.UniqueConstraint(fields=["user", "name"], name="unique_user_tag")
         ]
 
     def __str__(self) -> str:
