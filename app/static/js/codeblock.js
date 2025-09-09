@@ -1,5 +1,5 @@
 /**
- * CodeBlock tool for EditorJS with CodeMirror integratio
+ * CodeBlock tool for EditorJS with CodeMirror integration
  * Provides syntax-highlighted code editing with language selection
  */
 class CodeBlock {

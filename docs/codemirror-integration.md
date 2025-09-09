@@ -41,25 +41,32 @@ The implementation supports the following programming languages:
 ## Files Structure
 
 ### JavaScript Files
+
 - `app/static/js/codeblock.js` - Main CodeBlock class implementation
 - `app/static/js/dashboard-editor.js` - EditorJS integration
 
 ### CSS Files
+
 - `app/static/css/editorjs-blocks.css` - Styling for code blocks
 
 ### Template Files
+
 - `app/templates/journal/dashboard.html` - Main dashboard with CodeMirror includes
 
 ### Test Files
+
 - `app/static/test-codeblock.html` - Standalone test page for CodeMirror functionality
 
 ## Features
 
 ### 1. Language Selection
+
 Each code block includes a dropdown to select the programming language, which automatically updates the syntax highlighting.
 
 ### 2. Syntax Highlighting
+
 GitHub-style syntax highlighting with appropriate colors for:
+
 - Keywords
 - Strings
 - Comments
@@ -69,6 +76,7 @@ GitHub-style syntax highlighting with appropriate colors for:
 - Functions
 
 ### 3. Editor Features
+
 - Line numbers with proper alignment
 - Bracket matching with visual indicators
 - Auto-closing brackets and quotes
@@ -77,15 +85,14 @@ GitHub-style syntax highlighting with appropriate colors for:
 - Code commenting/uncommenting shortcuts
 
 ### 4. Keyboard Shortcuts
+
 - `Tab` - Indent selection or insert 4 spaces
 - `Shift+Tab` - Unindent selection
 - `Ctrl+/` or `Cmd+/` - Toggle line comment
 
 ### 5. Responsive Design
-The code blocks are fully responsive and work well on mobile devices with adjusted font sizes and spacing.
 
-### 6. Read-only Mode
-Code blocks can be displayed in read-only mode with appropriate styling and disabled editing capabilities.
+The code blocks are fully responsive and work well on mobile devices with adjusted font sizes and spacing.
 
 ## Usage
 
@@ -171,6 +178,7 @@ this.languages = {
 ### Styling Customization
 
 Modify `app/static/css/editorjs-blocks.css` to customize:
+
 - Color scheme
 - Font family and sizes
 - Border and spacing
@@ -179,6 +187,7 @@ Modify `app/static/css/editorjs-blocks.css` to customize:
 ### Theme Support
 
 The implementation uses a default theme but can be extended to support multiple themes by:
+
 1. Adding theme selection to the header
 2. Including additional CodeMirror theme CSS files
 3. Updating the `initializeCodeMirror` method to set the theme option
@@ -190,12 +199,14 @@ The implementation uses a default theme but can be extended to support multiple 
 The implementation requires the following CDN resources to be loaded:
 
 1. **CodeMirror Core**
+
    ```html
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" />
    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
    ```
 
 2. **Language Modes** (as needed)
+
    ```html
    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js"></script>
@@ -203,6 +214,7 @@ The implementation requires the following CDN resources to be loaded:
    ```
 
 3. **Addons**
+
    ```html
    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js"></script>
@@ -219,6 +231,7 @@ The implementation requires the following CDN resources to be loaded:
 ## Browser Support
 
 The CodeMirror implementation supports all modern browsers:
+
 - Chrome 60+
 - Firefox 60+
 - Safari 12+
@@ -246,6 +259,7 @@ The CodeMirror implementation supports all modern browsers:
 ### Debug Mode
 
 To enable debug logging, add this to your browser console:
+
 ```javascript
 window.CODEBLOCK_DEBUG = true;
 ```
