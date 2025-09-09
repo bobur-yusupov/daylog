@@ -173,7 +173,7 @@ this.languages = {
 };
 ```
 
-3. Optionally add comment syntax to the `toggleComment` method
+Optionally add comment syntax to the `toggleComment` method
 
 ### Styling Customization
 

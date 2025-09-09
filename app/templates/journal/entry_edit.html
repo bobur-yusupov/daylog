@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}Edit Entry - {{ entry.title }}{% endblock %}
 
 {% block extra_css %}
-<!-- Journal styles are now in main styles.css -->
+<link rel="stylesheet" href="{% static 'css/editorjs.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -95,10 +95,6 @@
         {% endfor %}
     });
 </script>
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/editorjs.css' %}">
 {% endblock %}
 
 {% block extra_js %}

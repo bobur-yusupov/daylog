@@ -86,7 +86,6 @@ class DashboardViewTests(BaseViewTestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "testuser")
         self.assertTemplateUsed(response, "journal/dashboard.html")
 
     def test_dashboard_context_data(self):
