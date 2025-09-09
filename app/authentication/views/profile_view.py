@@ -11,6 +11,7 @@ class ProfileView(LoginRequiredMixin, FormView):
     User profile view.
     Displays the user's profile information and handles profile updates.
     """
+
     template_name = "authentication/profile.html"
     form_class = ProfileForm
     success_url = reverse_lazy("authentication:profile")
@@ -20,7 +21,7 @@ class ProfileView(LoginRequiredMixin, FormView):
         Override to include the user's instance in the form's initialization.
         """
         kwargs = super().get_form_kwargs()
-        kwargs['instance'] = self.request.user
+        kwargs["instance"] = self.request.user
         return kwargs
 
     def form_valid(self, form):

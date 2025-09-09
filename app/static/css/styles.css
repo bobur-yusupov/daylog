@@ -17,135 +17,6 @@ footer {
     padding-bottom: 120px !important;
 }
 
-/* Clean, minimal editor styling */
-#editorjs {
-    border: none !important;
-    min-height: 60vh;
-    padding: 0 !important;
-    background: transparent;
-    font-size: 1.1rem;
-    line-height: 1.7;
-    margin-bottom: 3rem !important;
-}
-
-/* Ensure EditorJS content aligns with other inputs */
-.codex-editor__redactor {
-    padding: 0 !important;
-    padding-bottom: 200px !important;
-    min-height: 600px !important;
-}
-
-/* Align editor blocks with other form elements */
-.ce-block__content {
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Style the paragraph blocks to match input styling */
-.ce-paragraph {
-    font-size: 1.1rem !important;
-    line-height: 1.7 !important;
-    margin: 0.5rem 0 !important;
-    padding: 0 !important;
-    color: #333 !important;
-}
-
-/* Ensure editor toolbar is positioned correctly */
-.ce-toolbar {
-    margin-left: 0 !important;
-    left: 0 !important;
-}
-
-/* Fix the plus button positioning */
-.ce-toolbar__plus {
-    left: 0 !important;
-    margin-left: 0 !important;
-}
-
-/* Ensure toolbar content is aligned */
-.ce-toolbar__content {
-    margin-left: 0 !important;
-}
-
-/* Fix block toolbar positioning */
-.ce-block .ce-toolbar {
-    margin-left: -30px !important;
-}
-
-/* Remove any default margins/padding from editor */
-.codex-editor {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Style headers to match the overall design */
-.ce-header {
-    margin: 1rem 0 !important;
-    font-weight: 600;
-}
-
-/* List styling */
-.cdx-list {
-    margin: 0.5rem 0 !important;
-}
-
-/* Quote styling */
-.cdx-quote {
-    margin: 1rem 0 !important;
-    padding-left: 1rem;
-    border-left: 3px solid #ddd;
-    font-style: italic;
-}
-
-/* Ensure editor placeholder matches other inputs */
-.codex-editor__redactor[data-placeholder]:empty::before {
-    color: #6c757d !important;
-    font-style: normal !important;
-}
-
-/* Hide any unwanted editor margins */
-.ce-block:first-child {
-    margin-top: 0 !important;
-}
-
-.ce-block {
-    margin: 0.25rem 0 !important;
-    position: relative !important;
-}
-
-/* Ensure the entire block container is properly positioned */
-.ce-block__content,
-.ce-paragraph[contentEditable=true][data-placeholder] {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    position: relative !important;
-}
-
-/* Fix the toolbar positioning relative to blocks */
-.ce-toolbar--opened {
-    margin-left: -30px !important;
-}
-
-/* Hide editor border and focus styles */
-#editorjs:focus-within {
-    border: none !important;
-    box-shadow: none !important;
-}
-
-/* Ensure EditorJS toolbars are visible */
-.ce-toolbar,
-.ce-inline-toolbar,
-.ce-conversion-toolbar,
-.ce-settings {
-    z-index: 1050 !important;
-}
-
-.ce-popover,
-.ce-toolbar__content {
-    z-index: 1060 !important;
-}
-
 /* Entry title styling */
 .entry-title {
     font-size: 3rem !important;
@@ -250,107 +121,331 @@ footer {
     background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
-/* View/Edit mode visibility */
-.view-mode { 
-    display: block; 
-}
-.edit-mode { 
-    display: none; 
-}
-body.editing .view-mode { 
-    display: none !important; 
-}
-body.editing .edit-mode { 
-    display: block !important; 
+/* Dashboard Sidebar Styles */
+.sidebar {
+    transition: margin-left 0.3s ease;
+    width: 250px;
+    min-width: 250px;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
 }
 
-/* Entry content styling for detail view */
-.entry-content {
-    font-size: 1.1rem;
-    line-height: 1.7;
-    color: #333;
+.sidebar.collapsed {
+    margin-left: -250px;
 }
 
-.entry-content h1,
-.entry-content h2,
-.entry-content h3,
-.entry-content h4,
-.entry-content h5,
-.entry-content h6 {
-    margin: 2rem 0 1rem;
-    font-weight: 600;
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    background: linear-gradient(135deg, var(--color-surface), rgba(255,255,255,0.8));
+    backdrop-filter: blur(10px);
 }
 
-.entry-content p {
-    margin: 0.5rem 0;
+.sidebar-header .logo {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
 }
 
-.entry-content ul,
-.entry-content ol {
-    margin: 0.5rem 0;
-    padding-left: 1.5rem;
+.sidebar-header #closeSidebar {
+    border: 1px solid var(--color-border);
+    background: white;
+    color: var(--color-muted);
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.5rem;
 }
 
-.entry-content blockquote {
-    border-left: 3px solid #ddd;
-    padding-left: 1rem;
-    margin: 1rem 0;
-    font-style: italic;
+.sidebar-header #closeSidebar:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    transform: scale(1.05);
 }
 
-.entry-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-}
-
-.entry-content table th,
-.entry-content table td {
-    border: 1px solid #dee2e6;
-    padding: 0.5rem;
-    text-align: left;
-}
-
-.entry-content table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-}
-
-.entry-content hr {
-    margin: 2rem 0;
+.open-sidebar-btn {
+    display: none;
+    transition: opacity 0.3s ease;
     border: none;
-    border-top: 2px solid #dee2e6;
-}
-
-.entry-content pre {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background: none;
+    color: #6c757d;
     border-radius: 0.375rem;
-    padding: 1rem;
-    overflow-x: auto;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.875rem;
 }
 
-.entry-content pre code {
-    background-color: transparent;
-    border: none;
+.open-sidebar-btn:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    color: #0056b3;
+}
+
+.sidebar.collapsed ~ main .dashboard-header .open-sidebar-btn {
+    display: inline-block;
+}
+
+.main-expanded {
+    margin-left: 0;
+    width: 100%;
+    flex: 1;
+}
+
+.main-normal {
+    margin-left: 0;
+    flex: 1;
+}
+
+.dashboard-header {
+    flex-shrink: 0;
+    padding: 1rem 1.5rem !important;
+}
+
+/* Journal Navigation Styles */
+.sidebar-section-title {
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem !important;
+    padding: 0 0.25rem;
+}
+
+.journal-nav {
+    gap: 0.25rem;
     padding: 0;
 }
 
-.entry-content .checklist {
-    margin-bottom: 1rem;
+.journal-nav-item {
+    margin-bottom: 0.125rem;
+    list-style: none;
 }
 
-.entry-content .checklist .form-check {
+.journal-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+}
+
+.journal-link:hover {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+    color: white;
+    border-color: var(--color-primary);
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(88, 165, 164, 0.2);
+    text-decoration: none;
+}
+
+.journal-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.journal-link.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 12px rgba(88, 165, 164, 0.3);
+    transform: translateX(0);
+}
+
+.journal-link.active:hover {
+    background: var(--color-primary-focus);
+    transform: translateX(0);
+}
+
+.journal-link-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.journal-icon {
+    font-size: 1rem;
+    opacity: 0.8;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease;
+}
+
+.journal-link:hover .journal-icon,
+.journal-link.active .journal-icon {
+    opacity: 1;
+}
+
+.journal-title {
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.journal-date {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    font-weight: 400;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease;
+}
+
+.journal-link:hover .journal-date,
+.journal-link.active .journal-date {
+    opacity: 0.9;
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    border: 2px dashed var(--color-border);
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.empty-state i {
+    font-size: 2rem;
     margin-bottom: 0.5rem;
+    display: block;
 }
 
-.entry-content .alert {
-    margin-bottom: 1rem;
+.empty-state p {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
 }
 
-.entry-content mark {
-    background-color: #fff3cd;
-    padding: 0.1em 0.2em;
+.empty-state small {
+    font-size: 0.75rem;
 }
+
+/* Gradient animation for hover effect */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Loading state for nav links */
+.journal-link.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.journal-link.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .journal-link {
+        padding: 0.625rem 0.75rem;
+    }
+    
+    .journal-title {
+        font-size: 0.8125rem;
+    }
+    
+    .journal-date {
+        font-size: 0.6875rem;
+    }
+}
+
+/* Keyboard navigation and accessibility */
+.journal-link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-color: var(--color-primary);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .journal-link {
+        border: 2px solid var(--color-border);
+    }
+    
+    .journal-link:hover,
+    .journal-link.active {
+        border: 2px solid var(--color-primary);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .journal-link,
+    .sidebar,
+    .open-sidebar-btn {
+        transition: none;
+    }
+    
+    .journal-link::after {
+        animation: none;
+    }
+    
+    @keyframes gradientShift {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+    }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+    .sidebar {
+        background: #1a1a1a;
+        border-right-color: #333;
+    }
+    
+    .sidebar-header {
+        background: linear-gradient(135deg, #222, rgba(255,255,255,0.05));
+        border-bottom-color: #333;
+    }
+    
+    .journal-link {
+        color: #e5e5e5;
+    }
+    
+    .journal-link:hover {
+        background: linear-gradient(135deg, #2a4a49, #4a6b7c);
+    }
+}
+
