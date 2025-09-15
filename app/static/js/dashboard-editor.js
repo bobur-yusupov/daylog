@@ -572,6 +572,18 @@ function updateAutoSaveToggle() {
 }
 
 /**
+ * Truncate text to match Django's truncatechars behavior
+ * @param {string} text - Text to truncate
+ * @param {number} maxLength - Maximum length (default 20 to match template)
+ * @returns {string} Truncated text
+ */
+function truncateText(text, maxLength = 20) {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 1) + '...';
+}
+
+/**
  * Update entry link title in sidebar
  */
 function updateEntryLinkTitle(entryId, newTitle) {
@@ -579,11 +591,13 @@ function updateEntryLinkTitle(entryId, newTitle) {
     if (entryLink) {
         const titleElement = entryLink.querySelector('.journal-title');
         if (titleElement) {
-            titleElement.textContent = newTitle.length > 30 ? newTitle.substring(0, 27) + '...' : newTitle;
-            entryLink.setAttribute('title', newTitle); // Update tooltip
+            // Use consistent truncation function
+            titleElement.textContent = truncateText(newTitle, 20);
+            entryLink.setAttribute('title', newTitle); // Update tooltip with full title
         } else {
             // Fallback for old structure
-            entryLink.textContent = newTitle;
+            entryLink.textContent = truncateText(newTitle, 20);
+            entryLink.setAttribute('title', newTitle);
         }
     }
 }

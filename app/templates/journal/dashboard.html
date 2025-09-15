@@ -1,127 +1,286 @@
-{% extends "base_authenticated.html" %}
-{% load static %}
-
-{% block title %}Dashboard - Daylog{% endblock %}
-
-{% block extra_css %}
+{% extends "base_authenticated.html" %} 
+{% load static %} 
+{% block title %}Dashboard - Daylog{% endblock %} {% block extra_css %}
 <!-- Highlight.js CSS Theme -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
-<link rel="stylesheet" href="{% static 'css/editorjs-blocks.css' %}">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<link rel="stylesheet" href="{% static 'css/editorjs-blocks.css' %}" />
+<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
 
 <!-- CodeMirror CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
 
 <!-- CodeMirror Core & Modes -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/xml/xml.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/css/css.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/sql/sql.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/shell/shell.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/php/php.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/clike/clike.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/ruby/ruby.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/markdown/markdown.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/yaml/yaml.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/mode/simple.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/selection/active-line.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-{% endblock %}
-
-{% block content %}
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/xml/xml.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/css/css.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/sql/sql.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/shell/shell.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/php/php.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/clike/clike.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/ruby/ruby.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/go/go.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/markdown/markdown.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/yaml/yaml.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/mode/simple.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/matchbrackets.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/selection/active-line.min.js"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+{% endblock %} {% block content %}
 <div class="d-flex vh-100 dashboard">
-    <!-- Sidebar -->
-    <nav class="bg-light sidebar">
-        <div class="sidebar-header">
-            <h5 class="mb-0 logo">Daylog</h5>
-            <button id="closeSidebar" class="btn btn-sm btn-outline-secondary" type="button">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-        </div>
-        <div class="offcanvas-md offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
-            <div class="offcanvas-header d-md-none">
-                <h5 class="offcanvas-title" id="sidebarLabel">Menu</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body p-0">
-                <div class="p-3">
-                    <h6 class="mb-3">Recent Entries</h6>
-                    <ul class="nav flex-column" id="recentEntries">
-                        {% for entry in recent_entries %}
-                        <li class="nav-item journal-nav-item">
-                            <a class="nav-link journal-link {% if entry.id == last_modified_entry.id %}active{% endif %}"
-                               href="#" data-id="{{ entry.id }}" title="{{ entry.title }}">
-                                <div class="journal-link-content">
-                                    <i class="bi bi-journal-text journal-icon"></i>
-                                    <span class="journal-title">{{ entry.title|truncatechars:20 }}</span>
-                                </div>
-                            </a>
-                        </li>
-                        {% empty %}
-                        <li class="nav-item">
-                            <div class="empty-state">
-                                <i class="bi bi-journal-plus text-muted"></i>
-                                <p class="text-muted mb-0">No entries yet</p>
-                                <small class="text-muted">Create your first entry!</small>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-grow-1 d-flex flex-column main-normal">
-        <div class="dashboard-header d-flex justify-content-between align-items-center p-3 border-bottom">
-            <div class="d-flex align-items-center">
-                <button id="openSidebar" class="btn btn-sm open-sidebar-btn me-3" type="button">
-                    <i class="bi bi-list"></i>
-                </button>
-                <h1 class="mb-0" id="currentEntryTitle" contenteditable="true">{% if last_modified_entry %}{{ last_modified_entry.title }}{% else %}Dashboard{% endif %}</h1>
-            </div>
-            <div class="header-actions d-flex align-items-center gap-2">
-                {% if last_modified_entry %}
-                    <small class="text-muted" id="lastUpdated">Last updated: {{ last_modified_entry.updated_at|date:"M d, Y H:i" }}</small>
+  <!-- Sidebar -->
+  <nav class="bg-light d-flex flex-column justify-content-between sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-profile d-flex flex-grow-2 align-items-center justify-content-between" 
+             id="profileToggle">
+            <p>
+                {% if user.first_name and user.last_name %}
+                {{ user.first_name }} {{ user.last_name }}
                 {% else %}
-                    <small class="text-muted" id="lastUpdated">No entries yet.</small>
+                {{ user.email|default:"User" }}
                 {% endif %}
-                <div id="saveStatus" class="text-muted small d-none">
-                    <i class="bi bi-check-circle text-success"></i>
-                    <span>Saved</span>
+            </p>
+            <i class="bi bi-chevron-down" id="profileDropdownIcon"></i>
+            
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-header">
+                    <i class="bi bi-person-circle me-2"></i>
+                    {% if user.first_name and user.last_name %}
+                    {{ user.first_name }} {{ user.last_name }}
+                    {% else %}
+                    {{ user.username|default:user.email|default:"User" }}
+                    {% endif %}
                 </div>
-                <div id="savingStatus" class="text-muted small d-none">
-                    <div class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></div>
-                    <span>Saving...</span>
-                </div>
-                <button id="saveButton" class="btn btn-primary btn-sm" type="button">
-                    <i class="bi bi-floppy"></i>
-                    Save
-                </button>
-                <button id="autoSaveToggle" class="btn btn-outline-secondary btn-sm" type="button" title="Toggle Auto-save">
-                    <i class="bi bi-arrow-repeat"></i>
-                </button>
+                <a class="profile-dropdown-item" href="{% url 'authentication:profile' %}">
+                    <i class="bi bi-gear"></i>
+                    Account Settings
+                </a>
+                <a class="profile-dropdown-item" href="{% url 'authentication:profile' %}">
+                    <i class="bi bi-person"></i>
+                    Profile
+                </a>
+                <div class="profile-dropdown-divider"></div>
+                <a class="profile-dropdown-item text-danger" href="{% url 'authentication:logout' %}">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+                </a>
             </div>
         </div>
+        <button id="closeSidebar" class="btn btn-sm btn-outline-secondary" type="button">
+            <i class="bi bi-chevron-double-left"></i>
+        </button>
+    </div>
 
-        <!-- Journal Content -->
-        <div class="flex-grow-1 p-3 overflow-auto journal-content" id="journalContent">
-            {% for entry in recent_entries %}
-            <div id="journal-{{ entry.id }}" class="journal-entry {% if entry.id != last_modified_entry.id %}d-none{% endif %}">
-                <div id="editorjs-{{ entry.id }}" class="dashboard-editor-container"></div>
-                <small class="d-none entry-updated">{{ entry.updated_at|date:"M d, Y H:i" }}</small>
-            </div>
-            {% endfor %}
+    <!-- Recent Entries Section -->
+    <div class="sidebar-content mt-2">
+      <div class="recent-entries-header p-1">
+        <h6>Recent Entries</h6>
+        <button class="btn btn-sm btn-outline-secondary" id="searchToggleBtn">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+      <div class="search-container mb-3 d-none" id="searchContainer">
+        <div class="input-group">
+          <input type="text" class="form-control form-control-sm" placeholder="Search entries..." id="searchInput">
+          <button class="btn btn-outline-secondary btn-sm" type="button" id="clearSearchBtn">
+            <i class="bi bi-x"></i>
+          </button>
         </div>
-    </main>
+        <div class="search-info mt-2 d-none" id="searchInfo">
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            <span id="searchResultText">Search in titles and content</span>
+          </small>
+        </div>
+      </div>
+      <ul class="nav flex-column" id="recentEntries">
+        {% for entry in recent_entries %}
+        <li class="nav-item">
+          <a
+            class="nav-link journal-link {% if entry.id == last_modified_entry.id %}active{% endif %}"
+            href="#"
+            data-id="{{ entry.id }}"
+            title="{{ entry.title }}"
+          >
+            <div class="journal-link-content">
+              <i class="bi bi-journal-text journal-icon"></i>
+              <span class="journal-title"
+                >{{ entry.title|truncatechars:20 }}</span
+              >
+            </div>
+          </a>
+        </li>
+        {% empty %}
+        <li class="nav-item">
+          <div class="empty-state">
+            <i class="bi bi-journal-plus text-muted"></i>
+            <p class="text-muted mb-0">No entries yet</p>
+            <small class="text-muted">Create your first entry!</small>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer p-3 border-top">
+      <a href="{% url 'journal:new_entry' %}" class="btn btn-success w-100" id="newEntryButton">
+        <i class="bi bi-plus-lg me-2"></i>
+        New Entry
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-grow-1 d-flex flex-column main-normal">
+    <div
+      class="dashboard-header d-flex justify-content-between align-items-center p-3 border-bottom"
+    >
+      <div class="d-flex align-items-center">
+        <button
+          id="openSidebar"
+          class="btn btn-sm open-sidebar-btn me-3"
+          type="button"
+        >
+          <i class="bi bi-list"></i>
+        </button>
+        <h3 class="mb-0" id="currentEntryTitle" contenteditable="true">
+          {% if last_modified_entry %}{{ last_modified_entry.title }}{% else %}Dashboard{% endif %}
+        </h3>
+      </div>
+      <div class="header-actions d-flex align-items-center gap-2">
+        {% if last_modified_entry %}
+        <small class="text-muted" id="lastUpdated">Last updated: {{ last_modified_entry.updated_at|date:"M d, Y H:i"}}</small>
+        {% else %}
+        <small class="text-muted" id="lastUpdated">No entries yet.</small>
+        {% endif %}
+        <div id="saveStatus" class="text-muted small d-none">
+          <i class="bi bi-check-circle text-success"></i>
+          <span>Saved</span>
+        </div>
+        <div id="savingStatus" class="text-muted small d-none">
+          <div
+            class="spinner-border spinner-border-sm me-1"
+            role="status"
+            aria-hidden="true"
+          ></div>
+          <span>Saving...</span>
+        </div>
+        <button id="saveButton" class="btn btn-primary btn-sm" type="button">
+          <i class="bi bi-floppy"></i>
+          Save
+        </button>
+        <button
+          id="autoSaveToggle"
+          class="btn btn-outline-secondary btn-sm"
+          type="button"
+          title="Toggle Auto-save"
+        >
+          <i class="bi bi-arrow-repeat"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Journal Content -->
+    <div
+      class="flex-grow-1 p-3 overflow-auto journal-content"
+      id="journalContent"
+    >
+      {% for entry in recent_entries %}
+      <div
+        id="journal-{{ entry.id }}"
+        class="journal-entry {% if entry.id != last_modified_entry.id %}d-none{% endif %}"
+      >
+        <div
+          id="editorjs-{{ entry.id }}"
+          class="dashboard-editor-container"
+        ></div>
+        <small class="d-none entry-updated"
+          >{{ entry.updated_at|date:"M d, Y H:i" }}</small
+        >
+      </div>
+      {% endfor %}
+    </div>
+  </main>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <!-- EditorJS Core & Plugins -->
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.28.2/dist/editorjs.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.7.0/dist/bundle.js"></script>
@@ -139,53 +298,29 @@
 <!-- Custom CodeBlock -->
 <script src="{% static 'js/codeblock.js' %}"></script>
 <script src="{% static 'js/dashboard-editor.js' %}"></script>
+<script src="{% static 'js/scripts.js' %}"></script>
 
-<script>
-// Initialize the dashboard editor with entry data
-document.addEventListener('DOMContentLoaded', function() {
-    const entryData = {
-        {% for entry in entries_data %}
-        "{{ entry.id }}": {{ entry.content_json|safe }}{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    };
-
-    const entryMetadata = {
-        {% for entry in entries_data %}
-        "{{ entry.id }}": {
-            title: "{{ entry.title|escapejs }}",
-            updated_at: "{{ entry.updated_at|date:'M d, Y H:i' }}",
-            updated_at_iso: "{{ entry.updated_at|date:'c' }}"
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    };
-
-    let activeEntryId = "{{ last_modified_entry.id|default:'' }}";
-
-    window.DashboardEditor.initialize(entryData, activeEntryId, entryMetadata);
-
-    // Optional: Switch entry dynamically
-    const journalLinks = document.querySelectorAll('.journal-link');
-    journalLinks.forEach(link => {
-        link.addEventListener('click', e => {
-            e.preventDefault();
-            const newId = link.dataset.id;
-            if (newId === activeEntryId) return;
-
-            // Update sidebar active class
-            document.querySelector('.journal-link.active')?.classList.remove('active');
-            link.classList.add('active');
-
-            // Show new journal content, hide old
-            document.getElementById(`journal-${activeEntryId}`)?.classList.add('d-none');
-            document.getElementById(`journal-${newId}`)?.classList.remove('d-none');
-
-            // Update header title and last updated
-            document.getElementById('currentEntryTitle').textContent = entryMetadata[newId].title;
-            document.getElementById('lastUpdated').textContent = `Last updated: ${entryMetadata[newId].updated_at}`;
-
-            activeEntryId = newId;
-        });
-    });
-});
+<!-- Dashboard Data for JavaScript -->
+<script type="application/json" id="entry-data">
+{
+  {% for entry in entries_data %}
+  "{{ entry.id }}": {{ entry.content_json|safe }}{% if not forloop.last %},{% endif %}
+  {% endfor %}
+}
 </script>
+
+<script type="application/json" id="entry-metadata">
+{
+  {% for entry in entries_data %}
+  "{{ entry.id }}": {
+    "title": "{{ entry.title|escapejs }}",
+    "updated_at": "{{ entry.updated_at|date:'M d, Y H:i' }}",
+    "updated_at_iso": "{{ entry.updated_at|date:'c' }}"
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+}
+</script>
+
+<script type="text/plain" id="active-entry-id">{{ last_modified_entry.id|default:'' }}</script>
+
 {% endblock %}
