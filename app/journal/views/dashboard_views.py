@@ -29,8 +29,8 @@ class DashboardView(LoginRequiredMixin, View):
                 | Q(tags__name__icontains=search_query)
             ).distinct()
 
-        # Get recent entries (limit to 10 for dashboard)
-        entries = entries_queryset.order_by("-updated_at")[:10]
+        # Get recent entries (limit to 5 for dashboard)
+        entries = entries_queryset.order_by("-updated_at")[:5]
 
         # Get last modified entry (considering search if applied)
         last_modified_entry = entries.first() if entries else None
