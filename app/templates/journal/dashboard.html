@@ -35,12 +35,17 @@
 <div class="d-flex vh-100 dashboard">
     <!-- Sidebar -->
     <nav class="bg-light sidebar">
-        <div class="sidebar-header">
-            <h5 class="mb-0 logo">Daylog</h5>
-            <button id="closeSidebar" class="btn btn-sm btn-outline-secondary" type="button">
-                <i class="bi bi-chevron-left"></i>
-            </button>
+        <div class="d-flex align-items-center justify-content-between p-3 sidebar-header">
+            <a class="sidebar-brand" href="{% url 'journal:dashboard' %}">
+                <div class="sidebar-brand-text logo">Daylog</div>
+            </a>
+            <div>
+                <button id="closeSidebar" class="btn btn-sm btn-outline-secondary" type="button">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+            </div>
         </div>
+
         <div class="offcanvas-md offcanvas-start" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
             <div class="offcanvas-header d-md-none">
                 <h5 class="offcanvas-title" id="sidebarLabel">Menu</h5>
@@ -48,10 +53,15 @@
             </div>
             <div class="offcanvas-body p-0">
                 <div class="p-3">
-                    <h6 class="mb-3">Recent Entries</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6>Recent Entries</h6>
+                        <a href="" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-plus"></i>
+                        </a>
+                    </div>
                     <ul class="nav flex-column" id="recentEntries">
                         {% for entry in recent_entries %}
-                        <li class="nav-item journal-nav-item">
+                        <li class="nav-item">
                             <a class="nav-link journal-link {% if entry.id == last_modified_entry.id %}active{% endif %}"
                                href="#" data-id="{{ entry.id }}" title="{{ entry.title }}">
                                 <div class="journal-link-content">
@@ -71,6 +81,36 @@
                         {% endfor %}
                     </ul>
                 </div>
+                <div class="sidebar-footer p-3 border-top">
+                    <a href="{% url 'journal:new_entry' %}" class="btn btn-success w-100 mb-2" id="newEntryButton">
+                        <i class="bi bi-plus-lg me-2"></i>
+                        New Entry
+                    </a>
+                    <div class="dropdown w-100">
+                        <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span>
+                                <i class="bi bi-person-circle me-2"></i>
+                                {{ user.username|default:user.email|default:"User" }}
+                            </span>
+                            <i class="bi bi-chevron-up"></i>
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'authentication:profile' %}">
+                                    <i class="bi bi-person me-2"></i>
+                                    Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -82,7 +122,7 @@
                 <button id="openSidebar" class="btn btn-sm open-sidebar-btn me-3" type="button">
                     <i class="bi bi-list"></i>
                 </button>
-                <h1 class="mb-0" id="currentEntryTitle" contenteditable="true">{% if last_modified_entry %}{{ last_modified_entry.title }}{% else %}Dashboard{% endif %}</h1>
+                <h3 class="mb-0" id="currentEntryTitle" contenteditable="true">{% if last_modified_entry %}{{ last_modified_entry.title }}{% else %}Dashboard{% endif %}</h3>
             </div>
             <div class="header-actions d-flex align-items-center gap-2">
                 {% if last_modified_entry %}
