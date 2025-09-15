@@ -16,25 +16,25 @@ class DashboardView(LoginRequiredMixin, View):
     template_name = "journal/dashboard.html"
 
     def get(self, request):
-        search_query = request.GET.get('search', '').strip()
-        
+        search_query = request.GET.get("search", "").strip()
+
         # Base queryset
         entries_queryset = JournalEntry.objects.filter(user=request.user)
-        
+
         # Apply search filter if provided
         if search_query:
             entries_queryset = entries_queryset.filter(
-                Q(title__icontains=search_query) |
-                Q(content__icontains=search_query) |
-                Q(tags__name__icontains=search_query)
+                Q(title__icontains=search_query)
+                | Q(content__icontains=search_query)
+                | Q(tags__name__icontains=search_query)
             ).distinct()
-        
+
         # Get recent entries (limit to 10 for dashboard)
         entries = entries_queryset.order_by("-updated_at")[:10]
-        
+
         # Get last modified entry (considering search if applied)
         last_modified_entry = entries.first() if entries else None
-        
+
         # Get recent tags
         tags = Tag.objects.filter(user=request.user).order_by("-created_at")[:10]
 
@@ -51,20 +51,22 @@ class DashboardView(LoginRequiredMixin, View):
             entries_with_content.append(entry_dict)
 
         # If it's an AJAX request for search, return JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'entries': [
-                    {
-                        'id': str(entry.id),
-                        'title': entry.title,
-                        'updated_at': entry.updated_at.strftime('%b %d, %Y %H:%M'),
-                        'is_active': entry == last_modified_entry,
-                    }
-                    for entry in entries
-                ],
-                'total_count': entries_queryset.count(),
-                'search_query': search_query,
-            })
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "entries": [
+                        {
+                            "id": str(entry.id),
+                            "title": entry.title,
+                            "updated_at": entry.updated_at.strftime("%b %d, %Y %H:%M"),
+                            "is_active": entry == last_modified_entry,
+                        }
+                        for entry in entries
+                    ],
+                    "total_count": entries_queryset.count(),
+                    "search_query": search_query,
+                }
+            )
 
         context = {
             "user": request.user,
