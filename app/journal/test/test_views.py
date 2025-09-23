@@ -1,10 +1,6 @@
-import json
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.contrib.messages import get_messages
-from django.http import JsonResponse
-from unittest.mock import patch
 
 from journal.models import Tag, JournalEntry
 
@@ -70,6 +66,7 @@ class BaseViewTestCase(TestCase):
 
 class DashboardViewTests(BaseViewTestCase):
     """Tests for the DashboardView"""
+
     def setUp(self):
         super().setUp()
         self.journalEntry = JournalEntry.objects.create(
@@ -78,7 +75,9 @@ class DashboardViewTests(BaseViewTestCase):
 
     def test_dashboard_view_requires_login(self):
         """Test that dashboard view requires authentication"""
-        url = reverse("journal:dashboard_with_entry", kwargs={"entry_id": self.journalEntry.id})
+        url = reverse(
+            "journal:dashboard_with_entry", kwargs={"entry_id": self.journalEntry.id}
+        )
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 302)
@@ -87,7 +86,9 @@ class DashboardViewTests(BaseViewTestCase):
     def test_dashboard_view_authenticated_access(self):
         """Test authenticated access to dashboard"""
         self.client.login(username="testuser", password="testpass123")
-        url = reverse("journal:dashboard_with_entry", kwargs={"entry_id": self.journalEntry.id})
+        url = reverse(
+            "journal:dashboard_with_entry", kwargs={"entry_id": self.journalEntry.id}
+        )
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -108,14 +109,18 @@ class DashboardViewTests(BaseViewTestCase):
 
         # Check that entries are ordered by most recent first
         entries = list(context["recent_entries"])
-        self.assertEqual(entries[0], self.journalEntry)  # Most recent (created in DashboardViewTests.setUp)
+        self.assertEqual(
+            entries[0], self.journalEntry
+        )  # Most recent (created in DashboardViewTests.setUp)
         self.assertEqual(entries[1], self.entry2)  # Second most recent
         self.assertEqual(entries[2], self.entry1)  # Oldest
 
     def test_dashboard_only_shows_user_data(self):
         """Test that dashboard only shows data for current user"""
         self.client.login(username="testuser", password="testpass123")
-        url = reverse("journal:dashboard_with_entry", kwargs={"entry_id": self.entry1.id})
+        url = reverse(
+            "journal:dashboard_with_entry", kwargs={"entry_id": self.entry1.id}
+        )
         response = self.client.get(url)
 
         context = response.context
@@ -137,7 +142,9 @@ class DashboardViewTests(BaseViewTestCase):
 
         context = response.context
         self.assertEqual(len(context["recent_entries"]), 5)
-        self.assertEqual(context["total_entries"], 10)  # Base 2 + 1 additional + 7 new = 10
+        self.assertEqual(
+            context["total_entries"], 10
+        )  # Base 2 + 1 additional + 7 new = 10
 
     def test_dashboard_limits_recent_tags(self):
         """Test that dashboard limits recent tags to 10"""
@@ -152,5 +159,3 @@ class DashboardViewTests(BaseViewTestCase):
         context = response.context
         self.assertEqual(len(context["recent_tags"]), 10)
         self.assertEqual(context["total_tags"], 15)
-
-
