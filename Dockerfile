@@ -28,7 +28,6 @@ RUN adduser --disabled-password --gecos '' appuser \
 
 USER appuser
 
-
 EXPOSE 8000
 
 COPY ./app /app/
