@@ -1,3 +1,7 @@
+"""
+Integration tests for journal application
+"""
+
 import json
 from django.test import TestCase, TransactionTestCase, Client
 from django.urls import reverse
