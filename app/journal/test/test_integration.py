@@ -1,5 +1,5 @@
 """
-Integration tests for journal application
+Integration tests for journal application covering models, views, and their interactions.
 """
 
 import json
