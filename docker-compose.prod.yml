@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   app:
-    image: devyusupov/daylog:1.0.3
+    image: devyusupov/daylog:latest
     depends_on:
       - db
     ports:
