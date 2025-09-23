@@ -28,7 +28,7 @@ RUN adduser --disabled-password --gecos '' appuser \
 
 USER appuser
 
-RUN python manage.py collectstatic --noinput
+RUN python /app/manage.py collectstatic --noinput
 
 EXPOSE 8000
 
