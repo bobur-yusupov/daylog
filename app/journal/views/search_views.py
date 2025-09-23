@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -26,8 +26,7 @@ class SearchView(LoginRequiredMixin, View):
         # Apply search filters
         if search_query:
             entries_queryset = entries_queryset.filter(
-                Q(title__icontains=search_query)
-                | Q(content__icontains=search_query)
+                Q(title__icontains=search_query) | Q(content__icontains=search_query)
             ).distinct()
 
         if tag_filter:
@@ -53,21 +52,23 @@ class SearchView(LoginRequiredMixin, View):
 
         # If it's an AJAX request, return JSON for autocomplete
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return JsonResponse({
-                "entries": [
-                    {
-                        "id": str(entry.id),
-                        "title": entry.title,
-                        "updated_at": entry.updated_at.strftime("%b %d, %Y %H:%M"),
-                        "tags": [tag.name for tag in entry.tags.all()],
-                        "preview": self._get_content_preview(entry.content),
-                    }
-                    for entry in page_obj
-                ],
-                "has_next": page_obj.has_next(),
-                "has_previous": page_obj.has_previous(),
-                "total_count": paginator.count,
-            })
+            return JsonResponse(
+                {
+                    "entries": [
+                        {
+                            "id": str(entry.id),
+                            "title": entry.title,
+                            "updated_at": entry.updated_at.strftime("%b %d, %Y %H:%M"),
+                            "tags": [tag.name for tag in entry.tags.all()],
+                            "preview": self._get_content_preview(entry.content),
+                        }
+                        for entry in page_obj
+                    ],
+                    "has_next": page_obj.has_next(),
+                    "has_previous": page_obj.has_previous(),
+                    "total_count": paginator.count,
+                }
+            )
 
         context = {
             "search_query": search_query,
@@ -94,7 +95,8 @@ class SearchView(LoginRequiredMixin, View):
                 if text:
                     # Remove HTML tags for preview
                     import re
-                    clean_text = re.sub(r'<[^>]+>', '', text)
+
+                    clean_text = re.sub(r"<[^>]+>", "", text)
                     text_parts.append(clean_text)
 
         preview = " ".join(text_parts)

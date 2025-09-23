@@ -20,7 +20,9 @@ urlpatterns = [
     path("entry/new/", NewJournalView.as_view(), name="new_entry"),
     path("entry/list/", JournalListView.as_view(), name="entry_list"),
     path("entry/<uuid:entry_id>/edit/", EditJournalView.as_view(), name="edit_entry"),
-    path("entry/<uuid:entry_id>/", DashboardView.as_view(), name="dashboard_with_entry"),
+    path(
+        "entry/<uuid:entry_id>/", DashboardView.as_view(), name="dashboard_with_entry"
+    ),
     path("api/entry/<uuid:entry_id>/", JournalDetailView.as_view(), name="entry_api"),
     path("tags/autocomplete/", TagAutocompleteView.as_view(), name="tag_autocomplete"),
     path("tags/list/", TagListView.as_view(), name="tag_list"),

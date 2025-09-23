@@ -3,8 +3,6 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
-from django.urls import reverse
-import json
 
 from ..models import JournalEntry, Tag
 
@@ -38,16 +36,16 @@ class DashboardView(LoginRequiredMixin, View):
         if entry_id:
             # Verify the entry exists and belongs to the user
             current_entry = get_object_or_404(
-                JournalEntry.objects.prefetch_related('tags'), 
-                id=entry_id, 
-                user=request.user
+                JournalEntry.objects.prefetch_related("tags"),
+                id=entry_id,
+                user=request.user,
             )
             active_entry = current_entry
         else:
             # If no entry_id, redirect to the most recent entry
             if entries:
                 most_recent = entries.first()
-                return redirect('journal:dashboard_with_entry', entry_id=most_recent.id)
+                return redirect("journal:dashboard_with_entry", entry_id=most_recent.id)
             else:
                 # No entries exist
                 active_entry = None
