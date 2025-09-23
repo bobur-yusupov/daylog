@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+import json
 
 from ..models import JournalEntry, Tag
 
@@ -38,12 +40,26 @@ class JournalListView(LoginRequiredMixin, View):
 class JournalDetailView(LoginRequiredMixin, View):
     """
     View for displaying a single journal entry.
+    Supports both regular requests and AJAX requests.
     """
 
     template_name = "journal/entry_detail.html"
 
     def get(self, request, entry_id):
         entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
+
+        # If it's an AJAX request, return JSON data for the dashboard
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "id": str(entry.id),
+                    "title": entry.title,
+                    "content": entry.content if entry.content else {},
+                    "content_json": json.dumps(entry.content if entry.content else {}),
+                    "updated_at": entry.updated_at.strftime("%b %d, %Y %H:%M"),
+                    "updated_at_iso": entry.updated_at.isoformat(),
+                }
+            )
 
         context = {
             "entry": entry,

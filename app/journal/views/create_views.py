@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.utils import timezone
 import json
 
 from ..models import JournalEntry, Tag
@@ -9,20 +10,40 @@ from ..models import JournalEntry, Tag
 
 class NewJournalView(LoginRequiredMixin, View):
     """
-    View for creating a new journal entry with EditorJS support.
+    View for creating a new journal entry.
+    Creates an actual entry immediately and redirects to it.
     """
 
-    template_name = "journal/entry_create.html"
-
     def get(self, request):
-        tags = Tag.objects.filter(user=request.user).order_by("name")
-        context = {
-            "available_tags": tags,
-        }
-        return render(request, self.template_name, context)
+        """Create a new blank journal entry and redirect to it"""
+        try:
+            # Create a new blank journal entry
+            now = timezone.now()
+            title = f"New Entry - {now.strftime('%B %d, %Y at %I:%M %p')}"
+
+            # Create minimal EditorJS content structure
+            default_content = {
+                "time": int(now.timestamp() * 1000),
+                "blocks": [],
+                "version": "2.28.2",
+            }
+
+            entry = JournalEntry.objects.create(
+                user=request.user,
+                title=title,
+                content=default_content,
+                is_public=False,
+            )
+
+            # Redirect to dashboard with the new entry selected
+            return redirect("journal:dashboard_with_entry", entry_id=entry.id)
+
+        except Exception as e:
+            messages.error(request, f"Error creating new journal entry: {str(e)}")
+            return redirect("journal:dashboard")
 
     def post(self, request):
-        """Handle journal entry creation"""
+        """Handle journal entry creation from the legacy form (fallback)"""
         try:
             title = request.POST.get("title", "").strip()
             content = request.POST.get("content", "")
@@ -62,8 +83,8 @@ class NewJournalView(LoginRequiredMixin, View):
                     entry.tags.add(tag)
 
             messages.success(request, f'Journal entry "{title}" created successfully!')
-            return redirect("journal:dashboard")
+            return redirect("journal:dashboard_with_entry", entry_id=entry.id)
 
         except Exception as e:
             messages.error(request, f"Error creating journal entry: {str(e)}")
-            return self.get(request)
+            return redirect("journal:dashboard")
