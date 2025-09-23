@@ -1,0 +1,31 @@
+name: Docker Image CD
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/daylog:latest
+            ${{ secrets.DOCKER_USERNAME }}/daylog:${{ github.ref_name }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/daylog:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/daylog:buildcache,mode=max
