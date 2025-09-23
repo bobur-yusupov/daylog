@@ -1,0 +1,185 @@
+{% extends "base_authenticated.html" %}
+{% load static %}
+
+{% block title %}Search - Daylog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/search.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <div class="back-to-dashboard">
+        <a href="{% url 'journal:dashboard' %}">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="search-header">
+        <h1 class="mb-3">
+            <i class="bi bi-search me-2"></i>
+            Search Journal Entries
+        </h1>
+        <p class="text-muted">Search through your journal entries by title, content, or tags</p>
+    </div>
+
+    <div class="search-form">
+        <form method="get" action="{% url 'journal:search' %}">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="q" 
+                    value="{{ search_query }}"
+                    placeholder="Search for entries, content, or keywords..."
+                    autofocus
+                >
+                <button type="submit" class="search-btn">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+
+            <div class="tag-filter-section">
+                <label for="tag-filter" class="form-label small text-muted">Filter by tag (optional):</label>
+                <input 
+                    type="text" 
+                    class="form-control tag-filter-input" 
+                    name="tag" 
+                    id="tag-filter"
+                    value="{{ tag_filter }}"
+                    placeholder="Enter tag name..."
+                >
+            </div>
+        </form>
+    </div>
+
+    {% if search_query or tag_filter %}
+    <div class="search-results">
+        {% if has_results %}
+            <div class="search-stats">
+                Found {{ total_count }} result{{ total_count|pluralize }} 
+                {% if search_query %}for "{{ search_query }}"{% endif %}
+                {% if tag_filter %}{% if search_query %} and {% endif %}tagged with "{{ tag_filter }}"{% endif %}
+            </div>
+
+            {% for entry in entries %}
+            <a href="{% url 'journal:dashboard_with_entry' entry_id=entry.id %}" class="search-result-item">
+                <div class="search-result-title">{{ entry.title }}</div>
+                {% if entry.content_preview %}
+                <div class="search-result-preview">
+                    {{ entry.content_preview }}
+                </div>
+                {% else %}
+                <div class="search-result-preview">
+                    <em>No content preview available</em>
+                </div>
+                {% endif %}
+                <div class="search-result-meta">
+                    <span class="search-result-date">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        {{ entry.updated_at|date:"M d, Y" }}
+                    </span>
+                </div>
+                {% if entry.tags.all %}
+                <div class="search-result-tags">
+                    {% for tag in entry.tags.all %}
+                    <span class="search-tag">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </a>
+            {% endfor %}
+
+            {% if entries.has_other_pages %}
+            <div class="pagination-wrapper">
+                <nav aria-label="Search results pagination">
+                    <ul class="pagination">
+                        {% if entries.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?q={{ search_query }}&tag={{ tag_filter }}&page={{ entries.previous_page_number }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ entries.number }} of {{ entries.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if entries.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?q={{ search_query }}&tag={{ tag_filter }}&page={{ entries.next_page_number }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <div class="no-results">
+                <i class="bi bi-search"></i>
+                <h4>No results found</h4>
+                <p>
+                    {% if search_query %}
+                        No entries found for "{{ search_query }}"
+                    {% endif %}
+                    {% if tag_filter %}
+                        {% if search_query %} with tag "{{ tag_filter }}"{% else %}No entries found with tag "{{ tag_filter }}"{% endif %}
+                    {% endif %}
+                </p>
+                <p class="text-muted">Try different keywords or check your spelling.</p>
+                <a href="{% url 'journal:search' %}" class="btn btn-outline-primary">
+                    Clear Search
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="no-results">
+        <i class="bi bi-journal-text"></i>
+        <h4>Ready to search</h4>
+        <p class="text-muted">Enter keywords above to search through your journal entries.</p>
+        
+        {% if user_tags %}
+        <div class="mt-3">
+            <p class="small text-muted mb-2">Quick tag filters:</p>
+            <div class="quick-tag-filters">
+                {% for tag in user_tags|slice:":10" %}
+                <a href="?tag={{ tag.name|urlencode }}" class="search-tag">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus search input
+    const searchInput = document.querySelector('input[name="q"]');
+    if (searchInput && !searchInput.value) {
+        searchInput.focus();
+    }
+
+    // Submit form on tag filter change
+    const tagFilter = document.getElementById('tag-filter');
+    if (tagFilter) {
+        tagFilter.addEventListener('change', function() {
+            if (this.value.trim()) {
+                this.form.submit();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

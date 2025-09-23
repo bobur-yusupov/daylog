@@ -37,7 +37,11 @@ class DashboardView(LoginRequiredMixin, View):
         # Handle entry_id parameter
         if entry_id:
             # Verify the entry exists and belongs to the user
-            current_entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
+            current_entry = get_object_or_404(
+                JournalEntry.objects.prefetch_related('tags'), 
+                id=entry_id, 
+                user=request.user
+            )
             active_entry = current_entry
         else:
             # If no entry_id, redirect to the most recent entry

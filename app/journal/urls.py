@@ -9,12 +9,14 @@ from .views import (
     TagListView,
     TagUpdateView,
     TagDeleteView,
+    SearchView,
 )
 
 app_name = "journal"
 
 urlpatterns = [
     path("", DashboardView.as_view(), name="dashboard"),
+    path("search/", SearchView.as_view(), name="search"),
     path("entry/new/", NewJournalView.as_view(), name="new_entry"),
     path("entry/list/", JournalListView.as_view(), name="entry_list"),
     path("entry/<uuid:entry_id>/edit/", EditJournalView.as_view(), name="edit_entry"),

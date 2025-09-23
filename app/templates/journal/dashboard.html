@@ -154,9 +154,14 @@
         <h6>Recent Entries</h6>
       </div>
       <div class="search-container mb-3">
-        <div class="input-group">
-          <input type="text" class="form-control form-control-sm" placeholder="Search entries..." id="searchInput">
-        </div>
+        <form method="get" action="{% url 'journal:search' %}">
+          <div class="input-group">
+            <input type="text" class="form-control form-control-sm" name="q" placeholder="Search entries..." id="searchInput">
+            <button class="btn btn-outline-secondary btn-sm" type="submit" title="Open search page">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
       </div>
       <ul class="nav flex-column" id="recentEntries">
         {% for entry in recent_entries %}
@@ -211,11 +216,66 @@
         </button>
         <div class="title-container">
           {% if active_entry %}
-          <input type="text" 
-                 class="form-control-plaintext h3 mb-0 title-input" 
-                 id="currentEntryTitle" 
-                 value="{{ active_entry.title }}"
-                 placeholder="Enter title...">
+          <div class="title-input-wrapper">
+            <input type="text" 
+                   class="title-input" 
+                   id="currentEntryTitle" 
+                   value="{{ active_entry.title }}"
+                   placeholder="Enter a title for your entry..."
+                   maxlength="200"
+                   aria-label="Journal entry title"
+                   aria-describedby="title-help">
+            <div class="title-input-underline"></div>
+            <div class="title-actions">
+              <button type="button" class="title-edit-btn" id="titleEditBtn" title="Edit title (Click or press F2)" aria-label="Edit title">
+                <i class="bi bi-pencil" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="title-save-btn d-none" id="titleSaveBtn" title="Save title (Enter)" aria-label="Save title">
+                <i class="bi bi-check2" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="title-cancel-btn d-none" id="titleCancelBtn" title="Cancel editing (Escape)" aria-label="Cancel editing">
+                <i class="bi bi-x" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div id="title-help" class="visually-hidden">
+              Press F2 to edit, Enter to save, Escape to cancel
+            </div>
+          </div>
+          
+          <!-- Tags Section -->
+          <div class="tags-section mt-2">
+            <div class="tags-display d-flex align-items-center flex-wrap gap-1" id="tagsDisplay">
+              {% for tag in active_entry.tags.all %}
+              <span class="badge bg-primary tag-item" data-tag-id="{{ tag.id }}">
+                <i class="bi bi-tag-fill me-1"></i>{{ tag.name }}
+                <button type="button" class="btn-close btn-close-white ms-1" 
+                        data-tag-id="{{ tag.id }}" 
+                        title="Remove tag" 
+                        aria-label="Remove {{ tag.name }} tag"></button>
+              </span>
+              {% endfor %}
+              <button type="button" class="btn btn-sm btn-outline-secondary add-tag-btn" 
+                      id="addTagBtn" title="Add tag">
+                <i class="bi bi-plus"></i> Add Tag
+              </button>
+            </div>
+            
+            <!-- Tag Input (hidden by default) -->
+            <div class="tag-input-container d-none" id="tagInputContainer">
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" id="tagInput" 
+                       placeholder="Enter tag name..." maxlength="100"
+                       aria-label="Tag name">
+                <button class="btn btn-success" type="button" id="saveTagBtn" title="Save tag">
+                  <i class="bi bi-check2"></i>
+                </button>
+                <button class="btn btn-secondary" type="button" id="cancelTagBtn" title="Cancel">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+              <div class="tag-suggestions mt-1" id="tagSuggestions"></div>
+            </div>
+          </div>
           {% else %}
           <h3 class="mb-0" id="currentEntryTitle">Dashboard</h3>
           {% endif %}
