@@ -27,61 +27,9 @@ function initializeDashboardEditor(entryData, activeEntryId, metadata = {}) {
         initializeEditor(currentActiveEntry);
     }
 
-    // Add click handlers for journal links
-    document.querySelectorAll('.journal-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const entryId = this.getAttribute('data-id');
-            
-            // Add loading state
-            this.classList.add('loading');
-            
-            // Update active state with animation
-            document.querySelectorAll('.journal-link').forEach(l => {
-                l.classList.remove('active');
-                l.classList.remove('loading');
-            });
-            
-            // Small delay to show loading state
-            setTimeout(() => {
-                this.classList.remove('loading');
-                this.classList.add('active');
-                switchToEntry(entryId);
-            }, 200);
-        });
-
-        // Add keyboard navigation
-        link.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.click();
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                const nextLink = this.parentElement.nextElementSibling?.querySelector('.journal-link');
-                if (nextLink) nextLink.focus();
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                const prevLink = this.parentElement.previousElementSibling?.querySelector('.journal-link');
-                if (prevLink) prevLink.focus();
-            }
-        });
-
-        // Add hover effects
-        link.addEventListener('mouseenter', function() {
-            if (!this.classList.contains('active')) {
-                this.style.transform = 'translateX(2px)';
-            }
-        });
-
-        link.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('active')) {
-                this.style.transform = 'translateX(0)';
-            }
-        });
-
-        // Make links focusable
-        link.setAttribute('tabindex', '0');
-    });
+    // NOTE: Journal link click handlers are now managed by scripts.js
+    // to avoid conflicts. The switchToEntry function is still available
+    // for external calls.
 
     // Initialize save functionality
     initializeSaveFunctionality();
@@ -261,12 +209,7 @@ function switchToEntry(entryId) {
     // Ensure entryId is a string
     entryId = String(entryId);
     
-    // Check for unsaved changes before switching
-    // if (hasUnsavedChanges && currentActiveEntry !== entryId) {
-    //     if (!confirm('You have unsaved changes. Do you want to continue without saving?')) {
-    //         return;
-    //     }
-    // }
+    console.log('DashboardEditor switchToEntry called for:', entryId);
     
     // Hide all entries
     document.querySelectorAll('.journal-entry').forEach(entry => {
@@ -277,27 +220,40 @@ function switchToEntry(entryId) {
     const entryElement = document.getElementById(`journal-${entryId}`);
     if (entryElement) {
         entryElement.classList.remove('d-none');
+        console.log('Made entry visible:', entryId);
         
-        // Update title in header
+        // Update title in header if needed
         const titleElement = document.getElementById('currentEntryTitle');
         const entryLink = document.querySelector(`[data-id="${entryId}"]`);
-        // if (titleElement && entryLink) {
-        //     titleElement.textContent = entryLink.textContent;
-        // }
-
-        // Update last updated time
-        updateLastUpdatedTime(entryId);
-
-        // Initialize editor if not already done
-        if (!editorInstances[entryId]) {
-            initializeEditor(entryId);
+        if (titleElement && entryLink) {
+            const linkTitle = entryLink.getAttribute('title') || entryLink.textContent.trim();
+            if (linkTitle && titleElement.textContent !== linkTitle) {
+                titleElement.textContent = linkTitle;
+                console.log('Updated title to:', linkTitle);
+            }
         }
-
-        currentActiveEntry = entryId;
-        
-        // Reset save state for new entry
-        markAsSaved();
+    } else {
+        console.warn('Entry element not found for:', entryId);
     }
+
+    // Update last updated time
+    updateLastUpdatedTime(entryId);
+
+    // Initialize editor if not already done
+    if (!editorInstances[entryId]) {
+        console.log('Initializing new editor for:', entryId);
+        initializeEditor(entryId);
+    } else {
+        console.log('Editor already exists for:', entryId);
+    }
+
+    // Update current active entry
+    currentActiveEntry = entryId;
+    
+    // Reset save state for new entry
+    markAsSaved();
+    
+    console.log('switchToEntry completed for:', entryId);
 }
 
 /**

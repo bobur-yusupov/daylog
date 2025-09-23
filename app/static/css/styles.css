@@ -509,28 +509,6 @@ footer {
   background-color: #fff;
 }
 
-#searchToggleBtn {
-  transition: all 0.2s ease;
-  border-radius: 0.375rem;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#searchToggleBtn:hover {
-  transform: scale(1.05);
-  background-color: #f8f9fa;
-}
-
-#searchToggleBtn.active {
-  background-color: #198754;
-  border-color: #198754;
-  color: white;
-  box-shadow: 0 2px 4px rgba(25, 135, 84, 0.3);
-}
-
 /* Search info and loading states */
 .search-info {
   padding: 0.25rem 0.5rem;
@@ -853,6 +831,60 @@ footer {
   letter-spacing: 0.5px;
 }
 
+/* Search functionality improvements */
+.search-highlight {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.search-spinner {
+  animation: search-spin 1s linear infinite;
+}
+
+@keyframes search-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.search-loading {
+  position: relative;
+}
+
+.journal-link.keyboard-highlighted {
+  background-color: #e3f2fd !important;
+  border-left: 3px solid #1976d2;
+  transform: translateX(2px);
+  transition: all 0.15s ease;
+}
+
+.journal-link.keyboard-highlighted .journal-title {
+  font-weight: 500;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.empty-state i {
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+}
+
+.search-info {
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e9ecef;
+}
+
+.search-info small {
+  color: #6c757d;
+}
+
 @media (max-width: 767px) {
   .sidebar {
     position: fixed;
@@ -867,5 +899,37 @@ footer {
   .main-full-width {
     margin-left: 0 !important;
   }
+}
+
+/* Dashboard title input styling */
+.title-container {
+  display: flex;
+  align-items: center;
+}
+
+.title-input {
+  border: none !important;
+  background: transparent !important;
+  font-size: 1.75rem !important;
+  font-weight: 500 !important;
+  color: #333 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  width: auto;
+  min-width: 200px;
+  max-width: 600px;
+}
+
+.title-input:focus {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 0.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25) !important;
+}
+
+.title-input::placeholder {
+  color: #6c757d;
+  opacity: 0.7;
 }
 

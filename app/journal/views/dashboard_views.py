@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
+from django.urls import reverse
 import json
 
 from ..models import JournalEntry, Tag
@@ -11,11 +12,12 @@ from ..models import JournalEntry, Tag
 class DashboardView(LoginRequiredMixin, View):
     """
     Dashboard view for authenticated users with search functionality.
+    Handles both root dashboard and entry-specific dashboard URLs.
     """
 
     template_name = "journal/dashboard.html"
 
-    def get(self, request):
+    def get(self, request, entry_id=None):
         search_query = request.GET.get("search", "").strip()
 
         # Base queryset
@@ -32,23 +34,22 @@ class DashboardView(LoginRequiredMixin, View):
         # Get recent entries (limit to 5 for dashboard)
         entries = entries_queryset.order_by("-updated_at")[:5]
 
-        # Get last modified entry (considering search if applied)
-        last_modified_entry = entries.first() if entries else None
+        # Handle entry_id parameter
+        if entry_id:
+            # Verify the entry exists and belongs to the user
+            current_entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
+            active_entry = current_entry
+        else:
+            # If no entry_id, redirect to the most recent entry
+            if entries:
+                most_recent = entries.first()
+                return redirect('journal:dashboard_with_entry', entry_id=most_recent.id)
+            else:
+                # No entries exist
+                active_entry = None
 
         # Get recent tags
         tags = Tag.objects.filter(user=request.user).order_by("-created_at")[:10]
-
-        # Serialize entry content properly for JavaScript
-        entries_with_content = []
-        for entry in entries:
-            entry_dict = {
-                "id": str(entry.id),
-                "title": entry.title,
-                "content": entry.content if entry.content else {},
-                "updated_at": entry.updated_at,
-                "content_json": json.dumps(entry.content if entry.content else {}),
-            }
-            entries_with_content.append(entry_dict)
 
         # If it's an AJAX request for search, return JSON
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -59,7 +60,7 @@ class DashboardView(LoginRequiredMixin, View):
                             "id": str(entry.id),
                             "title": entry.title,
                             "updated_at": entry.updated_at.strftime("%b %d, %Y %H:%M"),
-                            "is_active": entry == last_modified_entry,
+                            "is_active": entry == active_entry,
                         }
                         for entry in entries
                     ],
@@ -71,8 +72,7 @@ class DashboardView(LoginRequiredMixin, View):
         context = {
             "user": request.user,
             "recent_entries": entries,
-            "entries_data": entries_with_content,
-            "last_modified_entry": last_modified_entry,
+            "active_entry": active_entry,
             "recent_tags": tags,
             "search_query": search_query,
             "total_entries": JournalEntry.objects.filter(user=request.user).count(),

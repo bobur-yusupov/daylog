@@ -152,29 +152,17 @@
     <div class="sidebar-content mt-2">
       <div class="recent-entries-header p-1">
         <h6>Recent Entries</h6>
-        <button class="btn btn-sm btn-outline-secondary" id="searchToggleBtn">
-          <i class="bi bi-search"></i>
-        </button>
       </div>
-      <div class="search-container mb-3 d-none" id="searchContainer">
+      <div class="search-container mb-3">
         <div class="input-group">
           <input type="text" class="form-control form-control-sm" placeholder="Search entries..." id="searchInput">
-          <button class="btn btn-outline-secondary btn-sm" type="button" id="clearSearchBtn">
-            <i class="bi bi-x"></i>
-          </button>
-        </div>
-        <div class="search-info mt-2 d-none" id="searchInfo">
-          <small class="text-muted">
-            <i class="bi bi-info-circle me-1"></i>
-            <span id="searchResultText">Search in titles and content</span>
-          </small>
         </div>
       </div>
       <ul class="nav flex-column" id="recentEntries">
         {% for entry in recent_entries %}
         <li class="nav-item">
           <a
-            class="nav-link journal-link {% if entry.id == last_modified_entry.id %}active{% endif %}"
+            class="nav-link journal-link {% if entry.id == active_entry.id %}active{% endif %}"
             href="#"
             data-id="{{ entry.id }}"
             title="{{ entry.title }}"
@@ -201,7 +189,7 @@
     
     <!-- Sidebar Footer -->
     <div class="sidebar-footer p-3 border-top">
-      <a href="{% url 'journal:new_entry' %}" class="btn btn-success w-100" id="newEntryButton">
+      <a href="{% url 'journal:new_entry' %}" class="btn btn-success w-100" id="newEntryBtn" title="Create a new journal entry">
         <i class="bi bi-plus-lg me-2"></i>
         New Entry
       </a>
@@ -221,40 +209,24 @@
         >
           <i class="bi bi-list"></i>
         </button>
-        <h3 class="mb-0" id="currentEntryTitle" contenteditable="true">
-          {% if last_modified_entry %}{{ last_modified_entry.title }}{% else %}Dashboard{% endif %}
-        </h3>
+        <div class="title-container">
+          {% if active_entry %}
+          <input type="text" 
+                 class="form-control-plaintext h3 mb-0 title-input" 
+                 id="currentEntryTitle" 
+                 value="{{ active_entry.title }}"
+                 placeholder="Enter title...">
+          {% else %}
+          <h3 class="mb-0" id="currentEntryTitle">Dashboard</h3>
+          {% endif %}
+        </div>
       </div>
       <div class="header-actions d-flex align-items-center gap-2">
-        {% if last_modified_entry %}
-        <small class="text-muted" id="lastUpdated">Last updated: {{ last_modified_entry.updated_at|date:"M d, Y H:i"}}</small>
+        {% if active_entry %}
+        <small class="text-muted" id="lastUpdated">Last updated: {{ active_entry.updated_at|date:"M d, Y H:i"}}</small>
         {% else %}
         <small class="text-muted" id="lastUpdated">No entries yet.</small>
         {% endif %}
-        <div id="saveStatus" class="text-muted small d-none">
-          <i class="bi bi-check-circle text-success"></i>
-          <span>Saved</span>
-        </div>
-        <div id="savingStatus" class="text-muted small d-none">
-          <div
-            class="spinner-border spinner-border-sm me-1"
-            role="status"
-            aria-hidden="true"
-          ></div>
-          <span>Saving...</span>
-        </div>
-        <button id="saveButton" class="btn btn-primary btn-sm" type="button">
-          <i class="bi bi-floppy"></i>
-          Save
-        </button>
-        <button
-          id="autoSaveToggle"
-          class="btn btn-outline-secondary btn-sm"
-          type="button"
-          title="Toggle Auto-save"
-        >
-          <i class="bi bi-arrow-repeat"></i>
-        </button>
       </div>
     </div>
 
@@ -263,20 +235,27 @@
       class="flex-grow-1 p-3 overflow-auto journal-content"
       id="journalContent"
     >
-      {% for entry in recent_entries %}
+      {% if active_entry %}
       <div
-        id="journal-{{ entry.id }}"
-        class="journal-entry {% if entry.id != last_modified_entry.id %}d-none{% endif %}"
+        id="journal-{{ active_entry.id }}"
+        class="journal-entry"
       >
         <div
-          id="editorjs-{{ entry.id }}"
+          id="editorjs-{{ active_entry.id }}"
           class="dashboard-editor-container"
         ></div>
-        <small class="d-none entry-updated"
-          >{{ entry.updated_at|date:"M d, Y H:i" }}</small
-        >
       </div>
-      {% endfor %}
+      {% else %}
+      <div class="text-center p-5">
+        <i class="bi bi-journal-plus text-muted" style="font-size: 3rem;"></i>
+        <h4 class="text-muted mt-3">No entries yet</h4>
+        <p class="text-muted">Create your first journal entry to get started.</p>
+        <a href="{% url 'journal:new_entry' %}" class="btn btn-success">
+          <i class="bi bi-plus-lg me-2"></i>
+          Create Entry
+        </a>
+      </div>
+      {% endif %}
     </div>
   </main>
 </div>
@@ -301,26 +280,31 @@
 <script src="{% static 'js/scripts.js' %}"></script>
 
 <!-- Dashboard Data for JavaScript -->
-<script type="application/json" id="entry-data">
-{
-  {% for entry in entries_data %}
-  "{{ entry.id }}": {{ entry.content_json|safe }}{% if not forloop.last %},{% endif %}
-  {% endfor %}
-}
-</script>
-
 <script type="application/json" id="entry-metadata">
 {
-  {% for entry in entries_data %}
-  "{{ entry.id }}": {
-    "title": "{{ entry.title|escapejs }}",
-    "updated_at": "{{ entry.updated_at|date:'M d, Y H:i' }}",
-    "updated_at_iso": "{{ entry.updated_at|date:'c' }}"
-  }{% if not forloop.last %},{% endif %}
-  {% endfor %}
+  "entries": [
+    {% for entry in recent_entries %}
+    {
+      "id": "{{ entry.id }}",
+      "title": "{{ entry.title|escapejs }}",
+      "updated_at": "{{ entry.updated_at|date:'M d, Y H:i' }}",
+      "updated_at_iso": "{{ entry.updated_at|date:'c' }}",
+      "formatted_date": "{{ entry.updated_at|date:'M d, Y' }}",
+      "is_active": {% if entry == active_entry %}true{% else %}false{% endif %}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "current_entry_id": {% if active_entry %}"{{ active_entry.id }}"{% else %}null{% endif %},
+  "active_entry": {% if active_entry %}{
+    "id": "{{ active_entry.id }}",
+    "title": "{{ active_entry.title|escapejs }}",
+    "updated_at": "{{ active_entry.updated_at|date:'M d, Y H:i' }}"
+  }{% else %}null{% endif %}
 }
 </script>
 
-<script type="text/plain" id="active-entry-id">{{ last_modified_entry.id|default:'' }}</script>
+{% if active_entry %}
+{{ active_entry.content|json_script:"active-entry-content" }}
+{% endif %}
 
 {% endblock %}
