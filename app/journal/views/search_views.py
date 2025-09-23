@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -94,7 +95,6 @@ class SearchView(LoginRequiredMixin, View):
                 text = block.get("data", {}).get("text", "")
                 if text:
                     # Remove HTML tags for preview
-                    import re
 
                     clean_text = re.sub(r"<[^>]+>", "", text)
                     text_parts.append(clean_text)

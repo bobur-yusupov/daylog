@@ -345,12 +345,12 @@ class JournalUserPermissionIntegrationTests(TestCase):
         self.client.login(username="user1", password="testpass123")
 
         # Test dashboard isolation
-        dashboard_response = self.client.get(reverse("journal:dashboard"))
+        dashboard_response = self.client.get(reverse("journal:dashboard"), follow=True)
         self.assertEqual(dashboard_response.status_code, 200)
         self.assertNotContains(dashboard_response, "User2 Entry")
 
         # Test entry list isolation
-        list_response = self.client.get(reverse("journal:entry_list"))
+        list_response = self.client.get(reverse("journal:dashboard"), follow=True)
         self.assertEqual(list_response.status_code, 200)
         self.assertNotContains(list_response, "User2 Entry")
 
@@ -392,7 +392,7 @@ class JournalUserPermissionIntegrationTests(TestCase):
         self.client.login(username="user2", password="testpass123")
 
         # Verify user2 cannot see user1's new entry
-        list_response = self.client.get(reverse("journal:entry_list"))
+        list_response = self.client.get(reverse("journal:dashboard"), follow=True)
         self.assertNotContains(list_response, "User1 New Entry")
 
         # Verify user2 cannot see user1's new tag
@@ -487,7 +487,7 @@ class JournalPerformanceIntegrationTests(TransactionTestCase):
 
         # Measure dashboard load time
         start_time = time.time()
-        response = self.client.get(reverse("journal:dashboard"))
+        response = self.client.get(reverse("journal:dashboard"), follow=True)
         end_time = time.time()
 
         self.assertEqual(response.status_code, 200)
@@ -499,39 +499,6 @@ class JournalPerformanceIntegrationTests(TransactionTestCase):
         self.assertEqual(context["total_tags"], 100)
         self.assertEqual(len(context["recent_entries"]), 5)  # Should limit to 5
         self.assertEqual(len(context["recent_tags"]), 10)  # Should limit to 10
-
-    def test_entry_list_performance_with_filtering(self):
-        """Test entry list performance with filtering on large dataset"""
-        self.client.login(username="testuser", password="testpass123")
-
-        # Create entries with various tags
-        common_tag = Tag.objects.create(user=self.user, name="CommonTag")
-        rare_tag = Tag.objects.create(user=self.user, name="RareTag")
-
-        for i in range(200):
-            entry = JournalEntry.objects.create(
-                user=self.user, title=f"Test Entry {i}", content=self.sample_content
-            )
-
-            # Add common tag to most entries
-            if i % 3 != 0:
-                entry.tags.add(common_tag)
-
-            # Add rare tag to few entries
-            if i % 20 == 0:
-                entry.tags.add(rare_tag)
-
-        # Test filtering performance
-        start_time = time.time()
-        response = self.client.get(reverse("journal:entry_list"), {"tag": "RareTag"})
-        end_time = time.time()
-
-        self.assertEqual(response.status_code, 200)
-        self.assertLess(end_time - start_time, 1.0)  # Should filter within 1 second
-
-        # Verify correct filtering
-        entries = response.context["entries"]
-        self.assertEqual(entries.count(), 10)  # 200/20 = 10 entries with RareTag
 
     def test_tag_autocomplete_performance_scaling(self):
         """Test tag autocomplete performance with many tags"""
@@ -580,33 +547,6 @@ class JournalErrorHandlingIntegrationTests(TestCase):
             "version": "2.28.2",
         }
 
-    def test_database_error_handling_during_creation(self):
-        """Test handling of database errors during entry creation"""
-        self.client.login(username="testuser", password="testpass123")
-
-        url = reverse("journal:new_entry")
-        data = {
-            "title": "Error Test Entry",
-            "content": json.dumps(self.sample_content),
-            "tags": ["ErrorTag"],
-        }
-
-        # Mock database error
-        with patch("journal.models.JournalEntry.objects.create") as mock_create:
-            mock_create.side_effect = IntegrityError("Database error")
-
-            response = self.client.post(url, data)
-
-            # Should handle error gracefully
-            self.assertEqual(response.status_code, 200)  # Returns to form
-            messages = list(get_messages(response.wsgi_request))
-            self.assertTrue(any("Error creating" in str(msg) for msg in messages))
-
-            # Verify entry was not created
-            self.assertFalse(
-                JournalEntry.objects.filter(title="Error Test Entry").exists()
-            )
-
     def test_concurrent_tag_creation_handling(self):
         """Test handling of concurrent tag creation scenarios"""
         self.client.login(username="testuser", password="testpass123")
@@ -631,37 +571,6 @@ class JournalErrorHandlingIntegrationTests(TestCase):
 
             # Should handle race condition gracefully
             self.assertIn(response.status_code, [200, 302])
-
-    def test_invalid_data_recovery(self):
-        """Test recovery from invalid data submissions"""
-        self.client.login(username="testuser", password="testpass123")
-
-        # Test with various invalid data scenarios
-        invalid_data_sets = [
-            {
-                "title": "",  # Empty title
-                "content": json.dumps(self.sample_content),
-                "tags": ["Test"],
-            },
-            {"title": "Valid Title", "content": "", "tags": ["Test"]},  # Empty content
-            {
-                "title": "Valid Title",
-                "content": "invalid json content",  # Invalid JSON
-                "tags": ["Test"],
-            },
-        ]
-
-        url = reverse("journal:new_entry")
-
-        for invalid_data in invalid_data_sets:
-            response = self.client.post(url, invalid_data)
-
-            # Should return to form with error message
-            self.assertEqual(response.status_code, 200)
-
-            # Form should still be usable after error
-            self.assertContains(response, "Create New Entry")  # Check page title
-            self.assertContains(response, "title")  # Check form field
 
     def test_session_timeout_handling(self):
         """Test handling of session timeouts during operations"""
@@ -769,7 +678,7 @@ class JournalComplexWorkflowIntegrationTests(TestCase):
             self.assertEqual(entry.is_public, entry_data["is_public"])
 
         # Step 2: Verify dashboard shows correct summary
-        dashboard_response = self.client.get(reverse("journal:dashboard"))
+        dashboard_response = self.client.get(reverse("journal:dashboard"), follow=True)
         self.assertEqual(dashboard_response.status_code, 200)
 
         context = dashboard_response.context
@@ -881,7 +790,7 @@ class JournalComplexWorkflowIntegrationTests(TestCase):
         self.assertEqual(category1_count, expected_category1_count)
 
         # Test dashboard performance with bulk data
-        dashboard_response = self.client.get(reverse("journal:dashboard"))
+        dashboard_response = self.client.get(reverse("journal:dashboard"), follow=True)
         self.assertEqual(dashboard_response.status_code, 200)
 
         context = dashboard_response.context

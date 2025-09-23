@@ -242,12 +242,12 @@
                 // Try to focus the editor
                 if (window.DashboardEditor) {
                     const editor = window.DashboardEditor.getCurrentEditor();
-                    if (editor) {
-                        try {
-                            editor.focus();
-                        } catch (err) {
-                            // Editor focus failed, continue normally
+                    if (editor && editor.blocks && typeof editor.blocks.getBlockByIndex === 'function') {
+                        const firstBlock = editor.blocks.getBlockByIndex(0);
+                        if (firstBlock && typeof firstBlock.focus === 'function') {
+                            firstBlock.focus();
                         }
+                        
                     }
                 }
             } else if (e.key === 'Escape') {
