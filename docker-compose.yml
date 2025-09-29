@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app:
+  app-dev:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +10,7 @@ services:
     volumes:
       - ./app:/app
     depends_on:
-      - db
+      - db-dev
     command: >
       sh -c "
       python manage.py wait_for_db &&
@@ -21,12 +21,12 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  db:
+  db-dev:
     image: postgres:17
     environment:
       POSTGRES_DB: daylog
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     volumes:
-      - ./.db/:/var/lib/postgresql/data
+      - ./.db/dev/:/var/lib/postgresql/data
   
