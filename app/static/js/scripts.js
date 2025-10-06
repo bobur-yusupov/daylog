@@ -441,22 +441,31 @@
     }
     
     function setupProfileDropdown() {
-        const profileBtn = document.getElementById('profileDropdown');
-        const dropdownMenu = document.querySelector('.dropdown-menu');
+        const profileToggle = document.getElementById('profileToggle');
+        const profileDropdown = document.getElementById('profileDropdown');
         
-        if (!profileBtn || !dropdownMenu) return;
+        if (!profileToggle || !profileDropdown) return;
         
-        profileBtn.addEventListener('click', function(e) {
+        profileToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            const isVisible = dropdownMenu.style.display === 'block';
-            dropdownMenu.style.display = isVisible ? 'none' : 'block';
+            
+            // Toggle the dropdown
+            const isVisible = profileDropdown.classList.contains('show');
+            if (isVisible) {
+                profileDropdown.classList.remove('show');
+                profileToggle.classList.remove('active');
+            } else {
+                profileDropdown.classList.add('show');
+                profileToggle.classList.add('active');
+            }
         });
         
         // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-            if (dropdownMenu) {
-                dropdownMenu.style.display = 'none';
+        document.addEventListener('click', function(e) {
+            if (!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+                profileToggle.classList.remove('active');
             }
         });
     }
