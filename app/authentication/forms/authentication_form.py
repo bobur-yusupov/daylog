@@ -11,9 +11,7 @@ class CustomAuthenticationForm(BootstrapFormMixin, AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Apply Bootstrap styling to all fields
         self.apply_bootstrap_styling()
 
-        # Set placeholders for fields
         self.fields["username"].widget.attrs.update({"placeholder": _("Username")})
         self.fields["password"].widget.attrs.update({"placeholder": _("Password")})

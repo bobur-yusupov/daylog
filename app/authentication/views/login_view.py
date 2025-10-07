@@ -34,9 +34,9 @@ class LoginView(AnonymousRequiredMixin, FormView):
                 self.request.session['pending_verification_user_id'] = str(user.id)
                 
                 # Try to send a new verification email
-                success, verification, error_message = EmailVerificationService.send_verification_email(user)
+                result = EmailVerificationService.send_verification_email(user)
                 
-                if success:
+                if result.success:
                     messages.warning(
                         self.request, 
                         f"Please verify your email address before logging in. "

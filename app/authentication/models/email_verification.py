@@ -38,7 +38,6 @@ class EmailVerification(models.Model):
         verbose_name_plural = "Email Verifications"
     
     def save(self, *args, **kwargs):
-        """Override save to auto-generate OTP code and expiry time"""
         if not self.otp_code:
             self.otp_code = self.generate_otp()
         if not self.expires_at:
@@ -47,7 +46,7 @@ class EmailVerification(models.Model):
         super().save(*args, **kwargs)
     
     @staticmethod
-    def generate_otp():
+    def generate_otp() -> str:
         """
         Generate a 6-digit OTP code.
         
@@ -56,7 +55,7 @@ class EmailVerification(models.Model):
         """
         return ''.join(random.choices(string.digits, k=6))
     
-    def is_expired(self):
+    def is_expired(self) -> bool:
         """
         Check if the OTP has expired.
         
@@ -65,7 +64,7 @@ class EmailVerification(models.Model):
         """
         return timezone.now() > self.expires_at
     
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """
         Check if the OTP is valid (not used and not expired).
         
@@ -75,12 +74,11 @@ class EmailVerification(models.Model):
         return not self.is_used and not self.is_expired()
     
     def mark_as_used(self):
-        """Mark this OTP as used"""
         self.is_used = True
         self.save(update_fields=['is_used'])
     
     @classmethod
-    def create_for_user(cls, user):
+    def create_for_user(cls, user) -> 'EmailVerification':
         """
         Create a new OTP verification for a user.
         

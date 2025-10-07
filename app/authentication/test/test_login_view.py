@@ -19,11 +19,12 @@ class UserLoginViewTests(TestCase):
         self.login_url = reverse("authentication:login")
         self.home_url = "/"
 
-        # Create a test user
+        # Create a test user (email verified for login tests)
         self.user: AbstractBaseUser = User.objects.create_user(
             username="testuser",
             email="testuser@example.com",
             password="securepassword123",
+            is_email_verified=True  # Required for successful login
         )
 
     def test_get_login_view_success(self) -> None:

@@ -35,7 +35,6 @@ class OTPVerificationForm(BootstrapFormMixin, forms.Form):
     def __init__(self, user=None, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
-        # Apply Bootstrap styling to all fields
         self.apply_bootstrap_styling()
     
     def clean_otp_code(self):
@@ -45,11 +44,9 @@ class OTPVerificationForm(BootstrapFormMixin, forms.Form):
         if not otp_code:
             raise ValidationError(_('Please enter the verification code'))
         
-        # Check if it's 6 digits
         if not otp_code.isdigit() or len(otp_code) != 6:
             raise ValidationError(_('Please enter a valid 6-digit code'))
         
-        # If we have a user, validate against their OTP
         if self.user:
             verification = EmailVerification.get_valid_otp(self.user, otp_code)
             if not verification:

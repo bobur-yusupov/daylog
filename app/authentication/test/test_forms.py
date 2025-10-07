@@ -158,12 +158,12 @@ class UserCreationFormTests(TestCase):
         """
         form: Form = CustomUserCreationForm()
         expected_placeholders: Dict[str, str] = {
-            "username": "Choose a username",
+            "username": "Username",
             "email": "Enter your email",
             "first_name": "First name",
             "last_name": "Last name",
-            "password1": "Enter password",
-            "password2": "Confirm password",
+            "password1": "Password",
+            "password2": "Confirm Password",
         }
 
         for field_name, expected_placeholder in expected_placeholders.items():

@@ -130,19 +130,19 @@ class ResendOTPView(View):
             }, status=400)
         
         # Resend OTP
-        success, error_message = EmailVerificationService.resend_verification_email(user)
+        result = EmailVerificationService.resend_verification_email(user)
         
-        if success:
+        if result.success:
             logger.info(f'OTP resent successfully for user {user.username}')
             return JsonResponse({
                 'success': True,
                 'message': f'A new verification code has been sent to {EmailVerificationView._mask_email(user.email)}'
             })
         else:
-            logger.error(f'Failed to resend OTP for user {user.username}: {error_message}')
+            logger.error(f'Failed to resend OTP for user {user.username}: {result.error_message}')
             return JsonResponse({
                 'success': False,
-                'message': error_message or 'Failed to resend verification code. Please try again.'
+                'message': result.error_message or 'Failed to resend verification code. Please try again.'
             }, status=500)
     
     def get(self, request, *args, **kwargs):

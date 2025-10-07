@@ -40,9 +40,9 @@ class RegisterView(AnonymousRequiredMixin, CreateView):
         self.request.session['pending_verification_user_id'] = str(user.id)
         
         # Send OTP verification email
-        success, verification, error_message = EmailVerificationService.send_verification_email(user)
+        result = EmailVerificationService.send_verification_email(user)
         
-        if success:
+        if result.success:
             messages.success(
                 self.request,
                 f"Account created for {username}! Please check your email for the verification code."
@@ -55,7 +55,7 @@ class RegisterView(AnonymousRequiredMixin, CreateView):
                 f"Account created for {username}, but we couldn't send the verification email. "
                 "Please try to resend the verification code."
             )
-            logger.error(f"User {username} registered but OTP email failed: {error_message}")
+            logger.error(f"User {username} registered but OTP email failed: {result.error_message}")
         
         # Redirect to email verification page (not logging in the user)
         return redirect(self.get_success_url())

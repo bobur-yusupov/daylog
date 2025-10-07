@@ -8,3 +8,8 @@ djangorestframework==3.16.0
 psycopg2==2.9.10
 python-dotenv==1.1.1
 drf-spectacular==0.28.0
+psutil==7.1.0
+selenium==4.36.0
+# Optional dependencies for enhanced testing
+beautifulsoup4==4.14.2
+html2text==2025.4.15
