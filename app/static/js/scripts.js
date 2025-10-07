@@ -23,7 +23,7 @@
         setupJournalSwitching();
         setupSearchFunctionality();
         setupNewEntryButton();
-        setupProfileDropdown();
+        // Profile dropdown uses Bootstrap - no custom setup needed
         setupTitleEditing();
         setupGlobalKeyboardShortcuts();
         setupTagManagement();
@@ -350,22 +350,16 @@
         const sidebar = document.querySelector('.sidebar');
         const openBtn = document.getElementById('openSidebar');
         const closeBtn = document.getElementById('closeSidebar');
-        const main = document.querySelector('main');
         
-        if (!sidebar || !openBtn || !closeBtn || !main) return;
+        if (!sidebar || !openBtn || !closeBtn) return;
         
-        function hideSidebar() {
-            sidebar.style.transform = 'translateX(-100%)';
-            main.style.marginLeft = '0';
-        }
+        closeBtn.addEventListener('click', function() {
+            sidebar.classList.add('collapsed');
+        });
         
-        function showSidebar() {
-            sidebar.style.transform = 'translateX(0)';
-            main.style.marginLeft = '300px';
-        }
-        
-        openBtn.addEventListener('click', showSidebar);
-        closeBtn.addEventListener('click', hideSidebar);
+        openBtn.addEventListener('click', function() {
+            sidebar.classList.remove('collapsed');
+        });
     }
     
     function setupJournalSwitching() {
@@ -437,27 +431,6 @@
             e.preventDefault();
             // Simple redirect to create new entry
             window.location.href = '/entry/new/';
-        });
-    }
-    
-    function setupProfileDropdown() {
-        const profileBtn = document.getElementById('profileDropdown');
-        const dropdownMenu = document.querySelector('.dropdown-menu');
-        
-        if (!profileBtn || !dropdownMenu) return;
-        
-        profileBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const isVisible = dropdownMenu.style.display === 'block';
-            dropdownMenu.style.display = isVisible ? 'none' : 'block';
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-            if (dropdownMenu) {
-                dropdownMenu.style.display = 'none';
-            }
         });
     }
     

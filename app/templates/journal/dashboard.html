@@ -106,44 +106,56 @@
 {% endblock %} {% block content %}
 <div class="d-flex vh-100 dashboard">
   <!-- Sidebar -->
-  <nav class="bg-light d-flex flex-column justify-content-between sidebar">
+  <nav class="bg-light d-flex flex-column justify-content-between sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-profile d-flex flex-grow-2 align-items-center justify-content-between" 
-             id="profileToggle">
-            <p>
-                {% if user.first_name and user.last_name %}
-                {{ user.first_name }} {{ user.last_name }}
-                {% else %}
-                {{ user.email|default:"User" }}
-                {% endif %}
-            </p>
-            <i class="bi bi-chevron-down" id="profileDropdownIcon"></i>
-            
-            <div class="profile-dropdown" id="profileDropdown">
-                <div class="profile-dropdown-header">
-                    <i class="bi bi-person-circle me-2"></i>
+        <div class="dropdown w-100 me-2">
+            <button class="btn btn-light dropdown-toggle w-100 text-start d-flex align-items-center justify-content-between" 
+                    type="button" 
+                    id="profileDropdown" 
+                    data-bs-toggle="dropdown" 
+                    aria-expanded="false">
+                <span>
                     {% if user.first_name and user.last_name %}
                     {{ user.first_name }} {{ user.last_name }}
                     {% else %}
-                    {{ user.username|default:user.email|default:"User" }}
+                    {{ user.email|default:"User" }}
                     {% endif %}
-                </div>
-                <a class="profile-dropdown-item" href="{% url 'authentication:profile' %}">
-                    <i class="bi bi-gear"></i>
-                    Account Settings
-                </a>
-                <a class="profile-dropdown-item" href="{% url 'authentication:profile' %}">
-                    <i class="bi bi-person"></i>
-                    Profile
-                </a>
-                <div class="profile-dropdown-divider"></div>
-                <a class="profile-dropdown-item text-danger" href="{% url 'authentication:logout' %}">
-                    <i class="bi bi-box-arrow-right"></i>
-                    Logout
-                </a>
-            </div>
+                </span>
+            </button>
+            <ul class="dropdown-menu w-100" aria-labelledby="profileDropdown">
+                <li>
+                    <h6 class="dropdown-header">
+                        <i class="bi bi-person-circle me-2"></i>
+                        {% if user.first_name and user.last_name %}
+                        {{ user.first_name }} {{ user.last_name }}
+                        {% else %}
+                        {{ user.username|default:user.email|default:"User" }}
+                        {% endif %}
+                    </h6>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'authentication:profile' %}">
+                        <i class="bi bi-gear me-2"></i>Account Settings
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'authentication:profile' %}">
+                        <i class="bi bi-person me-2"></i>Profile
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    </a>
+                </li>
+            </ul>
         </div>
-        <button id="closeSidebar" class="btn btn-sm btn-outline-secondary" type="button">
+        <button type="button" 
+                class="btn btn-sm btn-outline-secondary" 
+                id="closeSidebar"
+                aria-label="Close sidebar">
             <i class="bi bi-chevron-double-left"></i>
         </button>
     </div>
@@ -202,16 +214,17 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="flex-grow-1 d-flex flex-column main-normal">
+  <main class="flex-grow-1 d-flex flex-column">
     <div
       class="dashboard-header d-flex justify-content-between align-items-center p-3 border-bottom"
     >
       <div class="d-flex align-items-center">
         <button
-          id="openSidebar"
-          class="btn btn-sm open-sidebar-btn me-3"
+          class="btn btn-link me-3 p-0"
           type="button"
-        >
+          id="openSidebar"
+          aria-label="Open sidebar"
+          style="display: none; color: #6c757d; font-size: 1.5rem; text-decoration: none;">
           <i class="bi bi-list"></i>
         </button>
         <div class="title-container">
@@ -284,8 +297,6 @@
       <div class="header-actions d-flex align-items-center gap-2">
         {% if active_entry %}
         <small class="text-muted" id="lastUpdated">Last updated: {{ active_entry.updated_at|date:"M d, Y H:i"}}</small>
-        {% else %}
-        <small class="text-muted" id="lastUpdated">No entries yet.</small>
         {% endif %}
       </div>
     </div>
@@ -306,14 +317,16 @@
         ></div>
       </div>
       {% else %}
-      <div class="text-center p-5">
-        <i class="bi bi-journal-plus text-muted" style="font-size: 3rem;"></i>
-        <h4 class="text-muted mt-3">No entries yet</h4>
-        <p class="text-muted">Create your first journal entry to get started.</p>
-        <a href="{% url 'journal:new_entry' %}" class="btn btn-success">
-          <i class="bi bi-plus-lg me-2"></i>
-          Create Entry
-        </a>
+      <div class="d-flex align-items-center justify-content-center h-100">
+        <div class="text-center p-5">
+          <i class="bi bi-journal-plus text-muted" style="font-size: 4rem;"></i>
+          <h4 class="text-muted mt-4 mb-3">No entries yet</h4>
+          <p class="text-muted mb-4">Create your first journal entry to get started.</p>
+          <a href="{% url 'journal:new_entry' %}" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-lg me-2"></i>
+            Create Entry
+          </a>
+        </div>
       </div>
       {% endif %}
     </div>
