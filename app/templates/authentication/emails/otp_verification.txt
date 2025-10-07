@@ -1,0 +1,22 @@
+{{ site_name }} - Email Verification
+================================================================
+
+Hello {{ user.first_name|default:user.username }},
+
+Thank you for signing up with {{ site_name }}! To complete your registration and verify your email address, please use the verification code below:
+
+YOUR VERIFICATION CODE: {{ otp_code }}
+
+⏰ IMPORTANT: This code will expire in {{ expires_in_minutes }} minutes for security purposes.
+
+🔒 SECURITY NOTICE:
+Never share this verification code with anyone. {{ site_name }} will never ask for this code via phone, email, or any other communication method. If you didn't request this verification, please ignore this email.
+
+If you have any questions or need assistance, feel free to contact our support team.
+
+Best regards,
+The {{ site_name }} Team
+
+================================================================
+© {% now "Y" %} {{ site_name }}. All rights reserved.
+Making journaling simple and secure.
