@@ -350,24 +350,15 @@
         const sidebar = document.querySelector('.sidebar');
         const openBtn = document.getElementById('openSidebar');
         const closeBtn = document.getElementById('closeSidebar');
-        const main = document.querySelector('main');
         
-        if (!sidebar || !openBtn || !closeBtn || !main) return;
+        if (!sidebar || !openBtn || !closeBtn) return;
         
         function hideSidebar() {
             sidebar.classList.add('collapsed');
-            sidebar.style.transform = 'translateX(-100%)';
-            main.style.marginLeft = '0';
-            main.classList.add('main-expanded');
-            main.classList.remove('main-normal');
         }
         
         function showSidebar() {
             sidebar.classList.remove('collapsed');
-            sidebar.style.transform = 'translateX(0)';
-            main.style.marginLeft = '300px';
-            main.classList.remove('main-expanded');
-            main.classList.add('main-normal');
         }
         
         openBtn.addEventListener('click', showSidebar);
@@ -452,36 +443,34 @@
         
         if (!profileToggle || !profileDropdown) return;
         
+        // Toggle dropdown on click
         profileToggle.addEventListener('click', function(e) {
-            // If clicking on a link inside the dropdown, don't toggle
-            if (e.target.closest('.profile-dropdown-item')) {
+            // If clicking on a dropdown item link, let it proceed
+            if (e.target.closest('a.profile-dropdown-item')) {
                 return;
             }
             
             e.preventDefault();
             e.stopPropagation();
             
-            // Toggle the dropdown
-            const isVisible = profileDropdown.classList.contains('show');
-            if (isVisible) {
-                profileDropdown.classList.remove('show');
-                profileToggle.classList.remove('active');
-            } else {
-                profileDropdown.classList.add('show');
-                profileToggle.classList.add('active');
-            }
+            // Toggle dropdown visibility
+            profileDropdown.classList.toggle('show');
+            profileToggle.classList.toggle('active');
         });
         
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
-            // Don't close if clicking inside the profile toggle (already handled above)
-            if (profileToggle.contains(e.target)) {
-                return;
-            }
-            
-            if (profileDropdown.classList.contains('show')) {
+            // If click is outside the entire profile toggle area, close dropdown
+            if (!profileToggle.contains(e.target)) {
                 profileDropdown.classList.remove('show');
                 profileToggle.classList.remove('active');
+            }
+        });
+        
+        // Prevent dropdown from closing when clicking inside it (but not on links)
+        profileDropdown.addEventListener('click', function(e) {
+            if (!e.target.closest('a.profile-dropdown-item')) {
+                e.stopPropagation();
             }
         });
     }
