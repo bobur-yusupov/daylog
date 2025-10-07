@@ -81,7 +81,11 @@ class UserRegistrationViewTests(TestCase):
             302,
             "Response should be a redirect after successful registration",
         )
-        self.assertEqual(response.url, self.login_url, "Should redirect to login page")
+        # Should redirect to email verification page now
+        expected_url = reverse("authentication:verify_email")
+        self.assertEqual(
+            response.url, expected_url, "Should redirect to email verification page"
+        )
 
         # Check user was created in database
         self.assertTrue(
@@ -118,7 +122,11 @@ class UserRegistrationViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302, "Response should be a redirect")
-        self.assertEqual(response.url, next_url, f"Should redirect to {next_url}")
+        # With email verification required, should redirect to verification page first
+        expected_url = reverse("authentication:verify_email")
+        self.assertEqual(
+            response.url, expected_url, "Should redirect to email verification first"
+        )
 
     def test_register_with_duplicate_username(self) -> None:
         """
@@ -384,9 +392,9 @@ class UserRegistrationViewTests(TestCase):
         # Check that success message is in messages
         messages = list(response.context["messages"])
         self.assertEqual(len(messages), 1, "Should have one message")
-        self.assertEqual(
-            str(messages[0]), "Account created for newuser! You can now log in."
-        )
+        # Updated for email verification flow
+        expected_message = "Account created for newuser! Please check your email for the verification code."
+        self.assertEqual(str(messages[0]), expected_message)
         self.assertEqual(messages[0].tags, "success", "Message should be success type")
 
     def test_register_error_message_for_honeypot(self) -> None:
@@ -473,10 +481,12 @@ class UserRegistrationViewTests(TestCase):
             "authentication/register.html",
             "View should use correct template",
         )
+        # The success URL should now be email verification, not login
+        expected_url = reverse("authentication:verify_email")
         self.assertEqual(
             str(view.success_url),
-            self.login_url,
-            "View should have correct success URL",
+            expected_url,
+            "View should redirect to email verification after registration",
         )
 
     def test_register_csrf_protection(self) -> None:

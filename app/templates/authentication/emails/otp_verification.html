@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - {{ site_name }}</title>
+    <style>
+        /* Reset and base styles */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+        
+        /* Email styles */
+        body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            background-color: #f4f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .otp-container {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 12px;
+            border: 2px dashed #cbd5e0;
+        }
+        
+        .otp-label {
+            font-size: 14px;
+            color: #718096;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .otp-code {
+            font-size: 42px;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 8px;
+            margin: 20px 0;
+            text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+        
+        .otp-note {
+            font-size: 14px;
+            color: #a0aec0;
+            margin-top: 15px;
+        }
+        
+        .expiry-info {
+            background-color: #fef5e7;
+            border: 1px solid #f6e05e;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 30px 0;
+        }
+        
+        .expiry-info .icon {
+            color: #d69e2e;
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        
+        .expiry-info p {
+            color: #744210;
+            font-size: 14px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-note {
+            background-color: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .security-note h3 {
+            color: #2b6cb0;
+            font-size: 16px;
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        
+        .security-note p {
+            color: #2c5282;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            background-color: #1a202c;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer p {
+            color: #a0aec0;
+            font-size: 14px;
+            margin: 0 0 10px 0;
+        }
+        
+        .footer .brand {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px !important;
+            }
+            
+            .otp-code {
+                font-size: 36px !important;
+                letter-spacing: 4px !important;
+            }
+            
+            .header h1 {
+                font-size: 24px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ site_name }}</h1>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="greeting">
+                Hello {{ user.first_name|default:user.username }},
+            </div>
+            
+            <div class="message">
+                Thank you for signing up with {{ site_name }}! To complete your registration and verify your email address, please use the verification code below:
+            </div>
+            
+            <!-- OTP Code Container -->
+            <div class="otp-container">
+                <div class="otp-label">Your Verification Code</div>
+                <div class="otp-code">{{ otp_code }}</div>
+                <div class="otp-note">Enter this code in the verification form</div>
+            </div>
+            
+            <!-- Expiry Information -->
+            <div class="expiry-info">
+                <p>
+                    <span class="icon">⏰</span>
+                    This code will expire in {{ expires_in_minutes }} minutes for security purposes.
+                </p>
+            </div>
+            
+            <!-- Security Note -->
+            <div class="security-note">
+                <h3>🔒 Security Notice</h3>
+                <p>
+                    Never share this verification code with anyone. {{ site_name }} will never ask for this code via phone, email, or any other communication method. If you didn't request this verification, please ignore this email.
+                </p>
+            </div>
+            
+            <div class="message">
+                If you have any questions or need assistance, feel free to contact our support team.
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="brand">{{ site_name }}</div>
+            <p>Making journaling simple and secure.</p>
+            <p>&copy; {% now "Y" %} {{ site_name }}. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Verification{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verification-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .otp-input {
+        font-size: 1.8rem !important;
+        text-align: center;
+        letter-spacing: 0.5rem;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        padding: 1rem;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .otp-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        transform: scale(1.02);
+    }
+    
+    .verification-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .verification-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .email-display {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: monospace;
+        border-left: 4px solid #0d6efd;
+    }
+    
+    .countdown-timer {
+        font-weight: 600;
+        color: #dc3545;
+    }
+    
+    .resend-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .btn-resend {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-resend:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-resend:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .security-note {
+        background-color: #e7f3ff;
+        border: 1px solid #b3d7ff;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="verification-container">
+            <div class="card verification-card shadow-lg">
+                <div class="card-body p-4">
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <i class="bi bi-envelope-check display-3 verification-icon pulse-animation"></i>
+                        <h2 class="mt-3 fw-bold">Verify Your Email</h2>
+                        <p class="text-muted">We've sent a verification code to your email address</p>
+                    </div>
+                    
+                    <!-- Email Display -->
+                    <div class="email-display text-center mb-4">
+                        <small class="text-muted d-block mb-1">Code sent to:</small>
+                        <strong class="text-primary">{{ masked_email }}</strong>
+                    </div>
+                    
+                    <!-- Verification Form -->
+                    <form method="post" id="otpForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.otp_code.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-key me-2"></i>Enter Verification Code
+                            </label>
+                            {{ form.otp_code }}
+                            
+                            {% if form.otp_code.errors %}
+                                <div class="text-danger small mt-2">
+                                    {% for error in form.otp_code.errors %}
+                                        <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="form-text text-center">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Enter the 6-digit code from your email
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg" id="verifyBtn">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Verify Email
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Resend Section -->
+                    <div class="resend-section text-center">
+                        <p class="mb-3 text-muted">
+                            <i class="bi bi-clock me-1"></i>
+                            Didn't receive the code? 
+                        </p>
+                        
+                        <form method="post" action="{% url 'authentication:resend_otp' %}" id="resendForm">
+                            {% csrf_token %}
+                            <button type="button" class="btn btn-outline-primary btn-resend" id="resendBtn">
+                                <i class="bi bi-arrow-clockwise me-2"></i>
+                                Resend Code
+                            </button>
+                        </form>
+                        
+                        <div id="resendTimer" class="mt-2 small text-muted" style="display: none;">
+                            <i class="bi bi-hourglass-split me-1"></i>
+                            You can resend in <span id="countdown" class="countdown-timer">60</span> seconds
+                        </div>
+                    </div>
+                    
+                    <!-- Security Note -->
+                    <div class="security-note">
+                        <h6 class="text-primary mb-2">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Security Notice
+                        </h6>
+                        <small class="text-muted">
+                            Never share your verification code with anyone. This code will expire in 10 minutes for security purposes.
+                        </small>
+                    </div>
+                    
+                    {% comment %}
+                    <!-- Development Only - Remove in Production -->
+                    <div class="text-center mt-4">
+                        <form method="post" action="{% url 'authentication:skip_verification' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-skip-forward me-1"></i>
+                                Skip Verification (Dev Only)
+                            </button>
+                        </form>
+                    </div>
+                    {% endcomment %}
+                </div>
+            </div>
+            
+            <!-- Back to Registration Link -->
+            <div class="text-center mt-3">
+                <a href="{% url 'authentication:register' %}" class="text-muted text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to Registration
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInput = document.getElementById('{{ form.otp_code.id_for_label }}');
+    const resendBtn = document.getElementById('resendBtn');
+    const resendTimer = document.getElementById('resendTimer');
+    const countdown = document.getElementById('countdown');
+    const resendForm = document.getElementById('resendForm');
+    let countdownInterval;
+    let timeLeft = 60;
+    
+    // Auto-focus on OTP input
+    if (otpInput) {
+        otpInput.focus();
+        
+        // Only allow numbers
+        otpInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            
+            // Auto-submit when 6 digits are entered
+            if (e.target.value.length === 6) {
+                // Add a small delay for better UX
+                setTimeout(() => {
+                    document.getElementById('otpForm').submit();
+                }, 500);
+            }
+        });
+        
+        // Handle paste events
+        otpInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+            const numericData = pasteData.replace(/[^0-9]/g, '').substring(0, 6);
+            e.target.value = numericData;
+            
+            if (numericData.length === 6) {
+                setTimeout(() => {
+                    document.getElementById('otpForm').submit();
+                }, 500);
+            }
+        });
+    }
+    
+    // Resend OTP functionality
+    resendBtn.addEventListener('click', function() {
+        // Disable button and show loading state
+        resendBtn.disabled = true;
+        resendBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Sending...';
+        
+        // Send AJAX request to resend OTP
+        fetch('{% url "authentication:resend_otp" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showAlert(data.message, 'success');
+                
+                // Start countdown timer
+                startCountdown();
+            } else {
+                // Show error message
+                showAlert(data.message, 'danger');
+                
+                // Re-enable button
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Resend Code';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred. Please try again.', 'danger');
+            
+            // Re-enable button
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Resend Code';
+        });
+    });
+    
+    function startCountdown() {
+        timeLeft = 60;
+        resendTimer.style.display = 'block';
+        resendBtn.style.display = 'none';
+        
+        countdownInterval = setInterval(function() {
+            timeLeft--;
+            countdown.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                resendTimer.style.display = 'none';
+                resendBtn.style.display = 'inline-block';
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Resend Code';
+            }
+        }, 1000);
+    }
+    
+    function showAlert(message, type) {
+        // Remove existing alerts
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        // Create new alert
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insert alert at the top of the card body
+        const cardBody = document.querySelector('.card-body');
+        cardBody.insertBefore(alert, cardBody.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

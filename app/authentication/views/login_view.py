@@ -5,6 +5,7 @@ from django.views.generic import FormView
 from django.http import HttpResponse
 from authentication.forms import CustomAuthenticationForm
 from authentication.mixins import AnonymousRequiredMixin
+from authentication.services import EmailVerificationService
 
 
 class LoginView(AnonymousRequiredMixin, FormView):
@@ -26,6 +27,30 @@ class LoginView(AnonymousRequiredMixin, FormView):
         user = authenticate(self.request, username=username, password=password)
 
         if user is not None:
+            # Check if user's email is verified
+            if not user.is_email_verified:
+                # Store user ID for potential email verification
+                self.request.session["pending_verification_user_id"] = str(user.id)
+
+                # Try to send a new verification email
+                result = EmailVerificationService.send_verification_email(user)
+
+                if result.success:
+                    messages.warning(
+                        self.request,
+                        f"Please verify your email address before logging in. "
+                        f"We've sent a verification code to {user.email}.",
+                    )
+                else:
+                    messages.error(
+                        self.request,
+                        "Please verify your email address before logging in. "
+                        "There was an issue sending the verification code. Please try again.",
+                    )
+
+                # Redirect to email verification page - DO NOT LOGIN
+                return redirect("authentication:verify_email")
+
             login(self.request, user)
             messages.success(self.request, f"Welcome back, {username}!")
 
