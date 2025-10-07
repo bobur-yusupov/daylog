@@ -105,15 +105,9 @@
 ></script>
 {% endblock %} {% block content %}
 <div class="d-flex vh-100 dashboard">
-  <!-- Sidebar using Bootstrap Offcanvas -->
-  <div class="offcanvas offcanvas-start show" 
-       data-bs-scroll="true" 
-       data-bs-backdrop="false" 
-       tabindex="-1" 
-       id="sidebar" 
-       aria-labelledby="sidebarLabel"
-       style="width: 250px;">
-    <div class="offcanvas-header sidebar-header border-bottom">
+  <!-- Sidebar -->
+  <nav class="bg-light d-flex flex-column justify-content-between sidebar" id="sidebar">
+    <div class="sidebar-header">
         <div class="dropdown w-100 me-2">
             <button class="btn btn-light dropdown-toggle w-100 text-start d-flex align-items-center justify-content-between" 
                     type="button" 
@@ -160,12 +154,13 @@
         </div>
         <button type="button" 
                 class="btn btn-sm btn-outline-secondary" 
-                data-bs-dismiss="offcanvas" 
+                id="closeSidebar"
                 aria-label="Close sidebar">
             <i class="bi bi-chevron-double-left"></i>
         </button>
     </div>
-    <div class="offcanvas-body p-0">
+
+    <!-- Recent Entries Section -->
     <div class="sidebar-content mt-2">
       <div class="recent-entries-header p-1">
         <h6>Recent Entries</h6>
@@ -210,13 +205,13 @@
     </div>
     
     <!-- Sidebar Footer -->
-    <div class="sidebar-footer p-3 border-top mt-auto">
+    <div class="sidebar-footer p-3 border-top">
       <a href="{% url 'journal:new_entry' %}" class="btn btn-success w-100" id="newEntryBtn" title="Create a new journal entry">
         <i class="bi bi-plus-lg me-2"></i>
         New Entry
       </a>
     </div>
-  </div>
+  </nav>
 
   <!-- Main Content -->
   <main class="flex-grow-1 d-flex flex-column">
@@ -227,11 +222,9 @@
         <button
           class="btn btn-sm me-3"
           type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#sidebar"
-          aria-controls="sidebar"
-          style="border: none; background: none; color: #6c757d;"
-        >
+          id="openSidebar"
+          aria-label="Open sidebar"
+          style="border: none; background: none; color: #6c757d; display: none;">
           <i class="bi bi-list" style="font-size: 1.5rem;"></i>
         </button>
         <div class="title-container">

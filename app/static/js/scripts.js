@@ -19,11 +19,11 @@
         loadDashboardData();
         
         // Setup components
-        // Sidebar now uses Bootstrap Offcanvas - no custom setup needed
+        setupSidebarToggle();
         setupJournalSwitching();
         setupSearchFunctionality();
         setupNewEntryButton();
-        // Profile dropdown now uses Bootstrap - no custom setup needed
+        // Profile dropdown uses Bootstrap - no custom setup needed
         setupTitleEditing();
         setupGlobalKeyboardShortcuts();
         setupTagManagement();
@@ -344,6 +344,22 @@
                 titleInput.disabled = false;
             }
         }
+    }
+    
+    function setupSidebarToggle() {
+        const sidebar = document.querySelector('.sidebar');
+        const openBtn = document.getElementById('openSidebar');
+        const closeBtn = document.getElementById('closeSidebar');
+        
+        if (!sidebar || !openBtn || !closeBtn) return;
+        
+        closeBtn.addEventListener('click', function() {
+            sidebar.classList.add('collapsed');
+        });
+        
+        openBtn.addEventListener('click', function() {
+            sidebar.classList.remove('collapsed');
+        });
     }
     
     function setupJournalSwitching() {
