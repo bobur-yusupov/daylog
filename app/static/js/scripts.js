@@ -19,7 +19,7 @@
         loadDashboardData();
         
         // Setup components
-        setupSidebarToggle();
+        // Sidebar now uses Bootstrap Offcanvas - no custom setup needed
         setupJournalSwitching();
         setupSearchFunctionality();
         setupNewEntryButton();
@@ -344,25 +344,6 @@
                 titleInput.disabled = false;
             }
         }
-    }
-    
-    function setupSidebarToggle() {
-        const sidebar = document.querySelector('.sidebar');
-        const openBtn = document.getElementById('openSidebar');
-        const closeBtn = document.getElementById('closeSidebar');
-        
-        if (!sidebar || !openBtn || !closeBtn) return;
-        
-        function hideSidebar() {
-            sidebar.classList.add('collapsed');
-        }
-        
-        function showSidebar() {
-            sidebar.classList.remove('collapsed');
-        }
-        
-        openBtn.addEventListener('click', showSidebar);
-        closeBtn.addEventListener('click', hideSidebar);
     }
     
     function setupJournalSwitching() {
