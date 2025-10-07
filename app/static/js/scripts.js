@@ -355,13 +355,19 @@
         if (!sidebar || !openBtn || !closeBtn || !main) return;
         
         function hideSidebar() {
+            sidebar.classList.add('collapsed');
             sidebar.style.transform = 'translateX(-100%)';
             main.style.marginLeft = '0';
+            main.classList.add('main-expanded');
+            main.classList.remove('main-normal');
         }
         
         function showSidebar() {
+            sidebar.classList.remove('collapsed');
             sidebar.style.transform = 'translateX(0)';
             main.style.marginLeft = '300px';
+            main.classList.remove('main-expanded');
+            main.classList.add('main-normal');
         }
         
         openBtn.addEventListener('click', showSidebar);
@@ -447,6 +453,11 @@
         if (!profileToggle || !profileDropdown) return;
         
         profileToggle.addEventListener('click', function(e) {
+            // If clicking on a link inside the dropdown, don't toggle
+            if (e.target.closest('.profile-dropdown-item')) {
+                return;
+            }
+            
             e.preventDefault();
             e.stopPropagation();
             
@@ -463,7 +474,12 @@
         
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
-            if (!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+            // Don't close if clicking inside the profile toggle (already handled above)
+            if (profileToggle.contains(e.target)) {
+                return;
+            }
+            
+            if (profileDropdown.classList.contains('show')) {
                 profileDropdown.classList.remove('show');
                 profileToggle.classList.remove('active');
             }
