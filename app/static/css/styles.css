@@ -152,6 +152,10 @@ footer {
     display: inline-block !important;
 }
 
+#openSidebar:hover {
+    color: #007bff !important;
+}
+
 
 .dashboard-header {
     flex-shrink: 0;
