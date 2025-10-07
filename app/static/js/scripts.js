@@ -23,7 +23,7 @@
         setupJournalSwitching();
         setupSearchFunctionality();
         setupNewEntryButton();
-        setupProfileDropdown();
+        // Profile dropdown now uses Bootstrap - no custom setup needed
         setupTitleEditing();
         setupGlobalKeyboardShortcuts();
         setupTagManagement();
@@ -434,44 +434,6 @@
             e.preventDefault();
             // Simple redirect to create new entry
             window.location.href = '/entry/new/';
-        });
-    }
-    
-    function setupProfileDropdown() {
-        const profileToggle = document.getElementById('profileToggle');
-        const profileDropdown = document.getElementById('profileDropdown');
-        
-        if (!profileToggle || !profileDropdown) return;
-        
-        // Toggle dropdown on click
-        profileToggle.addEventListener('click', function(e) {
-            // If clicking on a dropdown item link, let it proceed
-            if (e.target.closest('a.profile-dropdown-item')) {
-                return;
-            }
-            
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Toggle dropdown visibility
-            profileDropdown.classList.toggle('show');
-            profileToggle.classList.toggle('active');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            // If click is outside the entire profile toggle area, close dropdown
-            if (!profileToggle.contains(e.target)) {
-                profileDropdown.classList.remove('show');
-                profileToggle.classList.remove('active');
-            }
-        });
-        
-        // Prevent dropdown from closing when clicking inside it (but not on links)
-        profileDropdown.addEventListener('click', function(e) {
-            if (!e.target.closest('a.profile-dropdown-item')) {
-                e.stopPropagation();
-            }
         });
     }
     
