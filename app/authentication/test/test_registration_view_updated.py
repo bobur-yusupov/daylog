@@ -1,4 +1,3 @@
-from typing import Dict, Any
 from unittest.mock import patch, MagicMock
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -29,17 +28,17 @@ class UserRegistrationViewTests(TestCase):
             username="existinguser",
             email="existing@example.com",
             password="securepassword123",
-            is_email_verified=True  # Existing user is verified
+            is_email_verified=True,  # Existing user is verified
         )
 
         self.valid_registration_data = {
-            'username': 'newuser',
-            'email': 'newuser@example.com',
-            'first_name': 'New',
-            'last_name': 'User',
-            'password1': 'SecurePassword123!',
-            'password2': 'SecurePassword123!',
-            'honeypot': ''  # Empty honeypot field
+            "username": "newuser",
+            "email": "newuser@example.com",
+            "first_name": "New",
+            "last_name": "User",
+            "password1": "SecurePassword123!",
+            "password2": "SecurePassword123!",
+            "honeypot": "",  # Empty honeypot field
         }
 
     def test_get_registration_view_success(self) -> None:
@@ -65,55 +64,73 @@ class UserRegistrationViewTests(TestCase):
         self.client.force_login(self.existing_user)
 
         response: HttpResponse = self.client.get(self.register_url)
-        
-        # Should redirect authenticated users
-        self.assertEqual(response.status_code, 302, "Should redirect authenticated users")
 
-    @patch.object(EmailVerificationService, 'send_verification_email')
-    def test_successful_registration_with_email_verification(self, mock_send_email) -> None:
+        # Should redirect authenticated users
+        self.assertEqual(
+            response.status_code, 302, "Should redirect authenticated users"
+        )
+
+    @patch.object(EmailVerificationService, "send_verification_email")
+    def test_successful_registration_with_email_verification(
+        self, mock_send_email
+    ) -> None:
         """
         Test successful user registration triggers email verification process.
         """
         # Mock successful email sending
         mock_verification = MagicMock()
-        from authentication.services.email_verification_service import EmailVerificationResult
-        mock_send_email.return_value = EmailVerificationResult(success=True, verification=mock_verification)
+        from authentication.services.email_verification_service import (
+            EmailVerificationResult,
+        )
 
-        response: HttpResponse = self.client.post(self.register_url, self.valid_registration_data)
-        
+        mock_send_email.return_value = EmailVerificationResult(
+            success=True, verification=mock_verification
+        )
+
+        response: HttpResponse = self.client.post(
+            self.register_url, self.valid_registration_data
+        )
+
         # Should redirect to email verification page
         self.assertRedirects(response, self.verify_email_url)
-        
+
         # User should be created but not email verified
-        user = User.objects.get(username='newuser')
+        user = User.objects.get(username="newuser")
         self.assertIsNotNone(user)
         self.assertFalse(user.is_email_verified)
-        self.assertEqual(user.email, 'newuser@example.com')
-        
+        self.assertEqual(user.email, "newuser@example.com")
+
         # Session should contain user ID for verification
         session = self.client.session
-        self.assertIn('pending_verification_user_id', session)
-        self.assertEqual(session['pending_verification_user_id'], str(user.id))
-        
+        self.assertIn("pending_verification_user_id", session)
+        self.assertEqual(session["pending_verification_user_id"], str(user.id))
+
         # Email service should be called
         mock_send_email.assert_called_once_with(user)
 
-    @patch.object(EmailVerificationService, 'send_verification_email')
+    @patch.object(EmailVerificationService, "send_verification_email")
     def test_registration_with_email_sending_failure(self, mock_send_email) -> None:
         """
         Test registration when email sending fails still creates user.
         """
         # Mock email sending failure
-        from authentication.services.email_verification_service import EmailVerificationResult
-        mock_send_email.return_value = EmailVerificationResult(success=False, error_message="SMTP Error")
+        from authentication.services.email_verification_service import (
+            EmailVerificationResult,
+        )
 
-        response: HttpResponse = self.client.post(self.register_url, self.valid_registration_data)
-        
+        mock_send_email.return_value = EmailVerificationResult(
+            success=False, error_message="SMTP Error"
+        )
+
+        response: HttpResponse = self.client.post(
+            self.register_url, self.valid_registration_data
+        )
+
         # Should still redirect to email verification page
         self.assertRedirects(response, self.verify_email_url)
-        
+
         # User should still be created
-        user = User.objects.get(username='newuser')
+        user = User.objects.get(username="newuser")
         self.assertIsNotNone(user)
         self.assertFalse(user.is_email_verified)
 
@@ -122,92 +139,94 @@ class UserRegistrationViewTests(TestCase):
         Test registration with invalid data shows form errors.
         """
         invalid_data = self.valid_registration_data.copy()
-        invalid_data['password2'] = 'DifferentPassword123!'  # Mismatched passwords
-        
+        invalid_data["password2"] = "DifferentPassword123!"  # Mismatched passwords
+
         response: HttpResponse = self.client.post(self.register_url, invalid_data)
-        
+
         # Should stay on registration page
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "authentication/register.html")
-        
+
         # Should show form errors
-        self.assertTrue(response.context['form'].errors)
-        self.assertIn('password2', response.context['form'].errors)
-        
+        self.assertTrue(response.context["form"].errors)
+        self.assertIn("password2", response.context["form"].errors)
+
         # User should not be created
-        self.assertFalse(User.objects.filter(username='newuser').exists())
+        self.assertFalse(User.objects.filter(username="newuser").exists())
 
     def test_registration_with_existing_username(self) -> None:
         """
         Test registration with existing username shows error.
         """
         invalid_data = self.valid_registration_data.copy()
-        invalid_data['username'] = self.existing_user.username
-        
+        invalid_data["username"] = self.existing_user.username
+
         response: HttpResponse = self.client.post(self.register_url, invalid_data)
-        
+
         # Should stay on registration page with error
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['form'].errors)
-        self.assertIn('username', response.context['form'].errors)
+        self.assertTrue(response.context["form"].errors)
+        self.assertIn("username", response.context["form"].errors)
 
     def test_registration_with_existing_email(self) -> None:
         """
         Test registration with existing email shows error.
         """
         invalid_data = self.valid_registration_data.copy()
-        invalid_data['email'] = self.existing_user.email
-        
+        invalid_data["email"] = self.existing_user.email
+
         response: HttpResponse = self.client.post(self.register_url, invalid_data)
-        
+
         # Should stay on registration page with error
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['form'].errors)
-        self.assertIn('email', response.context['form'].errors)
+        self.assertTrue(response.context["form"].errors)
+        self.assertIn("email", response.context["form"].errors)
 
     def test_registration_with_honeypot_spam_detection(self) -> None:
         """
         Test registration with filled honeypot field is detected as spam.
         """
         spam_data = self.valid_registration_data.copy()
-        spam_data['honeypot'] = 'spam content'
-        
+        spam_data["honeypot"] = "spam content"
+
         response: HttpResponse = self.client.post(self.register_url, spam_data)
-        
+
         # Should stay on registration page
         self.assertEqual(response.status_code, 200)
-        
+
         # User should not be created
-        self.assertFalse(User.objects.filter(username='newuser').exists())
+        self.assertFalse(User.objects.filter(username="newuser").exists())
 
     def test_registration_with_weak_password(self) -> None:
         """
         Test registration with weak password shows validation errors.
         """
         weak_password_data = self.valid_registration_data.copy()
-        weak_password_data['password1'] = '123'
-        weak_password_data['password2'] = '123'
-        
+        weak_password_data["password1"] = "123"
+        weak_password_data["password2"] = "123"
+
         response: HttpResponse = self.client.post(self.register_url, weak_password_data)
-        
+
         # Should stay on registration page with errors
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['form'].errors)
-        self.assertIn('password2', response.context['form'].errors)
+        self.assertTrue(response.context["form"].errors)
+        self.assertIn("password2", response.context["form"].errors)
 
     def test_registration_redirects_authenticated_users(self) -> None:
         """
         Test that authenticated users cannot access registration page.
         """
         self.client.force_login(self.existing_user)
-        
-        response: HttpResponse = self.client.post(self.register_url, self.valid_registration_data)
-        
+
+        response: HttpResponse = self.client.post(
+            self.register_url, self.valid_registration_data
+        )
+
         # Should redirect away from registration
         self.assertEqual(response.status_code, 302)
-        
+
         # New user should not be created
-        self.assertFalse(User.objects.filter(username='newuser').exists())
+        self.assertFalse(User.objects.filter(username="newuser").exists())
 
     def test_registration_csrf_protection(self) -> None:
         """
@@ -215,34 +234,41 @@ class UserRegistrationViewTests(TestCase):
         """
         # Create client that enforces CSRF
         csrf_client = Client(enforce_csrf_checks=True)
-        
-        response: HttpResponse = csrf_client.post(self.register_url, self.valid_registration_data)
-        
+
+        response: HttpResponse = csrf_client.post(
+            self.register_url, self.valid_registration_data
+        )
+
         # Should reject request without CSRF token
         self.assertEqual(response.status_code, 403)
 
-    @patch.object(EmailVerificationService, 'send_verification_email')
+    @patch.object(EmailVerificationService, "send_verification_email")
     def test_multiple_registrations_same_email_prevented(self, mock_send_email) -> None:
         """
         Test that multiple registrations with same email are prevented.
         """
-        from authentication.services.email_verification_service import EmailVerificationResult
-        mock_send_email.return_value = EmailVerificationResult(success=True, verification=MagicMock())
-        
+        from authentication.services.email_verification_service import (
+            EmailVerificationResult,
+        )
+
+        mock_send_email.return_value = EmailVerificationResult(
+            success=True, verification=MagicMock()
+        )
+
         # First registration
         response1 = self.client.post(self.register_url, self.valid_registration_data)
         self.assertRedirects(response1, self.verify_email_url)
-        
+
         # Second registration with same email
         second_data = self.valid_registration_data.copy()
-        second_data['username'] = 'anotheruser'
-        
+        second_data["username"] = "anotheruser"
+
         response2 = self.client.post(self.register_url, second_data)
-        
+
         # Should show error for duplicate email
         self.assertEqual(response2.status_code, 200)
-        self.assertTrue(response2.context['form'].errors)
-        self.assertIn('email', response2.context['form'].errors)
+        self.assertTrue(response2.context["form"].errors)
+        self.assertIn("email", response2.context["form"].errors)
 
 
 class UserRegistrationIntegrationTests(TestCase):
@@ -254,15 +280,15 @@ class UserRegistrationIntegrationTests(TestCase):
         self.client = Client()
         self.register_url = reverse("authentication:register")
         self.verify_email_url = reverse("authentication:verify_email")
-        
+
         self.valid_data = {
-            'username': 'integrationuser',
-            'email': 'integration@example.com',
-            'first_name': 'Integration',
-            'last_name': 'User',
-            'password1': 'SecurePassword123!',
-            'password2': 'SecurePassword123!',
-            'honeypot': ''
+            "username": "integrationuser",
+            "email": "integration@example.com",
+            "first_name": "Integration",
+            "last_name": "User",
+            "password1": "SecurePassword123!",
+            "password2": "SecurePassword123!",
+            "honeypot": "",
         }
 
     def test_full_registration_flow_integration(self) -> None:
@@ -271,25 +297,25 @@ class UserRegistrationIntegrationTests(TestCase):
         """
         # Clear any existing mail
         mail.outbox.clear()
-        
+
         # Submit registration
         response = self.client.post(self.register_url, self.valid_data)
-        
+
         # Should redirect to verification
         self.assertRedirects(response, self.verify_email_url)
-        
+
         # User should exist and be unverified
-        user = User.objects.get(username='integrationuser')
+        user = User.objects.get(username="integrationuser")
         self.assertFalse(user.is_email_verified)
-        
+
         # EmailVerification record should be created
         verification = EmailVerification.objects.get(user=user)
         self.assertIsNotNone(verification)
         self.assertTrue(verification.is_valid())
-        
+
         # Email should be sent (in test mode, check outbox)
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
-        self.assertIn('verification code', email.subject.lower())
+        self.assertIn("verification code", email.subject.lower())
         self.assertEqual(email.to, [user.email])
         self.assertIn(verification.otp_code, email.body)

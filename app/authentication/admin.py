@@ -21,7 +21,13 @@ class UserAdmin(BaseUserAdmin):
         "is_staff",
         "created_at",
     )
-    list_filter = ("is_staff", "is_superuser", "is_active", "is_email_verified", "created_at")
+    list_filter = (
+        "is_staff",
+        "is_superuser",
+        "is_active",
+        "is_email_verified",
+        "created_at",
+    )
     search_fields = ("username", "first_name", "last_name", "email")
     ordering = ("-created_at",)
 
@@ -38,7 +44,7 @@ class EmailVerificationAdmin(admin.ModelAdmin):
     """
     Admin configuration for EmailVerification model.
     """
-    
+
     list_display = (
         "user",
         "otp_code",
@@ -48,43 +54,45 @@ class EmailVerificationAdmin(admin.ModelAdmin):
         "is_expired_display",
         "is_valid_display",
     )
-    
+
     list_filter = (
         "is_used",
         "created_at",
         "expires_at",
     )
-    
+
     search_fields = (
         "user__username",
         "user__email",
         "otp_code",
     )
-    
+
     ordering = ("-created_at",)
-    
+
     readonly_fields = (
         "created_at",
         "is_expired_display",
         "is_valid_display",
     )
-    
+
     def is_expired_display(self, obj):
         """Display if the OTP is expired"""
         return obj.is_expired()
+
     is_expired_display.short_description = "Is Expired"
     is_expired_display.boolean = True
-    
+
     def is_valid_display(self, obj):
         """Display if the OTP is valid"""
         return obj.is_valid()
+
     is_valid_display.short_description = "Is Valid"
     is_valid_display.boolean = True
-    
+
     def has_add_permission(self, request):
         """Prevent manual creation of OTP codes through admin"""
         return False
-    
+
     def get_readonly_fields(self, request, obj=None):
         """Make most fields readonly for existing objects"""
         if obj:  # Editing existing object

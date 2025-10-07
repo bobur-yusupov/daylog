@@ -2,7 +2,11 @@ from .login_view import LoginView
 from .logout_view import LogoutView
 from .register_view import RegisterView
 from .profile_view import ProfileView
-from .email_verification_view import EmailVerificationView, ResendOTPView, SkipVerificationView
+from .email_verification_view import (
+    EmailVerificationView,
+    ResendOTPView,
+    SkipVerificationView,
+)
 
 register_view = RegisterView.as_view()
 logout_view = LogoutView.as_view()

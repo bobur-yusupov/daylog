@@ -24,7 +24,7 @@ class UserLoginViewTests(TestCase):
             username="testuser",
             email="testuser@example.com",
             password="securepassword123",
-            is_email_verified=True  # Required for successful login
+            is_email_verified=True,  # Required for successful login
         )
 
     def test_get_login_view_success(self) -> None:

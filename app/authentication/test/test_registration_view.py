@@ -83,7 +83,9 @@ class UserRegistrationViewTests(TestCase):
         )
         # Should redirect to email verification page now
         expected_url = reverse("authentication:verify_email")
-        self.assertEqual(response.url, expected_url, "Should redirect to email verification page")
+        self.assertEqual(
+            response.url, expected_url, "Should redirect to email verification page"
+        )
 
         # Check user was created in database
         self.assertTrue(
@@ -122,7 +124,9 @@ class UserRegistrationViewTests(TestCase):
         self.assertEqual(response.status_code, 302, "Response should be a redirect")
         # With email verification required, should redirect to verification page first
         expected_url = reverse("authentication:verify_email")
-        self.assertEqual(response.url, expected_url, "Should redirect to email verification first")
+        self.assertEqual(
+            response.url, expected_url, "Should redirect to email verification first"
+        )
 
     def test_register_with_duplicate_username(self) -> None:
         """
@@ -390,9 +394,7 @@ class UserRegistrationViewTests(TestCase):
         self.assertEqual(len(messages), 1, "Should have one message")
         # Updated for email verification flow
         expected_message = "Account created for newuser! Please check your email for the verification code."
-        self.assertEqual(
-            str(messages[0]), expected_message
-        )
+        self.assertEqual(str(messages[0]), expected_message)
         self.assertEqual(messages[0].tags, "success", "Message should be success type")
 
     def test_register_error_message_for_honeypot(self) -> None:

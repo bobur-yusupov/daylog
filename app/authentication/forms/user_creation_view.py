@@ -13,9 +13,7 @@ class CustomUserCreationForm(BootstrapFormMixin, UserCreationForm):
     """
 
     honeypot = forms.CharField(
-        required=False, 
-        widget=forms.HiddenInput, 
-        label=_("Honeypot Field")
+        required=False, widget=forms.HiddenInput, label=_("Honeypot Field")
     )
     email = forms.EmailField(
         required=True,
@@ -65,11 +63,13 @@ class CustomUserCreationForm(BootstrapFormMixin, UserCreationForm):
         super().__init__(*args, **kwargs)
         self.apply_bootstrap_styling()
         self.set_field_placeholders()
-    
+
     def set_field_placeholders(self):
         self.fields["username"].widget.attrs.update({"placeholder": _("Username")})
         self.fields["password1"].widget.attrs.update({"placeholder": _("Password")})
-        self.fields["password2"].widget.attrs.update({"placeholder": _("Confirm Password")})
+        self.fields["password2"].widget.attrs.update(
+            {"placeholder": _("Confirm Password")}
+        )
 
     def clean_honeypot(self):
         honeypot = self.cleaned_data.get("honeypot")
