@@ -3,6 +3,8 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import JsonResponse
+from django.urls import reverse
+from urllib.parse import urlencode
 
 from ..models import JournalEntry, Tag
 
@@ -52,7 +54,16 @@ class DashboardView(LoginRequiredMixin, View):
             # If no entry_id, redirect to the most recent entry
             if entries:
                 most_recent = entries.first()
-                return redirect("journal:dashboard_with_entry", entry_id=most_recent.id)
+                # Preserve query parameters during redirect
+                url = reverse("journal:dashboard_with_entry", kwargs={"entry_id": most_recent.id})
+                query_params = {}
+                if search_query:
+                    query_params['search'] = search_query
+                if tag_filter:
+                    query_params['tag'] = tag_filter
+                if query_params:
+                    url += '?' + urlencode(query_params)
+                return redirect(url)
             else:
                 # No entries exist
                 active_entry = None

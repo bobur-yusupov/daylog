@@ -163,3 +163,57 @@ class DashboardViewTests(BaseViewTestCase):
         context = response.context
         self.assertEqual(len(context["recent_tags"]), 10)
         self.assertEqual(context["total_tags"], 15)
+
+    def test_dashboard_search_functionality(self):
+        """Test that dashboard search filters entries correctly"""
+        self.client.login(username="testuser", password="testpass123")
+        
+        # Search by title
+        url = reverse("journal:dashboard")
+        response = self.client.get(url, {"search": "Entry 1"}, follow=True)
+        
+        context = response.context
+        self.assertEqual(context["search_query"], "Entry 1")
+        entry_titles = [entry.title for entry in context["recent_entries"]]
+        self.assertIn("Test Entry 1", entry_titles)
+        self.assertNotIn("Test Entry 2", entry_titles)
+
+    def test_dashboard_tag_filter(self):
+        """Test that dashboard tag filter works correctly"""
+        self.client.login(username="testuser", password="testpass123")
+        
+        # Filter by tag
+        url = reverse("journal:dashboard")
+        response = self.client.get(url, {"tag": "Personal"}, follow=True)
+        
+        context = response.context
+        self.assertEqual(context["tag_filter"], "Personal")
+        # Entry 1 has "Personal" tag
+        entry_ids = [entry.id for entry in context["recent_entries"]]
+        self.assertIn(self.entry1.id, entry_ids)
+
+    def test_dashboard_search_and_tag_filter_combined(self):
+        """Test that search and tag filter work together"""
+        self.client.login(username="testuser", password="testpass123")
+        
+        # Create an entry with specific tag
+        work_entry = JournalEntry.objects.create(
+            user=self.user,
+            title="Work Meeting Notes",
+            content=self.sample_content
+        )
+        work_entry.tags.add(self.tag2)  # Work tag
+        
+        url = reverse("journal:dashboard")
+        response = self.client.get(
+            url, 
+            {"search": "Work", "tag": "Work"}, 
+            follow=True
+        )
+        
+        context = response.context
+        self.assertEqual(context["search_query"], "Work")
+        self.assertEqual(context["tag_filter"], "Work")
+        
+        entry_titles = [entry.title for entry in context["recent_entries"]]
+        self.assertIn("Work Meeting Notes", entry_titles)
