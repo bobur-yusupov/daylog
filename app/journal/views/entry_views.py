@@ -65,3 +65,48 @@ class JournalDetailView(LoginRequiredMixin, View):
             "entry": entry,
         }
         return render(request, self.template_name, context)
+
+
+class SharedJournalView(View):
+    """
+    View for displaying a shared journal entry (read-only).
+    No authentication required.
+    """
+
+    template_name = "journal/shared_entry.html"
+
+    def get(self, request, share_token):
+        entry = get_object_or_404(JournalEntry, share_token=share_token)
+
+        context = {
+            "entry": entry,
+            "is_shared": True,
+        }
+        return render(request, self.template_name, context)
+
+
+class GenerateShareTokenView(LoginRequiredMixin, View):
+    """
+    API view to generate a share token for a journal entry.
+    """
+
+    def post(self, request, entry_id):
+        entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
+        token = entry.generate_share_token()
+        share_url = request.build_absolute_uri(f"/share/{token}/")
+
+        return JsonResponse(
+            {"success": True, "share_token": token, "share_url": share_url}
+        )
+
+
+class RevokeShareTokenView(LoginRequiredMixin, View):
+    """
+    API view to revoke a share token for a journal entry.
+    """
+
+    def post(self, request, entry_id):
+        entry = get_object_or_404(JournalEntry, id=entry_id, user=request.user)
+        entry.revoke_share_token()
+
+        return JsonResponse({"success": True, "message": "Share link revoked"})

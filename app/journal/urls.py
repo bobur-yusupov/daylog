@@ -9,6 +9,8 @@ from .views import (
     TagListView,
     TagUpdateView,
     TagDeleteView,
+    GenerateShareTokenView,
+    RevokeShareTokenView,
 )
 
 app_name = "journal"
@@ -27,6 +29,16 @@ urlpatterns = [
         name="entry_detail",
     ),
     path("api/entry/<uuid:entry_id>/", JournalDetailView.as_view(), name="entry_api"),
+    path(
+        "entry/<uuid:entry_id>/share/generate/",
+        GenerateShareTokenView.as_view(),
+        name="generate_share_token",
+    ),
+    path(
+        "entry/<uuid:entry_id>/share/revoke/",
+        RevokeShareTokenView.as_view(),
+        name="revoke_share_token",
+    ),
     path("tags/autocomplete/", TagAutocompleteView.as_view(), name="tag_autocomplete"),
     path("tags/list/", TagListView.as_view(), name="tag_list"),
     path("tags/update/<str:pk>/", TagUpdateView.as_view(), name="tag_update"),
