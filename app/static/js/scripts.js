@@ -378,49 +378,45 @@
     }
     
     function setupSearchFunctionality() {
+        const searchForm = document.getElementById('sidebarSearchForm');
         const searchInput = document.getElementById('searchInput');
-        if (!searchInput) return;
+        const tagFilter = document.getElementById('tagFilter');
         
-        let searchTimeout;
+        if (!searchForm || !searchInput) return;
         
-        // Handle local filtering on input
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const query = this.value.trim().toLowerCase();
+        // Handle form submission
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            searchTimeout = setTimeout(() => {
-                filterEntries(query);
-            }, 300);
+            const searchQuery = searchInput.value.trim();
+            const tagValue = tagFilter ? tagFilter.value : '';
+            
+            // Build URL with query parameters
+            const params = new URLSearchParams();
+            if (searchQuery) params.set('search', searchQuery);
+            if (tagValue) params.set('tag', tagValue);
+            
+            // Reload the page with search parameters
+            const currentUrl = window.location.pathname;
+            const newUrl = currentUrl + (params.toString() ? '?' + params.toString() : '');
+            window.location.href = newUrl;
         });
         
-        // Handle Enter key to go to search page
+        // Handle tag filter change
+        if (tagFilter) {
+            tagFilter.addEventListener('change', function() {
+                searchForm.dispatchEvent(new Event('submit'));
+            });
+        }
+        
+        // Optional: Clear search on Escape
         searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const query = this.value.trim();
-                if (query) {
-                    window.location.href = `/search/?q=${encodeURIComponent(query)}`;
-                }
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                if (tagFilter) tagFilter.value = '';
+                window.location.href = window.location.pathname;
             }
         });
-    }
-    
-    function filterEntries(query) {
-        const journalLinks = document.querySelectorAll('.journal-link');
-        
-        journalLinks.forEach(link => {
-            const titleElement = link.querySelector('.journal-title');
-            if (titleElement) {
-                const title = titleElement.textContent.toLowerCase();
-                const matches = !query || title.includes(query);
-                const navItem = link.closest('.nav-item');
-                if (navItem) {
-                    navItem.style.display = matches ? 'block' : 'none';
-                }
-            }
-        });
-        
-
     }
     
     function setupNewEntryButton() {

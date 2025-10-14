@@ -166,13 +166,19 @@
         <h6>Recent Entries</h6>
       </div>
       <div class="search-container mb-3">
-        <form method="get" action="{% url 'journal:search' %}">
-          <div class="input-group">
-            <input type="text" class="form-control form-control-sm" name="q" placeholder="Search entries..." id="searchInput">
-            <button class="btn btn-outline-secondary btn-sm" type="submit" title="Open search page">
+        <form method="get" id="sidebarSearchForm">
+          <div class="input-group input-group-sm mb-2">
+            <input type="text" class="form-control" name="search" placeholder="Search entries..." id="searchInput" value="{{ search_query }}">
+            <button class="btn btn-outline-secondary" type="submit" title="Search">
               <i class="bi bi-search"></i>
             </button>
           </div>
+          <select class="form-select form-select-sm" name="tag" id="tagFilter">
+            <option value="">All Tags</option>
+            {% for tag in recent_tags %}
+            <option value="{{ tag.name }}" {% if tag_filter == tag.name %}selected{% endif %}>{{ tag.name }}</option>
+            {% endfor %}
+          </select>
         </form>
       </div>
       <ul class="nav flex-column" id="recentEntries">
