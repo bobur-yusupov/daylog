@@ -17,6 +17,7 @@ class DashboardView(LoginRequiredMixin, View):
 
     def get(self, request, entry_id=None):
         search_query = request.GET.get("search", "").strip()
+        tag_filter = request.GET.get("tag", "").strip()
 
         # Base queryset
         entries_queryset = JournalEntry.objects.filter(user=request.user)
@@ -27,6 +28,12 @@ class DashboardView(LoginRequiredMixin, View):
                 Q(title__icontains=search_query)
                 | Q(content__icontains=search_query)
                 | Q(tags__name__icontains=search_query)
+            ).distinct()
+
+        # Apply tag filter if provided
+        if tag_filter:
+            entries_queryset = entries_queryset.filter(
+                tags__name__icontains=tag_filter
             ).distinct()
 
         # Get recent entries (limit to 5 for dashboard)
@@ -77,6 +84,7 @@ class DashboardView(LoginRequiredMixin, View):
             "active_entry": active_entry,
             "recent_tags": tags,
             "search_query": search_query,
+            "tag_filter": tag_filter,
             "total_entries": JournalEntry.objects.filter(user=request.user).count(),
             "total_tags": Tag.objects.filter(user=request.user).count(),
         }

@@ -9,7 +9,6 @@ from .views import (
     TagListView,
     TagUpdateView,
     TagDeleteView,
-    SearchView,
 )
 
 app_name = "journal"
@@ -17,7 +16,6 @@ app_name = "journal"
 urlpatterns = [
     path("", DashboardView.as_view(), name="dashboard"),
     path("entries/", JournalListView.as_view(), name="entry_list"),
-    path("search/", SearchView.as_view(), name="search"),
     path("entry/new/", NewJournalView.as_view(), name="new_entry"),
     path(
         "entry/<uuid:entry_id>/", DashboardView.as_view(), name="dashboard_with_entry"
