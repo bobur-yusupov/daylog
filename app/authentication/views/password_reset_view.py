@@ -2,20 +2,17 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.views.generic import FormView, TemplateView
 from django.http import HttpResponse
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from datetime import timedelta
 
 from authentication.forms import (
-    PasswordResetRequestForm, 
-    PasswordResetOTPForm, 
+    PasswordResetRequestForm,
+    PasswordResetOTPForm,
     PasswordResetConfirmForm,
-    ResendPasswordResetOTPForm
+    ResendPasswordResetOTPForm,
 )
 from authentication.mixins import AnonymousRequiredMixin
 from authentication.services import PasswordResetService
-from authentication.models import PasswordReset
 
 
 class PasswordResetRequestView(AnonymousRequiredMixin, FormView):
@@ -38,26 +35,30 @@ class PasswordResetRequestView(AnonymousRequiredMixin, FormView):
         if user:
             # Check for potential abuse (optional - you can enable this if needed)
             # recent_attempts = PasswordReset.objects.filter(
-            #     user=user, 
+            #     user=user,
             #     created_at__gte=timezone.now() - timedelta(hours=1)
             # ).count()
             # if recent_attempts >= 3:
             #     PasswordResetService.send_security_alert_email(user, "multiple_attempts")
-            
+
             # Send password reset OTP email
             result = PasswordResetService.send_password_reset_otp(user)
-            
+
             if result.success:
                 # Store email in session for next step
                 self.request.session["password_reset_email"] = email
                 messages.success(
                     self.request,
-                    _("We have sent a 6-digit verification code to your email address.")
+                    _(
+                        "We have sent a 6-digit verification code to your email address."
+                    ),
                 )
             else:
                 messages.error(
                     self.request,
-                    _("There was an error sending the verification code. Please try again later.")
+                    _(
+                        "There was an error sending the verification code. Please try again later."
+                    ),
                 )
                 return self.form_invalid(form)
         else:
@@ -66,7 +67,7 @@ class PasswordResetRequestView(AnonymousRequiredMixin, FormView):
             self.request.session["password_reset_email"] = email
             messages.success(
                 self.request,
-                _("We have sent a 6-digit verification code to your email address.")
+                _("We have sent a 6-digit verification code to your email address."),
             )
 
         return super().form_valid(form)
@@ -89,10 +90,10 @@ class PasswordResetOTPView(AnonymousRequiredMixin, FormView):
         if not self.email:
             messages.error(
                 request,
-                _("Please start the password reset process from the beginning.")
+                _("Please start the password reset process from the beginning."),
             )
             return redirect("authentication:password_reset_request")
-        
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
@@ -100,7 +101,7 @@ class PasswordResetOTPView(AnonymousRequiredMixin, FormView):
         Pass email to the form.
         """
         kwargs = super().get_form_kwargs()
-        kwargs['email'] = self.email
+        kwargs["email"] = self.email
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -108,8 +109,8 @@ class PasswordResetOTPView(AnonymousRequiredMixin, FormView):
         Add email and resend form to context.
         """
         context = super().get_context_data(**kwargs)
-        context['email'] = self.email
-        context['resend_form'] = ResendPasswordResetOTPForm(email=self.email)
+        context["email"] = self.email
+        context["resend_form"] = ResendPasswordResetOTPForm(email=self.email)
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -118,23 +119,23 @@ class PasswordResetOTPView(AnonymousRequiredMixin, FormView):
         """
         email = form.cleaned_data.get("email")
         otp_code = form.cleaned_data.get("otp_code")
-        
+
         # Verify OTP
         password_reset = PasswordResetService.verify_otp(email, otp_code)
-        
+
         if password_reset:
             # Store verified OTP info in session for next step
             self.request.session["password_reset_verified_email"] = email
             self.request.session["password_reset_verified_otp"] = otp_code
-            
+
             messages.success(
                 self.request,
-                _("Code verified successfully. Please set your new password.")
+                _("Code verified successfully. Please set your new password."),
             )
         else:
             messages.error(
                 self.request,
-                _("Invalid or expired verification code. Please try again.")
+                _("Invalid or expired verification code. Please try again."),
             )
             return self.form_invalid(form)
 
@@ -156,14 +157,13 @@ class PasswordResetConfirmView(AnonymousRequiredMixin, FormView):
         """
         self.email = request.session.get("password_reset_verified_email")
         self.otp_code = request.session.get("password_reset_verified_otp")
-        
+
         if not self.email or not self.otp_code:
             messages.error(
-                request,
-                _("Please complete the verification process first.")
+                request, _("Please complete the verification process first.")
             )
             return redirect("authentication:password_reset_request")
-        
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
@@ -171,8 +171,8 @@ class PasswordResetConfirmView(AnonymousRequiredMixin, FormView):
         Pass email and OTP to the form.
         """
         kwargs = super().get_form_kwargs()
-        kwargs['email'] = self.email
-        kwargs['otp_code'] = self.otp_code
+        kwargs["email"] = self.email
+        kwargs["otp_code"] = self.otp_code
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -180,7 +180,7 @@ class PasswordResetConfirmView(AnonymousRequiredMixin, FormView):
         Add email to context.
         """
         context = super().get_context_data(**kwargs)
-        context['email'] = self.email
+        context["email"] = self.email
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -190,24 +190,30 @@ class PasswordResetConfirmView(AnonymousRequiredMixin, FormView):
         email = form.cleaned_data.get("email")
         otp_code = form.cleaned_data.get("otp_code")
         new_password = form.cleaned_data.get("new_password")
-        
+
         # Reset password
-        success = PasswordResetService.reset_password_with_otp(email, otp_code, new_password)
-        
+        success = PasswordResetService.reset_password_with_otp(
+            email, otp_code, new_password
+        )
+
         if success:
             # Clear session data
             self.request.session.pop("password_reset_email", None)
             self.request.session.pop("password_reset_verified_email", None)
             self.request.session.pop("password_reset_verified_otp", None)
-            
+
             messages.success(
                 self.request,
-                _("Your password has been reset successfully. You can now log in with your new password.")
+                _(
+                    "Your password has been reset successfully. You can now log in with your new password."
+                ),
             )
         else:
             messages.error(
                 self.request,
-                _("There was an error resetting your password. Please try the process again.")
+                _(
+                    "There was an error resetting your password. Please try the process again."
+                ),
             )
             # Clear session and redirect to start
             self.request.session.pop("password_reset_email", None)
@@ -222,6 +228,7 @@ class PasswordResetCompleteView(AnonymousRequiredMixin, TemplateView):
     """
     Step 4: View shown after password has been successfully reset.
     """
+
     template_name = "authentication/password_reset_complete.html"
 
 
@@ -241,10 +248,10 @@ class ResendPasswordResetOTPView(AnonymousRequiredMixin, FormView):
         if not self.email:
             messages.error(
                 request,
-                _("Please start the password reset process from the beginning.")
+                _("Please start the password reset process from the beginning."),
             )
             return redirect("authentication:password_reset_request")
-        
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form) -> HttpResponse:
@@ -253,33 +260,33 @@ class ResendPasswordResetOTPView(AnonymousRequiredMixin, FormView):
         """
         email = form.cleaned_data.get("email")
         user = PasswordResetService.get_user_by_email(email)
-        
+
         if user:
             # Check if we can resend
             if PasswordResetService.can_resend_otp(user):
                 result = PasswordResetService.send_password_reset_otp(user)
-                
+
                 if result.success:
                     messages.success(
                         self.request,
-                        _("A new verification code has been sent to your email.")
+                        _("A new verification code has been sent to your email."),
                     )
                 else:
                     messages.error(
                         self.request,
-                        _("There was an error sending the verification code. Please try again later.")
+                        _(
+                            "There was an error sending the verification code. Please try again later."
+                        ),
                     )
             else:
                 messages.warning(
-                    self.request,
-                    _("Please wait before requesting a new code.")
+                    self.request, _("Please wait before requesting a new code.")
                 )
         else:
             # For security, show success even if user doesn't exist
             messages.success(
-                self.request,
-                _("A new verification code has been sent to your email.")
+                self.request, _("A new verification code has been sent to your email.")
             )
-        
+
         # Redirect back to OTP verification page
         return redirect("authentication:password_reset_otp")

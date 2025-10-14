@@ -19,7 +19,9 @@ class PasswordReset(models.Model):
         related_name="password_resets",
         help_text="The user this password reset OTP belongs to",
     )
-    otp_code = models.CharField(max_length=6, help_text="6-digit OTP code for password reset")
+    otp_code = models.CharField(
+        max_length=6, help_text="6-digit OTP code for password reset"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(help_text="When this OTP expires")
     is_used = models.BooleanField(
@@ -79,8 +81,8 @@ class PasswordReset(models.Model):
         """
         max_attempts = 5  # Same as email verification
         return (
-            not self.is_used 
-            and timezone.now() < self.expires_at 
+            not self.is_used
+            and timezone.now() < self.expires_at
             and self.attempts < max_attempts
         )
 

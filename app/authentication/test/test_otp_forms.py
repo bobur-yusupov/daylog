@@ -204,9 +204,7 @@ class OTPVerificationFormTests(TestCase):
             password="testpass123",
             is_email_verified=False,
         )
-        EmailVerification.objects.create(
-            user=other_user, otp_code="654321"
-        )
+        EmailVerification.objects.create(user=other_user, otp_code="654321")
 
         form_data = {"otp_code": "654321"}
         form = OTPVerificationForm(data=form_data, user=self.user)  # Different user
@@ -321,9 +319,7 @@ class OTPFormIntegrationTests(TestCase):
 
     def test_concurrent_verification_attempts(self):
         """Test behavior with concurrent verification attempts."""
-        EmailVerification.objects.create(
-            user=self.user, otp_code="444444"
-        )
+        EmailVerification.objects.create(user=self.user, otp_code="444444")
 
         # First verification attempt
         form1_data = {"otp_code": "444444"}

@@ -24,22 +24,20 @@ class PasswordResetModelTests(TestCase):
     def test_password_reset_creation(self):
         """Test creating a password reset generates OTP and sets expiry."""
         password_reset = PasswordReset.objects.create(user=self.user)
-        
+
         # Check OTP is generated
         self.assertIsNotNone(password_reset.otp_code)
         self.assertEqual(len(password_reset.otp_code), 6)
         self.assertTrue(password_reset.otp_code.isdigit())
-        
+
         # Check expiry is set
         self.assertIsNotNone(password_reset.expires_at)
         expected_expiry = timezone.now() + timedelta(minutes=10)
         # Allow 1 second tolerance for test execution time
         self.assertAlmostEqual(
-            password_reset.expires_at.timestamp(),
-            expected_expiry.timestamp(),
-            delta=1
+            password_reset.expires_at.timestamp(), expected_expiry.timestamp(), delta=1
         )
-        
+
         # Check defaults
         self.assertFalse(password_reset.is_used)
         self.assertEqual(password_reset.attempts, 0)
@@ -47,10 +45,10 @@ class PasswordResetModelTests(TestCase):
     def test_generate_otp_format(self):
         """Test OTP generation creates valid 6-digit code."""
         otp = PasswordReset.generate_otp()
-        
+
         self.assertEqual(len(otp), 6)
         self.assertTrue(otp.isdigit())
-        
+
         # Test multiple generations are different (very likely)
         otp2 = PasswordReset.generate_otp()
         self.assertNotEqual(otp, otp2)
@@ -60,14 +58,14 @@ class PasswordResetModelTests(TestCase):
         # Create first password reset
         first_reset = PasswordReset.objects.create(user=self.user)
         self.assertFalse(first_reset.is_used)
-        
+
         # Create second password reset
         second_reset = PasswordReset.create_for_user(self.user)
-        
+
         # First should be marked as used
         first_reset.refresh_from_db()
         self.assertTrue(first_reset.is_used)
-        
+
         # Second should be active
         self.assertFalse(second_reset.is_used)
         self.assertNotEqual(first_reset.otp_code, second_reset.otp_code)
@@ -82,7 +80,7 @@ class PasswordResetModelTests(TestCase):
         password_reset = PasswordReset.objects.create(user=self.user)
         password_reset.is_used = True
         password_reset.save()
-        
+
         self.assertFalse(password_reset.is_valid())
 
     def test_is_valid_expired_password_reset(self):
@@ -91,7 +89,7 @@ class PasswordResetModelTests(TestCase):
         # Set expiry to past
         password_reset.expires_at = timezone.now() - timedelta(minutes=1)
         password_reset.save()
-        
+
         self.assertFalse(password_reset.is_valid())
 
     def test_is_valid_max_attempts_reached(self):
@@ -99,18 +97,18 @@ class PasswordResetModelTests(TestCase):
         password_reset = PasswordReset.objects.create(user=self.user)
         password_reset.attempts = 5  # Max attempts
         password_reset.save()
-        
+
         self.assertFalse(password_reset.is_valid())
 
     def test_increment_attempts(self):
         """Test incrementing attempts works correctly."""
         password_reset = PasswordReset.objects.create(user=self.user)
         initial_attempts = password_reset.attempts
-        
+
         password_reset.increment_attempts()
-        
+
         self.assertEqual(password_reset.attempts, initial_attempts + 1)
-        
+
         # Test multiple increments
         password_reset.increment_attempts()
         self.assertEqual(password_reset.attempts, initial_attempts + 2)
@@ -119,9 +117,9 @@ class PasswordResetModelTests(TestCase):
         """Test marking password reset as used."""
         password_reset = PasswordReset.objects.create(user=self.user)
         self.assertFalse(password_reset.is_used)
-        
+
         password_reset.mark_as_used()
-        
+
         self.assertTrue(password_reset.is_used)
 
     def test_str_representation(self):
@@ -129,7 +127,7 @@ class PasswordResetModelTests(TestCase):
         password_reset = PasswordReset.objects.create(user=self.user)
         expected = f"Password reset OTP for {self.user.email} - Valid"
         self.assertEqual(str(password_reset), expected)
-        
+
         # Test invalid state
         password_reset.is_used = True
         password_reset.save()
@@ -140,7 +138,7 @@ class PasswordResetModelTests(TestCase):
         """Test password resets are ordered by creation time (newest first)."""
         first_reset = PasswordReset.objects.create(user=self.user)
         second_reset = PasswordReset.objects.create(user=self.user)
-        
+
         resets = list(PasswordReset.objects.all())
         self.assertEqual(resets[0], second_reset)  # Newest first
         self.assertEqual(resets[1], first_reset)
@@ -150,7 +148,7 @@ class PasswordResetModelTests(TestCase):
         custom_expiry = timezone.now() + timedelta(hours=1)
         password_reset = PasswordReset(user=self.user, expires_at=custom_expiry)
         password_reset.save()
-        
+
         self.assertEqual(password_reset.expires_at, custom_expiry)
 
     def test_custom_otp_code(self):
@@ -158,5 +156,5 @@ class PasswordResetModelTests(TestCase):
         custom_otp = "123456"
         password_reset = PasswordReset(user=self.user, otp_code=custom_otp)
         password_reset.save()
-        
+
         self.assertEqual(password_reset.otp_code, custom_otp)

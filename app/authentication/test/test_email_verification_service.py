@@ -189,9 +189,7 @@ class EmailVerificationServiceTests(TestCase):
         """Test OTP verification with database error during save."""
         from django.db import DatabaseError
 
-        EmailVerification.objects.create(
-            user=self.user, otp_code="123456"
-        )
+        EmailVerification.objects.create(user=self.user, otp_code="123456")
 
         mock_save.side_effect = DatabaseError("Database connection failed")
 

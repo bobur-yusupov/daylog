@@ -3,16 +3,16 @@ from .user_creation_view import CustomUserCreationForm
 from .profile_form import ProfileForm
 from .otp_verification_form import OTPVerificationForm, ResendOTPForm
 from .forgot_password_form import (
-    PasswordResetRequestForm, 
-    PasswordResetOTPForm, 
-    PasswordResetConfirmForm, 
+    PasswordResetRequestForm,
+    PasswordResetOTPForm,
+    PasswordResetConfirmForm,
     ResendPasswordResetOTPForm,
-    ResetPasswordForm
+    ResetPasswordForm,
 )
 
 __all__ = [
     "CustomAuthenticationForm",
-    "CustomUserCreationForm", 
+    "CustomUserCreationForm",
     "ProfileForm",
     "OTPVerificationForm",
     "ResendOTPForm",

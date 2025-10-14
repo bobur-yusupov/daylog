@@ -33,7 +33,9 @@ class PasswordResetService:
 
     OTP_TEMPLATE_HTML = "authentication/emails/password_reset_otp.html"
     OTP_TEMPLATE_TEXT = "authentication/emails/password_reset_otp.txt"
-    CONFIRMATION_TEMPLATE_HTML = "authentication/emails/password_reset_confirmation.html"
+    CONFIRMATION_TEMPLATE_HTML = (
+        "authentication/emails/password_reset_confirmation.html"
+    )
     CONFIRMATION_TEMPLATE_TEXT = "authentication/emails/password_reset_confirmation.txt"
     SITE_NAME = "DayLog"
     OTP_EXPIRY_MINUTES = getattr(settings, "OTP_EXPIRY_MINUTES", 10)
@@ -145,7 +147,7 @@ class PasswordResetService:
         """
         try:
             from django.utils import timezone
-            
+
             context = {
                 "user": user,
                 "site_name": PasswordResetService.SITE_NAME,
@@ -177,7 +179,7 @@ class PasswordResetService:
         except (TemplateDoesNotExist, TemplateSyntaxError) as e:
             logger.error(f"Template error in confirmation email: {e}")
             # Don't raise error for confirmation email - it's not critical
-            
+
         except (SMTPException, gaierror, BadHeaderError) as e:
             logger.error(f"Email delivery error for confirmation: {e}")
             # Don't raise error for confirmation email - it's not critical
@@ -190,23 +192,16 @@ class PasswordResetService:
     def send_security_alert_email(user, alert_type="suspicious_activity"):
         """
         Send a security alert email for suspicious password reset activity.
-        
+
         Args:
             user: The user to send the alert to
             alert_type: Type of alert ('suspicious_activity', 'multiple_attempts', etc.)
         """
         try:
             from django.utils import timezone
-            
-            context = {
-                "user": user,
-                "site_name": PasswordResetService.SITE_NAME,
-                "alert_time": timezone.now(),
-                "alert_type": alert_type,
-            }
 
             subject = f"Security Alert - {PasswordResetService.SITE_NAME}"
-            
+
             # Simple text email for security alerts
             message = f"""
 Security Alert - {PasswordResetService.SITE_NAME}
@@ -244,7 +239,11 @@ This is an automated security alert. Please do not reply to this email.
 
             logger.info(
                 "Security alert email sent",
-                extra={"user_id": user.id, "email": user.email, "alert_type": alert_type},
+                extra={
+                    "user_id": user.id,
+                    "email": user.email,
+                    "alert_type": alert_type,
+                },
             )
 
         except Exception as e:
@@ -258,10 +257,10 @@ This is an automated security alert. Please do not reply to this email.
     def get_user_by_email(email: str) -> Optional[User]:
         """
         Get a user by email address.
-        
+
         Args:
             email: The email address to search for
-            
+
         Returns:
             User instance if found, None otherwise
         """
@@ -274,11 +273,11 @@ This is an automated security alert. Please do not reply to this email.
     def verify_otp(email: str, otp_code: str) -> Optional[PasswordReset]:
         """
         Verify the OTP code for password reset.
-        
+
         Args:
             email: The user's email address
             otp_code: The OTP code to verify
-            
+
         Returns:
             PasswordReset instance if OTP is valid, None otherwise
         """
@@ -288,10 +287,11 @@ This is an automated security alert. Please do not reply to this email.
                 return None
 
             # Get the most recent unused password reset for this user
-            password_reset = PasswordReset.objects.filter(
-                user=user,
-                is_used=False
-            ).order_by('-created_at').first()
+            password_reset = (
+                PasswordReset.objects.filter(user=user, is_used=False)
+                .order_by("-created_at")
+                .first()
+            )
 
             if not password_reset:
                 return None
@@ -316,12 +316,12 @@ This is an automated security alert. Please do not reply to this email.
     def reset_password_with_otp(email: str, otp_code: str, new_password: str) -> bool:
         """
         Reset a user's password using a valid OTP.
-        
+
         Args:
             email: The user's email address
             otp_code: The OTP code
             new_password: The new password to set
-            
+
         Returns:
             bool: True if password was reset successfully, False otherwise
         """
@@ -329,17 +329,19 @@ This is an automated security alert. Please do not reply to this email.
             password_reset = PasswordResetService.verify_otp(email, otp_code)
             if not password_reset:
                 return False
-            
+
             # Update the user's password
             user = password_reset.user
             user.set_password(new_password)
             user.save()
-            
+
             # Mark the OTP as used
             password_reset.mark_as_used()
-            
+
             # Send confirmation email if enabled
-            confirmation_enabled = getattr(settings, "PASSWORD_RESET_CONFIRMATION_EMAIL_ENABLED", True)
+            confirmation_enabled = getattr(
+                settings, "PASSWORD_RESET_CONFIRMATION_EMAIL_ENABLED", True
+            )
             if confirmation_enabled:
                 try:
                     PasswordResetService._send_confirmation_email(user)
@@ -350,16 +352,20 @@ This is an automated security alert. Please do not reply to this email.
                 except Exception as e:
                     logger.warning(
                         "Password reset completed but confirmation email failed",
-                        extra={"user_id": user.id, "email": user.email, "error": str(e)},
+                        extra={
+                            "user_id": user.id,
+                            "email": user.email,
+                            "error": str(e),
+                        },
                     )
             else:
                 logger.info(
                     "Password reset completed successfully (confirmation email disabled)",
                     extra={"user_id": user.id, "email": user.email},
                 )
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(
                 "Error during password reset",
@@ -371,23 +377,25 @@ This is an automated security alert. Please do not reply to this email.
     def can_resend_otp(user) -> bool:
         """
         Check if a new OTP can be sent to the user.
-        
+
         Args:
             user: The user requesting OTP resend
-            
+
         Returns:
             bool: True if OTP can be resent, False otherwise
         """
         from django.utils import timezone
-        
+
         # Get the most recent password reset for this user
-        recent_reset = PasswordReset.objects.filter(user=user).order_by('-created_at').first()
-        
+        recent_reset = (
+            PasswordReset.objects.filter(user=user).order_by("-created_at").first()
+        )
+
         if not recent_reset:
             return True
-            
+
         # Check if enough time has passed (60 seconds by default)
         resend_interval = getattr(settings, "OTP_RESEND_INTERVAL_SECONDS", 60)
         time_since_last = (timezone.now() - recent_reset.created_at).total_seconds()
-        
+
         return time_since_last >= resend_interval

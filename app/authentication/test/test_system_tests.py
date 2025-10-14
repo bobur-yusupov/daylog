@@ -200,9 +200,7 @@ class EmailTemplateSystemTests(TestCase):
         }
 
         # Test with default language
-        render_to_string(
-            "authentication/emails/otp_verification.html", context
-        )
+        render_to_string("authentication/emails/otp_verification.html", context)
 
         # Templates should work with different languages (if supported)
         try:
@@ -565,17 +563,13 @@ class EmailRenderingSystemTests(TestCase):
         # Time HTML template rendering
         start_time = time.time()
         for _ in range(100):
-            render_to_string(
-                "authentication/emails/otp_verification.html", context
-            )
+            render_to_string("authentication/emails/otp_verification.html", context)
         html_time = time.time() - start_time
 
         # Time text template rendering
         start_time = time.time()
         for _ in range(100):
-            render_to_string(
-                "authentication/emails/otp_verification.txt", context
-            )
+            render_to_string("authentication/emails/otp_verification.txt", context)
         text_time = time.time() - start_time
 
         # Performance assertions
