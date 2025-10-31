@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ entry.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+<link rel="stylesheet" href="{% static 'css/editorjs-blocks.css' %}" />
+{% endblock %}
+
+{% block content %}
+<body class="journal-page">
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-8 col-lg-10">
+            <div class="py-4">
+                
+                <!-- Shared Entry Badge -->
+                <div class="mb-3">
+                    <span class="badge bg-info">
+                        <i class="bi bi-share me-1"></i>Shared Entry
+                    </span>
+                </div>
+                
+                <!-- Entry Title -->
+                <div class="mb-4">
+                    <h1 class="entry-title mb-0" id="entry-title">{{ entry.title }}</h1>
+                </div>
+
+                <!-- Author and Date Info -->
+                <div class="mb-4 text-muted">
+                    <small>
+                        <i class="bi bi-person me-1"></i>by {{ entry.user.username }}
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-calendar3 me-1"></i>{{ entry.created_at|date:"M d, Y" }}
+                    </small>
+                </div>
+
+                <!-- Tags Section -->
+                {% if entry.tags.exists %}
+                <div class="mb-4">
+                    {% for tag in entry.tags.all %}
+                        <span class="tag-badge">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Entry Content -->
+                <div class="mb-5">
+                    <div class="entry-content" id="rendered-content">
+                        <!-- Content will be rendered here by JavaScript -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fixed Bottom Controls -->
+<div class="fixed-bottom journal-fixed-bottom bg-white border-top p-3">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    
+                    <!-- Left side - Info -->
+                    <small class="text-muted">
+                        <i class="bi bi-lock-fill me-1"></i>Read-only view
+                    </small>
+                    
+                    <!-- Right side - Daylog branding -->
+                    <div>
+                        <small class="text-muted me-2">Powered by</small>
+                        <a href="/" class="text-decoration-none">
+                            <i class="bi bi-journal-text me-1"></i><strong>Daylog</strong>
+                        </a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+{% endblock %}
+
+{% block extra_js %}
+{{ entry.content|json_script:"entry-content" }}
+
+<script>
+    // Entry content from Django template - make it globally available
+    window.entryContent = {};
+    
+    try {
+        const raw = document.getElementById('entry-content')?.textContent || '{}';
+        window.entryContent = JSON.parse(raw);
+        if (typeof window.entryContent === 'string') {
+            try { 
+                window.entryContent = JSON.parse(window.entryContent); 
+            } catch { 
+                window.entryContent = {}; 
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to parse entry content JSON, defaulting to empty.', e);
+        window.entryContent = {};
+    }
+    
+    // Initialize content rendering when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        renderContent();
+    });
+
+    function renderContent() {
+        const container = document.getElementById('rendered-content');
+        
+        if (!window.entryContent || !window.entryContent.blocks) {
+            container.innerHTML = '<p class="text-muted">No content available.</p>';
+            return;
+        }
+
+        const renderedHtml = window.entryContent.blocks.map(block => {
+            switch(block.type) {
+                case 'paragraph':
+                    return `<p>${block.data.text || ''}</p>`;
+                case 'header':
+                    const level = block.data.level || 2;
+                    return `<h${level}>${block.data.text || ''}</h${level}>`;
+                case 'list':
+                    const listItems = (block.data.items || []).map(item => {
+                        if (typeof item === 'string') {
+                            return `<li>${item}</li>`;
+                        } else if (item.content) {
+                            return `<li>${item.content}</li>`;
+                        }
+                        return '<li></li>';
+                    }).join('');
+                    const listType = block.data.style === 'ordered' ? 'ol' : 'ul';
+                    return `<${listType}>${listItems}</${listType}>`;
+                case 'checklist':
+                    const checkItems = (block.data.items || []).map(item => {
+                        const checked = item.checked ? 'checked' : '';
+                        return `<div class="form-check">
+                            <input class="form-check-input" type="checkbox" ${checked} disabled>
+                            <label class="form-check-label">${item.text}</label>
+                        </div>`;
+                    }).join('');
+                    return `<div class="checklist mb-3">${checkItems}</div>`;
+                case 'quote':
+                    return `<blockquote class="blockquote">
+                        <p>${block.data.text || ''}</p>
+                        ${block.data.caption ? `<footer class="blockquote-footer">${block.data.caption}</footer>` : ''}
+                    </blockquote>`;
+                case 'warning':
+                    return `<div class="alert alert-warning" role="alert">
+                        ${block.data.title ? `<h6 class="alert-heading">${block.data.title}</h6>` : ''}
+                        <p class="mb-0">${block.data.message || ''}</p>
+                    </div>`;
+                case 'delimiter':
+                    return '<hr>';
+                case 'code':
+                    return `<pre><code>${block.data.code || ''}</code></pre>`;
+                case 'raw':
+                    return block.data.html || '';
+                case 'table':
+                    if (!block.data.content || !Array.isArray(block.data.content)) return '';
+                    const tableRows = block.data.content.map((row, index) => {
+                        const cellTag = index === 0 && block.data.withHeadings ? 'th' : 'td';
+                        const cells = row.map(cell => `<${cellTag}>${cell}</${cellTag}>`).join('');
+                        return `<tr>${cells}</tr>`;
+                    }).join('');
+                    return `<table class="table table-bordered">${tableRows}</table>`;
+                case 'linkTool':
+                    return `<div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <a href="${block.data.link}" target="_blank" rel="noopener">
+                                    ${block.data.meta?.title || block.data.link}
+                                </a>
+                            </h6>
+                            ${block.data.meta?.description ? `<p class="card-text">${block.data.meta.description}</p>` : ''}
+                        </div>
+                    </div>`;
+                default:
+                    console.warn('Unsupported block type:', block.type);
+                    return `<div class="alert alert-warning">Unsupported content type: ${block.type}</div>`;
+            }
+        }).join('');
+
+        container.innerHTML = renderedHtml;
+    }
+</script>
+{% endblock %}

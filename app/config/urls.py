@@ -8,6 +8,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from journal.views import SharedJournalView
 
 load_dotenv()
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include("authentication.urls")),
     path("api/", include("api.urls")),
+    path("share/<str:share_token>/", SharedJournalView.as_view(), name="shared_entry"),
     path("", include("journal.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
