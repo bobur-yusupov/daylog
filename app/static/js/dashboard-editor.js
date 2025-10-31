@@ -10,6 +10,7 @@ let autoSaveEnabled = true;
 let autoSaveTimeout = null;
 let hasUnsavedChanges = false;
 let entryMetadata = {};
+let autoTitleGenerated = {}; // Track which entries have auto-generated titles
 
 /**
  * Initialize the dashboard editor system
@@ -21,6 +22,17 @@ function initializeDashboardEditor(entryData, activeEntryId, metadata = {}) {
     window.entryData = entryData;
     entryMetadata = metadata;
     currentActiveEntry = activeEntryId;
+    
+    // Check if the active entry has a default title
+    if (currentActiveEntry) {
+        const titleElement = document.getElementById('currentEntryTitle');
+        if (titleElement) {
+            const currentTitle = titleElement.value || titleElement.textContent || '';
+            if (currentTitle.startsWith('New Entry - ')) {
+                autoTitleGenerated[currentActiveEntry] = true; // Enable auto-generation
+            }
+        }
+    }
     
     // Initialize editor for the currently active entry
     if (currentActiveEntry) {
@@ -70,9 +82,12 @@ async function initializeEditor(entryId) {
                     target: '_blank',
                 }
             },
-            onChange: (api, event) => {
+            onChange: async (api, event) => {
                 // Mark as having unsaved changes
                 markAsUnsaved();
+                
+                // Auto-generate title from first three words if title is still default
+                await autoGenerateTitleFromContent(entryId, api);
                 
                 // Auto-save functionality
                 if (autoSaveEnabled) {
@@ -97,6 +112,77 @@ async function initializeEditor(entryId) {
         editorInstances[entryId] = editor;
     } catch (error) {
         console.error(`Failed to initialize editor for entry ${entryId}:`, error);
+    }
+}
+
+/**
+ * Auto-generate title from first three words of content
+ * Only updates if the title is still in the default "New Entry - {date}" format
+ * @param {string} entryId - The ID of the entry
+ * @param {Object} api - EditorJS API instance
+ */
+async function autoGenerateTitleFromContent(entryId, api) {
+    try {
+        const titleElement = document.getElementById('currentEntryTitle');
+        if (!titleElement) return;
+        
+        const currentTitle = titleElement.value || titleElement.textContent || '';
+        
+        // Check if title is still in default format "New Entry - {date}"
+        const isDefaultTitle = currentTitle.startsWith('New Entry - ');
+        
+        // Only auto-generate if it's still the default title
+        if (!isDefaultTitle && autoTitleGenerated[entryId] !== true) {
+            return;
+        }
+        
+        // Get editor content
+        const data = await api.saver.save();
+        
+        // Extract text from all blocks
+        let allText = '';
+        if (data.blocks && Array.isArray(data.blocks)) {
+            for (const block of data.blocks) {
+                if (block.data && block.data.text) {
+                    allText += block.data.text + ' ';
+                } else if (block.data && block.data.items && Array.isArray(block.data.items)) {
+                    // Handle list items
+                    for (const item of block.data.items) {
+                        if (typeof item === 'string') {
+                            allText += item + ' ';
+                        } else if (item.content) {
+                            allText += item.content + ' ';
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Remove HTML tags and extra whitespace
+        allText = allText.replace(/<[^>]*>/g, '').trim();
+        
+        if (allText.length === 0) return;
+        
+        // Get first three words
+        const words = allText.split(/\s+/);
+        const firstThreeWords = words.slice(0, 3).join(' ');
+        
+        if (firstThreeWords.length === 0) return;
+        
+        // Update the title
+        titleElement.value = firstThreeWords;
+        if (titleElement.textContent !== undefined) {
+            titleElement.textContent = firstThreeWords;
+        }
+        
+        // Mark that this entry has an auto-generated title
+        autoTitleGenerated[entryId] = true;
+        
+        // Save the new title (this will be done by auto-save)
+        console.log(`Auto-generated title for entry ${entryId}: "${firstThreeWords}"`);
+        
+    } catch (error) {
+        console.error('Error auto-generating title:', error);
     }
 }
 
@@ -249,6 +335,15 @@ function switchToEntry(entryId) {
 
     // Update current active entry
     currentActiveEntry = entryId;
+    
+    // Check if this entry has a default title format and mark it for auto-generation
+    const titleElement = document.getElementById('currentEntryTitle');
+    if (titleElement) {
+        const currentTitle = titleElement.value || titleElement.textContent || '';
+        if (currentTitle.startsWith('New Entry - ')) {
+            autoTitleGenerated[entryId] = true; // Allow auto-generation
+        }
+    }
     
     // Reset save state for new entry
     markAsSaved();
@@ -657,5 +752,11 @@ window.DashboardEditor = {
     markAsUnsaved,
     markAsSaved,
     updateLastUpdatedTime,
-    updateLastUpdatedTimeAfterSave
+    updateLastUpdatedTimeAfterSave,
+    disableAutoTitle: function(entryId) {
+        // Disable auto-title generation for this entry
+        if (entryId) {
+            autoTitleGenerated[entryId] = false;
+        }
+    }
 };

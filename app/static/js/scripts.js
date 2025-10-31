@@ -185,6 +185,10 @@
         function saveTitle() {
             const newTitle = titleInput.value.trim();
             if (newTitle && newTitle !== originalTitle) {
+                // Mark that this entry's title was manually edited
+                if (window.DashboardEditor && window.DashboardEditor.disableAutoTitle) {
+                    window.DashboardEditor.disableAutoTitle(currentEntryId);
+                }
                 saveTitleChange(newTitle);
                 originalTitle = newTitle;
             }
