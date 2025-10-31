@@ -176,8 +176,11 @@ async function autoGenerateTitleFromContent(entryId, api) {
             }
         }
         
-        // Remove HTML tags and extra whitespace
-        allText = allText.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+        // Remove HTML tags and decode HTML entities for safe text extraction
+        // Using a more robust approach to strip HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = allText;
+        allText = (tempDiv.textContent || tempDiv.innerText || '').replace(/&nbsp;/g, ' ').trim();
         
         if (allText.length === 0) return;
         
