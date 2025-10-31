@@ -140,47 +140,29 @@ async function autoGenerateTitleFromContent(entryId, api) {
             return;
         }
         
-        // Get a lightweight copy of content by saving
-        const data = await api.saver.save();
-        
-        // Extract text from blocks
+        // Extract text directly from block holders for better performance
         let allText = '';
-        if (data.blocks && Array.isArray(data.blocks)) {
-            // Only process first few blocks to optimize performance
-            const maxBlocks = Math.min(data.blocks.length, 5);
-            
-            for (let i = 0; i < maxBlocks; i++) {
-                const block = data.blocks[i];
+        const blocksCount = api.blocks.getBlocksCount();
+        const maxBlocks = Math.min(blocksCount, 5);
+        
+        for (let i = 0; i < maxBlocks; i++) {
+            try {
+                const block = api.blocks.getBlockByIndex(i);
+                if (!block || !block.holder) continue;
                 
-                // Extract text based on block type
-                if (block.data) {
-                    if (block.data.text) {
-                        // Paragraph, header, quote, etc.
-                        allText += block.data.text + ' ';
-                    } else if (block.data.items && Array.isArray(block.data.items)) {
-                        // List or checklist
-                        for (const item of block.data.items) {
-                            if (typeof item === 'string') {
-                                allText += item + ' ';
-                            } else if (item.content) {
-                                allText += item.content + ' ';
-                            } else if (item.text) {
-                                allText += item.text + ' ';
-                            }
-                        }
-                    } else if (block.data.caption) {
-                        // Some blocks have caption field
-                        allText += block.data.caption + ' ';
-                    }
+                // Get text content from the block's DOM element
+                const blockText = block.holder.textContent || '';
+                if (blockText.trim()) {
+                    allText += blockText.trim() + ' ';
                 }
+            } catch (e) {
+                // Skip blocks that can't be accessed
+                continue;
             }
         }
         
-        // Remove HTML tags and decode HTML entities for safe text extraction
-        // Using a more robust approach to strip HTML
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = allText;
-        allText = (tempDiv.textContent || tempDiv.innerText || '').replace(/&nbsp;/g, ' ').trim();
+        // Clean up the text - remove extra whitespace and special characters
+        allText = allText.replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
         
         if (allText.length === 0) return;
         
