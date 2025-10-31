@@ -11,6 +11,7 @@ let autoSaveTimeout = null;
 let hasUnsavedChanges = false;
 let entryMetadata = {};
 let autoTitleGenerated = {}; // Track which entries have auto-generated titles
+let autoTitleTimeout = null; // Debounce timer for auto-title generation
 
 /**
  * Initialize the dashboard editor system
@@ -86,8 +87,11 @@ async function initializeEditor(entryId) {
                 // Mark as having unsaved changes
                 markAsUnsaved();
                 
-                // Auto-generate title from first three words if title is still default
-                await autoGenerateTitleFromContent(entryId, api);
+                // Debounce auto-title generation to avoid excessive calls
+                clearTimeout(autoTitleTimeout);
+                autoTitleTimeout = setTimeout(() => {
+                    autoGenerateTitleFromContent(entryId, api);
+                }, 500); // Wait 500ms after user stops typing
                 
                 // Auto-save functionality
                 if (autoSaveEnabled) {
@@ -131,43 +135,68 @@ async function autoGenerateTitleFromContent(entryId, api) {
         // Check if title is still in default format "New Entry - {date}"
         const isDefaultTitle = currentTitle.startsWith('New Entry - ');
         
-        // Only auto-generate if it's still the default title
-        if (!isDefaultTitle && autoTitleGenerated[entryId] !== true) {
+        // Only auto-generate if it's still the default title OR we've already auto-generated for this entry
+        if (!isDefaultTitle && !autoTitleGenerated[entryId]) {
             return;
         }
         
-        // Get editor content
+        // Get a lightweight copy of content by saving
         const data = await api.saver.save();
         
-        // Extract text from all blocks
+        // Extract text from blocks
         let allText = '';
         if (data.blocks && Array.isArray(data.blocks)) {
-            for (const block of data.blocks) {
-                if (block.data && block.data.text) {
-                    allText += block.data.text + ' ';
-                } else if (block.data && block.data.items && Array.isArray(block.data.items)) {
-                    // Handle list items
-                    for (const item of block.data.items) {
-                        if (typeof item === 'string') {
-                            allText += item + ' ';
-                        } else if (item.content) {
-                            allText += item.content + ' ';
+            // Only process first few blocks to optimize performance
+            const maxBlocks = Math.min(data.blocks.length, 5);
+            
+            for (let i = 0; i < maxBlocks; i++) {
+                const block = data.blocks[i];
+                
+                // Extract text based on block type
+                if (block.data) {
+                    if (block.data.text) {
+                        // Paragraph, header, quote, etc.
+                        allText += block.data.text + ' ';
+                    } else if (block.data.items && Array.isArray(block.data.items)) {
+                        // List or checklist
+                        for (const item of block.data.items) {
+                            if (typeof item === 'string') {
+                                allText += item + ' ';
+                            } else if (item.content) {
+                                allText += item.content + ' ';
+                            } else if (item.text) {
+                                allText += item.text + ' ';
+                            }
                         }
+                    } else if (block.data.caption) {
+                        // Some blocks have caption field
+                        allText += block.data.caption + ' ';
                     }
+                }
+                
+                // Stop early if we have enough words
+                const currentWords = allText.trim().split(/\s+/).filter(w => w.length > 0);
+                if (currentWords.length >= 3) {
+                    break;
                 }
             }
         }
         
         // Remove HTML tags and extra whitespace
-        allText = allText.replace(/<[^>]*>/g, '').trim();
+        allText = allText.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
         
         if (allText.length === 0) return;
         
         // Get first three words
-        const words = allText.split(/\s+/);
+        const words = allText.split(/\s+/).filter(w => w.length > 0);
+        if (words.length === 0) return;
+        
         const firstThreeWords = words.slice(0, 3).join(' ');
         
         if (firstThreeWords.length === 0) return;
+        
+        // Only update if the title has actually changed
+        if (currentTitle === firstThreeWords) return;
         
         // Update the title
         titleElement.value = firstThreeWords;
@@ -178,7 +207,6 @@ async function autoGenerateTitleFromContent(entryId, api) {
         // Mark that this entry has an auto-generated title
         autoTitleGenerated[entryId] = true;
         
-        // Save the new title (this will be done by auto-save)
         console.log(`Auto-generated title for entry ${entryId}: "${firstThreeWords}"`);
         
     } catch (error) {
