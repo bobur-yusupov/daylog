@@ -173,12 +173,6 @@ async function autoGenerateTitleFromContent(entryId, api) {
                         allText += block.data.caption + ' ';
                     }
                 }
-                
-                // Stop early if we have enough words
-                const currentWords = allText.trim().split(/\s+/).filter(w => w.length > 0);
-                if (currentWords.length >= 3) {
-                    break;
-                }
             }
         }
         
@@ -193,21 +187,18 @@ async function autoGenerateTitleFromContent(entryId, api) {
         
         const firstThreeWords = words.slice(0, 3).join(' ');
         
-        if (firstThreeWords.length === 0) return;
-        
         // Only update if the title has actually changed
         if (currentTitle === firstThreeWords) return;
         
-        // Update the title
-        titleElement.value = firstThreeWords;
-        if (titleElement.textContent !== undefined) {
+        // Update the title based on element type
+        if (titleElement.tagName === 'INPUT' || titleElement.tagName === 'TEXTAREA') {
+            titleElement.value = firstThreeWords;
+        } else {
             titleElement.textContent = firstThreeWords;
         }
         
         // Mark that this entry has an auto-generated title
         autoTitleGenerated[entryId] = true;
-        
-        console.log(`Auto-generated title for entry ${entryId}: "${firstThreeWords}"`);
         
     } catch (error) {
         console.error('Error auto-generating title:', error);
