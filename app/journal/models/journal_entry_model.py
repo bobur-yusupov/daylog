@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 from common.models import AbstractBaseModel
 from .tag_model import Tag
-from app.journal import utils
+from journal import utils
 
 
 class JournalEntry(AbstractBaseModel):

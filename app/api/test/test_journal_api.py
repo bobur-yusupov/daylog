@@ -46,7 +46,7 @@ class JournalAPITestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Tag.objects.count(), 1)
-        self.assertEqual(Tag.objects.first().name, "Test Tag")
+        self.assertEqual(Tag.objects.first().name, "test tag")  # Tag names are normalized to lowercase
         self.assertEqual(Tag.objects.first().user, self.user)
 
     def test_create_duplicate_tag(self):

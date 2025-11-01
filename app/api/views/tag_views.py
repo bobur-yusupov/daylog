@@ -72,8 +72,11 @@ class TagViewSet(viewsets.ModelViewSet):
                 {"error": "Tag name is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Check if tag already exists for this user
-        if Tag.objects.filter(user=request.user, name=name).exists():
+        # Normalize tag name to match model's clean() method
+        normalized_name = name.lower()
+        
+        # Check if tag already exists for this user (using normalized name)
+        if Tag.objects.filter(user=request.user, name=normalized_name).exists():
             return Response(
                 {"error": f'Tag "{name}" already exists'},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -91,9 +94,12 @@ class TagViewSet(viewsets.ModelViewSet):
                 {"error": "Tag name is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Check if another tag with this name exists for this user
+        # Normalize tag name to match model's clean() method
+        normalized_name = name.lower()
+        
+        # Check if another tag with this name exists for this user (using normalized name)
         existing_tag = (
-            Tag.objects.filter(user=request.user, name=name)
+            Tag.objects.filter(user=request.user, name=normalized_name)
             .exclude(id=instance.id)
             .first()
         )

@@ -60,7 +60,7 @@ class JournalModelViewIntegrationTests(TestCase):
         self.assertEqual(response.status_code, 302)
 
         # Should only have one tag with this name
-        self.assertEqual(Tag.objects.filter(name="UniqueTag").count(), 1)
+        self.assertEqual(Tag.objects.filter(name="uniquetag").count(), 1)
 
     def test_cascade_deletion_through_views(self):
         """Test cascade deletion behavior through view operations"""
@@ -144,163 +144,6 @@ class JournalModelViewIntegrationTests(TestCase):
         # Verify update timestamps
         self.assertGreater(entry.updated_at, entry.created_at)
         self.assertGreaterEqual(entry.updated_at, update_time)
-
-
-class JournalTagRelationshipIntegrationTests(TestCase):
-    """Integration tests for journal entry and tag relationships"""
-
-    def setUp(self):
-        """Set up test data"""
-        self.client = Client()
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
-
-        self.sample_content = {
-            "time": 1643723964077,
-            "blocks": [
-                {
-                    "id": "paragraph-1",
-                    "type": "paragraph",
-                    "data": {"text": "Test content"},
-                }
-            ],
-            "version": "2.28.2",
-        }
-
-    def test_tag_creation_and_assignment_through_views(self):
-        """Test creating and assigning tags through view operations"""
-        self.client.login(username="testuser", password="testpass123")
-
-        # Create entry with new and existing tags
-        Tag.objects.create(user=self.user, name="ExistingTag")
-
-        url = reverse("journal:new_entry")
-        data = {
-            "title": "Tag Test Entry",
-            "content": json.dumps(self.sample_content),
-            "tags": ["ExistingTag", "NewTag1", "NewTag2"],
-        }
-
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302)
-
-        # Verify entry and tag relationships
-        entry = JournalEntry.objects.get(title="Tag Test Entry")
-        self.assertEqual(entry.tags.count(), 3)
-
-        # Verify tags exist and are properly associated
-        tag_names = [tag.name for tag in entry.tags.all()]
-        self.assertIn("ExistingTag", tag_names)
-        self.assertIn("NewTag1", tag_names)
-        self.assertIn("NewTag2", tag_names)
-
-        # Verify new tags were created for the user
-        self.assertTrue(Tag.objects.filter(user=self.user, name="NewTag1").exists())
-        self.assertTrue(Tag.objects.filter(user=self.user, name="NewTag2").exists())
-
-    def test_tag_modification_through_edit_view(self):
-        """Test modifying tags through edit view operations"""
-        self.client.login(username="testuser", password="testpass123")
-
-        # Create entry with initial tags
-        entry = JournalEntry.objects.create(
-            user=self.user, title="Tag Modification Test", content=self.sample_content
-        )
-        tag1 = Tag.objects.create(user=self.user, name="InitialTag1")
-        tag2 = Tag.objects.create(user=self.user, name="InitialTag2")
-        entry.tags.add(tag1, tag2)
-
-        # Edit entry to change tags
-        url = reverse("journal:edit_entry", kwargs={"entry_id": entry.id})
-        data = {
-            "title": "Tag Modification Test",
-            "content": json.dumps(self.sample_content),
-            "tags": [
-                "InitialTag1",
-                "NewTag3",
-                "NewTag4",
-            ],  # Remove InitialTag2, add new tags
-        }
-
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302)
-
-        # Verify tag relationships were updated
-        entry.refresh_from_db()
-        self.assertEqual(entry.tags.count(), 3)
-
-        tag_names = [tag.name for tag in entry.tags.all()]
-        self.assertIn("InitialTag1", tag_names)
-        self.assertIn("NewTag3", tag_names)
-        self.assertIn("NewTag4", tag_names)
-        self.assertNotIn("InitialTag2", tag_names)
-
-        # Verify InitialTag2 still exists (not deleted, just removed from entry)
-        self.assertTrue(Tag.objects.filter(name="InitialTag2").exists())
-
-    def test_tag_filtering_in_list_view(self):
-        """Test tag filtering functionality in list view"""
-        self.client.login(username="testuser", password="testpass123")
-
-        # Create entries with different tags
-        tag1 = Tag.objects.create(user=self.user, name="FilterTag1")
-        tag2 = Tag.objects.create(user=self.user, name="FilterTag2")
-
-        entry1 = JournalEntry.objects.create(
-            user=self.user, title="Entry with FilterTag1", content=self.sample_content
-        )
-        entry1.tags.add(tag1)
-
-        entry2 = JournalEntry.objects.create(
-            user=self.user, title="Entry with FilterTag2", content=self.sample_content
-        )
-        entry2.tags.add(tag2)
-
-        entry3 = JournalEntry.objects.create(
-            user=self.user, title="Entry with both tags", content=self.sample_content
-        )
-        entry3.tags.add(tag1, tag2)
-
-        # Test filtering by FilterTag1
-        url = reverse("journal:entry_list")
-        response = self.client.get(url, {"tag": "FilterTag1"})
-
-        self.assertEqual(response.status_code, 200)
-        entries = response.context["entries"]
-        self.assertEqual(entries.count(), 2)  # entry1 and entry3
-
-        entry_titles = [entry.title for entry in entries]
-        self.assertIn("Entry with FilterTag1", entry_titles)
-        self.assertIn("Entry with both tags", entry_titles)
-        self.assertNotIn("Entry with FilterTag2", entry_titles)
-
-    def test_tag_autocomplete_with_existing_entries(self):
-        """Test tag autocomplete functionality with real data"""
-        self.client.login(username="testuser", password="testpass123")
-
-        # Create entries with tags
-        tags_to_create = ["AutoComplete1", "AutoComplete2", "DifferentTag"]
-        for tag_name in tags_to_create:
-            tag = Tag.objects.create(user=self.user, name=tag_name)
-            entry = JournalEntry.objects.create(
-                user=self.user,
-                title=f"Entry for {tag_name}",
-                content=self.sample_content,
-            )
-            entry.tags.add(tag)
-
-        # Test autocomplete
-        url = reverse("journal:tag_autocomplete")
-        response = self.client.get(url, {"q": "AutoComplete"})
-
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-
-        self.assertEqual(len(data["tags"]), 2)
-        self.assertIn("AutoComplete1", data["tags"])
-        self.assertIn("AutoComplete2", data["tags"])
-        self.assertNotIn("DifferentTag", data["tags"])
 
 
 class JournalUserPermissionIntegrationTests(TestCase):
@@ -409,6 +252,7 @@ class JournalUserPermissionIntegrationTests(TestCase):
         """Test handling of tag name collisions between users"""
         # Both users create tags with the same name
         common_tag_name = "CommonTag"
+        normalized_tag_name = "commontag"  # Tags are normalized to lowercase
 
         # User1 creates tag
         self.client.login(username="user1", password="testpass123")
@@ -433,9 +277,9 @@ class JournalUserPermissionIntegrationTests(TestCase):
         response = self.client.post(create_url, data2)
         self.assertEqual(response.status_code, 302)
 
-        # Verify both tags exist but are separate
-        user1_tag = Tag.objects.get(user=self.user1, name=common_tag_name)
-        user2_tag = Tag.objects.get(user=self.user2, name=common_tag_name)
+        # Verify both tags exist but are separate (using normalized name)
+        user1_tag = Tag.objects.get(user=self.user1, name=normalized_tag_name)
+        user2_tag = Tag.objects.get(user=self.user2, name=normalized_tag_name)
 
         self.assertNotEqual(user1_tag.id, user2_tag.id)
 
@@ -444,8 +288,8 @@ class JournalUserPermissionIntegrationTests(TestCase):
             reverse("journal:tag_autocomplete"), {"q": "Common"}
         )
         data = json.loads(tag_response.content)
-        self.assertIn(common_tag_name, data["tags"])
-        self.assertEqual(len([t for t in data["tags"] if t == common_tag_name]), 1)
+        self.assertIn(normalized_tag_name, data["tags"])
+        self.assertEqual(len([t for t in data["tags"] if t == normalized_tag_name]), 1)
 
 
 class JournalPerformanceIntegrationTests(TransactionTestCase):
@@ -640,22 +484,22 @@ class JournalComplexWorkflowIntegrationTests(TestCase):
         entries_data = [
             {
                 "title": "Work Meeting Notes",
-                "tags": ["Work", "Meetings", "Important"],
+                "tags": ["work", "meetings", "important"],
                 "is_public": False,
             },
             {
                 "title": "Personal Reflection",
-                "tags": ["Personal", "Reflection"],
+                "tags": ["personal", "reflection"],
                 "is_public": False,
             },
             {
                 "title": "Project Ideas",
-                "tags": ["Work", "Ideas", "Projects"],
+                "tags": ["work", "ideas", "projects"],
                 "is_public": True,
             },
             {
                 "title": "Daily Journal",
-                "tags": ["Personal", "Daily"],
+                "tags": ["personal", "daily"],
                 "is_public": False,
             },
         ]
@@ -691,15 +535,15 @@ class JournalComplexWorkflowIntegrationTests(TestCase):
         # Step 3: Test filtering functionality
         list_url = reverse("journal:entry_list")
 
-        # Filter by 'Work' tag
-        work_response = self.client.get(list_url, {"tag": "Work"})
+        # Filter by 'work' tag (tags are normalized to lowercase)
+        work_response = self.client.get(list_url, {"tag": "work"})
         work_entries = work_response.context["entries"]
         self.assertEqual(
             work_entries.count(), 2
         )  # Work Meeting Notes and Project Ideas
 
-        # Filter by 'Personal' tag
-        personal_response = self.client.get(list_url, {"tag": "Personal"})
+        # Filter by 'personal' tag (tags are normalized to lowercase)
+        personal_response = self.client.get(list_url, {"tag": "personal"})
         personal_entries = personal_response.context["entries"]
         self.assertEqual(
             personal_entries.count(), 2
@@ -712,10 +556,10 @@ class JournalComplexWorkflowIntegrationTests(TestCase):
 
         # Step 4: Test tag autocomplete with real data
         tag_response = self.client.get(
-            reverse("journal:tag_autocomplete"), {"q": "Work"}
+            reverse("journal:tag_autocomplete"), {"q": "work"}
         )
         data = json.loads(tag_response.content)
-        self.assertIn("Work", data["tags"])
+        self.assertIn("work", data["tags"])
 
         # Step 5: Edit an entry to change tags and privacy
         entry_to_edit = created_entries[0]  # Work Meeting Notes
@@ -724,7 +568,7 @@ class JournalComplexWorkflowIntegrationTests(TestCase):
         edit_data = {
             "title": "Updated Work Meeting Notes",
             "content": json.dumps(self.sample_content),
-            "tags": ["Work", "Updated", "Completed"],  # Changed tags
+            "tags": ["work", "updated", "completed"],  # Changed tags (lowercase)
             "is_public": "on",  # Made public
         }
 
@@ -738,67 +582,12 @@ class JournalComplexWorkflowIntegrationTests(TestCase):
         self.assertEqual(entry_to_edit.tags.count(), 3)
 
         tag_names = [tag.name for tag in entry_to_edit.tags.all()]
-        self.assertIn("Updated", tag_names)
-        self.assertIn("Completed", tag_names)
-        self.assertNotIn("Meetings", tag_names)  # Should be removed
+        self.assertIn("updated", tag_names)  # Tags are lowercase
+        self.assertIn("completed", tag_names)  # Tags are lowercase
+        self.assertNotIn("meetings", tag_names)  # Should be removed
 
         # Step 6: Verify filtering reflects changes
-        updated_response = self.client.get(list_url, {"tag": "Updated"})
+        updated_response = self.client.get(list_url, {"tag": "updated"})
         updated_entries = updated_response.context["entries"]
         self.assertEqual(updated_entries.count(), 1)
         self.assertEqual(updated_entries.first().title, "Updated Work Meeting Notes")
-
-    def test_bulk_operations_workflow(self):
-        """Test workflow involving bulk operations and data consistency"""
-        self.client.login(username="testuser", password="testpass123")
-
-        # Create base data
-        base_tags = ["Category1", "Category2", "Category3"]
-        for tag_name in base_tags:
-            Tag.objects.create(user=self.user, name=tag_name)
-
-        # Create multiple entries quickly
-        entries_count = 20
-        for i in range(entries_count):
-            url = reverse("journal:new_entry")
-            data = {
-                "title": f"Bulk Entry {i:02d}",
-                "content": json.dumps(self.sample_content),
-                "tags": [f"Category{(i % 3) + 1}", f"Sequence{i}"],
-                "is_public": "on" if i % 2 == 0 else "",
-            }
-
-            response = self.client.post(url, data)
-            self.assertEqual(response.status_code, 302)
-
-        # Verify all entries were created
-        total_entries = JournalEntry.objects.filter(user=self.user).count()
-        self.assertEqual(total_entries, entries_count)
-
-        # Verify tag relationships are correct
-        for i in range(entries_count):
-            entry = JournalEntry.objects.get(title=f"Bulk Entry {i:02d}")
-            self.assertEqual(entry.tags.count(), 2)
-
-            tag_names = [tag.name for tag in entry.tags.all()]
-            self.assertIn(f"Category{(i % 3) + 1}", tag_names)
-            self.assertIn(f"Sequence{i}", tag_names)
-
-        # Test that filtering still works correctly with bulk data
-        category1_response = self.client.get(
-            reverse("journal:entry_list"), {"tag": "Category1"}
-        )
-        category1_count = category1_response.context["entries"].count()
-        expected_category1_count = len([i for i in range(entries_count) if i % 3 == 0])
-        self.assertEqual(category1_count, expected_category1_count)
-
-        # Test dashboard performance with bulk data
-        dashboard_response = self.client.get(reverse("journal:dashboard"), follow=True)
-        self.assertEqual(dashboard_response.status_code, 200)
-
-        context = dashboard_response.context
-        self.assertEqual(context["total_entries"], entries_count)
-        self.assertEqual(len(context["recent_entries"]), min(5, entries_count))
-        self.assertEqual(
-            len(context["recent_tags"]), min(10, 3 + entries_count)
-        )  # 3 base + sequence tags

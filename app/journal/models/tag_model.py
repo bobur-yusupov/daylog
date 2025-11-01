@@ -33,7 +33,14 @@ class Tag(AbstractBaseModel):
     def clean(self):
         super().clean()
 
+        if self.name is None:
+            raise ValidationError({"name": _("Tag name cannot be empty.")})
+        
         self.name = self.name.strip().lower()
 
         if not self.name:
             raise ValidationError({"name": _("Tag name cannot be empty.")})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
