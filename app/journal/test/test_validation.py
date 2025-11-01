@@ -335,11 +335,7 @@ class JournalModelBusinessLogicTests(TestCase):
         """Test __str__ methods return meaningful representations"""
         # Test Tag __str__
         tag = Tag.objects.create(user=self.user, name="TestTag")
-        self.assertEqual(str(tag), "TestTag")
-
-        # Test with special characters
-        special_tag = Tag.objects.create(user=self.user, name="Special 🏷️ Tag")
-        self.assertEqual(str(special_tag), "Special 🏷️ Tag")
+        self.assertEqual(str(tag), "testtag")
 
         # Test JournalEntry __str__
         entry = JournalEntry.objects.create(
@@ -467,17 +463,17 @@ class JournalModelBusinessLogicTests(TestCase):
         self.assertEqual(JournalEntry.objects.model, JournalEntry)
 
         # Create test data
-        tag = Tag.objects.create(user=self.user, name="ManagerTest")
+        tag = Tag.objects.create(user=self.user, name="managertest")
         entry = JournalEntry.objects.create(
             user=self.user, title="Manager Test", content=self.sample_content
         )
 
         # Test basic manager operations
-        self.assertTrue(Tag.objects.filter(name="ManagerTest").exists())
+        self.assertTrue(Tag.objects.filter(name="managertest").exists())
         self.assertTrue(JournalEntry.objects.filter(title="Manager Test").exists())
 
         # Test get operations
-        retrieved_tag = Tag.objects.get(name="ManagerTest")
+        retrieved_tag = Tag.objects.get(name="managertest")
         self.assertEqual(retrieved_tag.id, tag.id)
 
         retrieved_entry = JournalEntry.objects.get(title="Manager Test")

@@ -260,8 +260,10 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
         # Add new tags
         for tag_name in tag_names:
             if tag_name.strip():
+                # Normalize tag name to match the model's clean() method
+                normalized_name = tag_name.strip().lower()
                 tag, created = Tag.objects.get_or_create(
-                    user=self.request.user, name=tag_name.strip()
+                    user=self.request.user, name=normalized_name
                 )
                 entry.tags.add(tag)
 
